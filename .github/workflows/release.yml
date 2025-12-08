@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25"
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run tests
+        run: go test -v -race ./...
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get tag
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ steps.tag.outputs.tag }}
+          body: |
+            ## Installation
+            ```bash
+            go get github.com/moq77111113/circuit@${{ steps.tag.outputs.tag }}
+            ```
+
+            See [CHANGELOG](https://github.com/moq77111113/circuit/blob/main/CHANGELOG.md) for details.
+          draft: false
+          prerelease: ${{ contains(steps.tag.outputs.tag, 'alpha') || contains(steps.tag.outputs.tag, 'beta') || contains(steps.tag.outputs.tag, 'rc') }}
