@@ -1,0 +1,11 @@
+server:
+  host: "localhost"
+  port: 8080
+  tls: false
+ui:
+  theme: "light"
+password: "secret-password"
+log_level: "info"
+max_connections: 50
+start_date: "2023-01-01"
+backup_time: "03:00"
