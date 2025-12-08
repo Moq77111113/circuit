@@ -10,9 +10,9 @@ import (
 	"github.com/moq77111113/circuit/internal/schema"
 )
 
-// UI creates an HTTP handler for the config UI.
+// From creates an HTTP handler for the config UI.
 // cfg must be a pointer to a struct with circuit tags.
-func UI(cfg any, opts ...Option) (http.Handler, error) {
+func From(cfg any, opts ...Option) (http.Handler, error) {
 	if reflect.TypeOf(cfg).Kind() != reflect.Pointer {
 		return nil, fmt.Errorf("config must be a pointer")
 	}

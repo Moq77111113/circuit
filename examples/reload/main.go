@@ -54,7 +54,7 @@ func main() {
 	go app.Run()
 
 	// Setup Circuit UI
-	handler, err := circuit.UI(&app.config,
+	handler, err := circuit.From(&app.config,
 		circuit.WithPath("config.yaml"),
 		circuit.WithTitle("Reload Example"),
 		circuit.OnApply(func() {
@@ -67,5 +67,7 @@ func main() {
 	}
 
 	println("Reload example running on :8080")
-	http.ListenAndServe(":8080", handler)
+	if err := http.ListenAndServe(":8080", handler); err != nil {
+		panic(err)
+	}
 }

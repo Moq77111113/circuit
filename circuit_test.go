@@ -28,7 +28,7 @@ func TestUI_GET(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler, err := UI(&cfg, WithPath(path))
+	handler, err := From(&cfg, WithPath(path))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func TestUI_POST(t *testing.T) {
 	}
 
 	var callbackCalled atomic.Bool
-	h, err := UI(&cfg, WithPath(path), OnApply(func() {
+	h, err := From(&cfg, WithPath(path), OnApply(func() {
 		callbackCalled.Store(true)
 	}))
 	if err != nil {
@@ -114,7 +114,7 @@ func TestUI_POST(t *testing.T) {
 
 func TestUI_NoPath(t *testing.T) {
 	cfg := TestConfig{}
-	_, err := UI(&cfg)
+	_, err := From(&cfg)
 	if err == nil {
 		t.Fatal("expected error when path is not provided")
 	}
@@ -122,7 +122,7 @@ func TestUI_NoPath(t *testing.T) {
 
 func TestUI_InvalidPath(t *testing.T) {
 	cfg := TestConfig{}
-	_, err := UI(&cfg, WithPath("/nonexistent/config.yaml"))
+	_, err := From(&cfg, WithPath("/nonexistent/config.yaml"))
 	if err == nil {
 		t.Fatal("expected error for invalid path")
 	}
@@ -138,7 +138,7 @@ func TestUI_WithTitle(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handler, err := UI(&cfg, WithPath(path), WithTitle("My Settings"))
+	handler, err := From(&cfg, WithPath(path), WithTitle("My Settings"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestUI_WithTitle(t *testing.T) {
 
 func TestUI_NonPointer(t *testing.T) {
 	cfg := TestConfig{}
-	_, err := UI(cfg, WithPath("/tmp/config.yaml"))
+	_, err := From(cfg, WithPath("/tmp/config.yaml"))
 	if err == nil {
 		t.Fatal("expected error for non-pointer config")
 	}

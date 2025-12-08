@@ -15,7 +15,7 @@ type Config struct {
 func main() {
 	var cfg Config
 
-	handler, err := circuit.UI(&cfg,
+	handler, err := circuit.From(&cfg,
 		circuit.WithPath("config.yaml"),
 		circuit.WithTitle("Basic Settings"),
 	)
@@ -24,5 +24,7 @@ func main() {
 	}
 
 	println("Basic example running on :8080")
-	http.ListenAndServe(":8080", handler)
+	if err := http.ListenAndServe(":8080", handler); err != nil {
+		panic(err)
+	}
 }
