@@ -10,8 +10,19 @@ import (
 	"github.com/moq77111113/circuit/internal/schema"
 )
 
-// From creates an HTTP handler for the config UI.
-// cfg must be a pointer to a struct with circuit tags.
+// From creates and returns an `http.Handler` that serves a small web UI for
+// inspecting and editing a YAML-backed configuration value.
+//
+// From validates that `cfg` is a pointer to a struct (used to extract schema
+// information from struct tags), applies any provided Option values and then
+// attempts to load the initial configuration from the path supplied via
+// `WithPath`. If successful it starts a file watcher that reloads the
+// configuration on changes and returns a handler wired to that loader.
+//
+// Common errors:
+//   - when `cfg` is not a pointer
+//   - when no path is provided (use `WithPath`)
+//   - when schema extraction, initial load, or watcher setup fails
 func From(cfg any, opts ...Option) (http.Handler, error) {
 	if reflect.TypeOf(cfg).Kind() != reflect.Pointer {
 		return nil, fmt.Errorf("config must be a pointer")

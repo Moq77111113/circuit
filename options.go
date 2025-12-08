@@ -1,6 +1,6 @@
 package circuit
 
-// Option configures the circuit UI.
+// Option configures behavior passed to `From`.
 type Option func(*config)
 
 type config struct {
@@ -10,28 +10,32 @@ type config struct {
 	onApply func()
 }
 
-// WithPath sets the path to the YAML config file.
+// WithPath sets the filesystem path to the YAML configuration file that the
+// loader will read and watch. This option is required for `From` to succeed.
 func WithPath(path string) Option {
 	return func(c *config) {
 		c.path = path
 	}
 }
 
-// WithTitle sets a custom title for the UI page.
+// WithTitle sets the title displayed in the UI page.
 func WithTitle(title string) Option {
 	return func(c *config) {
 		c.title = title
 	}
 }
 
-// OnApply sets a callback to be called after config changes.
+// OnApply registers a callback that is invoked after a successful reload of
+// the configuration (for example, when the watched YAML file changes and the
+// new values are parsed). The callback runs asynchronously from the watcher.
 func OnApply(fn func()) Option {
 	return func(c *config) {
 		c.onApply = fn
 	}
 }
 
-// WithBrand sets whether to show the Circuit brand in the UI footer. (default: true)
+// WithBrand controls whether the Circuit footer/brand is shown in the UI.
+// The default is true.
 func WithBrand(b bool) Option {
 	return func(c *config) {
 		c.brand = b
