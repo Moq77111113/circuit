@@ -2,7 +2,7 @@ package ui
 
 import (
 	g "maragu.dev/gomponents"
-	. "maragu.dev/gomponents/components"
+	c "maragu.dev/gomponents/components"
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/schema"
@@ -13,7 +13,7 @@ func Page(s schema.Schema, values map[string]any, title string, brand bool) g.No
 		title = s.Name + " Configuration"
 	}
 
-	return HTML5(HTML5Props{
+	return c.HTML5(c.HTML5Props{
 		Title:    title,
 		Language: "en",
 		Head: []g.Node{

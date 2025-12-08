@@ -22,7 +22,9 @@ func Watch(path string, callback func()) (*Watcher, error) {
 
 	err = fw.Add(path)
 	if err != nil {
-		fw.Close()
+		if closeErr := fw.Close(); closeErr != nil {
+			return nil, fmt.Errorf("watch file: %w; close watcher: %w", err, closeErr)
+		}
 		return nil, fmt.Errorf("watch file: %w", err)
 	}
 
@@ -40,7 +42,9 @@ func Watch(path string, callback func()) (*Watcher, error) {
 // Stop stops watching the file and cleans up resources.
 func (w *Watcher) Stop() {
 	close(w.done)
-	w.watcher.Close()
+	if err := w.watcher.Close(); err != nil {
+		_ = err
+	}
 }
 
 func (w *Watcher) run() {

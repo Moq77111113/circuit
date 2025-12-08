@@ -142,7 +142,7 @@ func TestExtract_NonPointer(t *testing.T) {
 }
 
 func TestExtract_NonStruct(t *testing.T) {
-	var s string = "test"
+	s := "test"
 	_, err := Extract(&s)
 	if err == nil {
 		t.Fatal("expected error when passing non-struct")
