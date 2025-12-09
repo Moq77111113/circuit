@@ -1,0 +1,141 @@
+app_name: Production API
+version: v2.1.0
+
+server:
+  host: 0.0.0.0
+  port: 8443
+  tls: true
+  rate_limiting:
+    enabled: true
+    requests_per_sec: 100
+    burst_size: 20
+    whitelist:
+      - 192.168.1.0/24
+      - 10.0.0.0/8
+  cors:
+    enabled: true
+    allowed_origins:
+      - https://app.example.com
+      - https://admin.example.com
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+    allowed_headers:
+      - Content-Type
+      - Authorization
+  middlewares:
+    - name: Logger
+      enabled: true
+      order: 1
+    - name: RequestID
+      enabled: true
+      order: 2
+    - name: Recovery
+      enabled: true
+      order: 3
+
+database:
+  driver: postgres
+  host: db.production.internal
+  port: 5432
+  name: myapp
+  username: api_user
+  password: secret123
+  pool:
+    max_open_conns: 25
+    max_idle_conns: 10
+    conn_max_lifetime: 300
+  replicas:
+    - name: replica-1
+      host: db-replica-1.internal
+      port: 5432
+      read_only: true
+      priority: 100
+    - name: replica-2
+      host: db-replica-2.internal
+      port: 5432
+      read_only: true
+      priority: 80
+  maintenance:
+    enabled: true
+    backup_enabled: true
+    backup_hour: 2
+    retention_days: 30
+    alert_emails:
+      - ops@example.com
+      - dba@example.com
+
+services:
+  - name: User Service
+    enabled: true
+    type: http
+    endpoints:
+      - path: /api/v1/users
+        method: GET
+        rate_limit: 100
+        timeout: 30
+        require_auth: true
+        allowed_roles:
+          - admin
+          - user
+      - path: /api/v1/users
+        method: POST
+        rate_limit: 50
+        timeout: 60
+        require_auth: true
+        allowed_roles:
+          - admin
+    auth:
+      type: jwt
+      secret: jwt-secret-key
+      token_ttl: 60
+      providers:
+        - google
+        - github
+    monitoring:
+      enabled: true
+      metrics_port: 9090
+      health_path: /health
+      log_level: info
+      tracing_enabled: true
+      alert_rules:
+        - name: High Error Rate
+          metric: http_errors_total
+          threshold: 100
+          enabled: true
+        - name: Slow Response Time
+          metric: http_request_duration_seconds
+          threshold: 2.0
+          enabled: true
+  - name: Payment Service
+    enabled: true
+    type: grpc
+    endpoints:
+      - path: /payment.PaymentService/ProcessPayment
+        method: POST
+        rate_limit: 10
+        timeout: 120
+        require_auth: true
+        allowed_roles:
+          - admin
+          - payment_processor
+    auth:
+      type: apikey
+      secret: payment-api-key
+      token_ttl: 1440
+      providers:
+        - stripe
+        - paypal
+    monitoring:
+      enabled: true
+      metrics_port: 9091
+      health_path: /healthz
+      log_level: warn
+      tracing_enabled: true
+      alert_rules:
+        - name: Payment Failures
+          metric: payment_failures_total
+          threshold: 5
+          enabled: true

@@ -7,7 +7,7 @@ import (
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/reload"
 	"github.com/moq77111113/circuit/internal/schema"
-	"github.com/moq77111113/circuit/internal/ui"
+	"github.com/moq77111113/circuit/internal/ui/layout"
 )
 
 // Handler serves the config UI over HTTP.
@@ -49,7 +49,7 @@ func (h *Handler) get(w http.ResponseWriter, _ *http.Request) {
 		values = form.ExtractValues(h.cfg, h.schema)
 	})
 
-	page := ui.Page(h.schema, values, h.title, h.brand)
+	page := layout.Page(h.schema, values, h.title, h.brand)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := page.Render(w); err != nil {
