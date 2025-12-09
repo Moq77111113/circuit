@@ -65,7 +65,7 @@ func TestUI_POST(t *testing.T) {
 	}
 
 	var callbackCalled atomic.Bool
-	h, err := From(&cfg, WithPath(path), OnApply(func() {
+	h, err := From(&cfg, WithPath(path), WithOnChange(func(e ChangeEvent) {
 		callbackCalled.Store(true)
 	}))
 	if err != nil {
@@ -84,8 +84,8 @@ func TestUI_POST(t *testing.T) {
 
 	h.ServeHTTP(rec, req)
 
-	if rec.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rec.Code)
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected status 303, got %d", rec.Code)
 	}
 
 	// Wait for reload to propagate

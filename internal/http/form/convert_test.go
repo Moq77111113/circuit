@@ -1,4 +1,4 @@
-package http
+package form
 
 import (
 	"net/url"
@@ -25,7 +25,7 @@ func TestExtractValues(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	values := extractValues(&cfg, s)
+	values := ExtractValues(&cfg, s)
 
 	if values["Name"] != "test" {
 		t.Errorf("expected Name=test, got %v", values["Name"])
@@ -48,7 +48,7 @@ func TestApplyForm_String(t *testing.T) {
 	form := url.Values{}
 	form.Set("Name", "newname")
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func TestApplyForm_Int(t *testing.T) {
 	form := url.Values{}
 	form.Set("Port", "9000")
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestApplyForm_IntEmpty(t *testing.T) {
 	form := url.Values{}
 	form.Set("Port", "")
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +108,7 @@ func TestApplyForm_IntInvalid(t *testing.T) {
 	form := url.Values{}
 	form.Set("Port", "invalid")
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err == nil {
 		t.Error("expected error for invalid int")
 	}
@@ -124,7 +124,7 @@ func TestApplyForm_Bool(t *testing.T) {
 	form := url.Values{}
 	form.Set("Debug", "on")
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +144,7 @@ func TestApplyForm_BoolOff(t *testing.T) {
 	form := url.Values{}
 	// Debug not set = checkbox unchecked
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +166,7 @@ func TestApplyForm_Multiple(t *testing.T) {
 	form.Set("Port", "3000")
 	form.Set("Debug", "on")
 
-	err = applyForm(&cfg, s, form)
+	err = Apply(&cfg, s, form)
 	if err != nil {
 		t.Fatal(err)
 	}

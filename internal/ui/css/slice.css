@@ -1,0 +1,104 @@
+.slice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-md);
+}
+
+.slice__empty {
+  padding: var(--s-md);
+  background: var(--c-surface-alt);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--r-sm);
+  color: var(--c-text-tertiary);
+  text-align: center;
+  font-size: var(--fs-sm);
+}
+
+.slice__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+  padding: var(--s-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+}
+
+@media (min-width: 768px) {
+  .slice__item {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.slice__item input,
+.slice__item .field {
+  flex: 1;
+  margin: 0;
+}
+
+.slice__struct {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+  flex: 1;
+}
+
+.slice__struct-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+}
+
+.slice__struct-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--c-text-secondary);
+}
+
+.slice__remove-button {
+  height: 32px;
+  padding: 0 var(--s-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  color: var(--c-text-secondary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .slice__remove-button {
+    width: auto;
+  }
+}
+
+.slice__remove-button:hover {
+  background: var(--c-danger);
+  border-color: var(--c-danger);
+  color: var(--c-surface);
+  transform: translateY(-1px);
+}
+
+.slice__add-btn {
+  padding: var(--s-xs) var(--s-sm);
+  background: var(--c-text-primary);
+  border: 1px solid var(--c-text-primary);
+  border-radius: var(--r-sm);
+  color: var(--c-bg);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  align-self: flex-start;
+}
+
+.slice__add-btn:hover {
+  background: var(--c-text-secondary);
+  border-color: var(--c-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}

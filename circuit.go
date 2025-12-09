@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	internalhttp "github.com/moq77111113/circuit/internal/http"
+	"github.com/moq77111113/circuit/internal/http/handler"
 	"github.com/moq77111113/circuit/internal/reload"
 	"github.com/moq77111113/circuit/internal/schema"
 )
@@ -29,7 +29,8 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 	}
 
 	conf := &config{
-		brand: true,
+		brand:      true,
+		autoReload: true,
 	}
 	for _, opt := range opts {
 		opt(conf)
@@ -44,10 +45,12 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		return nil, fmt.Errorf("extract schema: %w", err)
 	}
 
-	loader, err := reload.Load(conf.path, cfg, conf.onApply)
+	loader, err := reload.Load(conf.path, cfg, conf.onChange, conf.autoReload)
 	if err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
 
-	return internalhttp.New(s, cfg, conf.path, conf.title, conf.brand, loader), nil
+	h := handler.New(s, cfg, conf.path, conf.title, conf.brand, loader)
+
+	return h, nil
 }

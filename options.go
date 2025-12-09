@@ -4,10 +4,11 @@ package circuit
 type Option func(*config)
 
 type config struct {
-	path    string
-	title   string
-	brand   bool
-	onApply func()
+	path       string
+	title      string
+	brand      bool
+	onChange   OnChange
+	autoReload bool
 }
 
 // WithPath sets the filesystem path to the YAML configuration file that the
@@ -25,19 +26,27 @@ func WithTitle(title string) Option {
 	}
 }
 
-// OnApply registers a callback that is invoked after a successful reload of
-// the configuration (for example, when the watched YAML file changes and the
-// new values are parsed). The callback runs asynchronously from the watcher.
-func OnApply(fn func()) Option {
-	return func(c *config) {
-		c.onApply = fn
-	}
-}
-
 // WithBrand controls whether the Circuit footer/brand is shown in the UI.
 // The default is true.
 func WithBrand(b bool) Option {
 	return func(c *config) {
 		c.brand = b
+	}
+}
+
+// WithOnChange registers a callback for configuration change events.
+// The callback receives a ChangeEvent indicating the source of the change.
+func WithOnChange(fn OnChange) Option {
+	return func(c *config) {
+		c.onChange = fn
+	}
+}
+
+// WithAutoReload controls whether file watching is enabled.
+// When true (default), changes to the YAML file trigger automatic reload.
+// When false, file watching is disabled and reloads must be manual.
+func WithAutoReload(enable bool) Option {
+	return func(c *config) {
+		c.autoReload = enable
 	}
 }

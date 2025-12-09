@@ -16,8 +16,8 @@ var tagHandlers = map[string]func(*Field, string){
 			kv := strings.SplitN(opt, "=", 2)
 			if len(kv) == 2 {
 				f.Options = append(f.Options, Option{
-					Label: strings.TrimSpace(kv[0]),
-					Value: strings.TrimSpace(kv[1]),
+					Value: strings.TrimSpace(kv[0]),
+					Label: strings.TrimSpace(kv[1]),
 				})
 			} else {
 				val := strings.TrimSpace(kv[0])

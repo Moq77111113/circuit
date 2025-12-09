@@ -1,4 +1,4 @@
-package http
+package handler
 
 import (
 	"net/http"
@@ -35,7 +35,7 @@ func TestHandler_GET(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil)
+	loader, err := reload.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func TestHandler_POST(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil)
+	loader, err := reload.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,8 +95,8 @@ func TestHandler_POST(t *testing.T) {
 
 	h.ServeHTTP(rec, req)
 
-	if rec.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rec.Code)
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected status 303, got %d", rec.Code)
 	}
 
 	// Wait for reload
@@ -131,7 +131,7 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil)
+	loader, err := reload.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}

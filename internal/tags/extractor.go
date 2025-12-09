@@ -28,7 +28,6 @@ func extractFields(rt reflect.Type) []Field {
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
 
-		// Skip unexported fields
 		if field.PkgPath != "" {
 			continue
 		}
@@ -40,26 +39,42 @@ func extractFields(rt reflect.Type) []Field {
 		}
 
 		fieldType := dereferenceType(field.Type)
+		elemType, isSlice := elementType(fieldType)
 
-		f := Field{
-			Name: field.Name,
-			Type: fieldType.Kind().String(),
+		if isSlice {
+			fieldType = elemType
 		}
 
-		switch fieldType.Kind() {
-		case reflect.Bool:
-			f.InputType = TypeCheckbox
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
-			reflect.Float32, reflect.Float64:
-			f.InputType = TypeNumber
-		case reflect.String:
-			f.InputType = TypeText
+		f := Field{
+			Name:        field.Name,
+			IsSlice:     isSlice,
+			Type:        fieldType.Kind().String(),
+			ElementType: fieldType.Kind().String(),
 		}
 
 		if fieldType.Kind() == reflect.Struct && fieldType.Name() != "Time" {
 			f.Fields = extractFields(fieldType)
-			f.InputType = TypeSection
+			if isSlice {
+				f.Type = "slice"
+			} else {
+				f.Type = fieldType.Kind().String()
+				f.InputType = TypeSection
+			}
+		} else {
+			if isSlice {
+				f.Type = "slice"
+			}
+
+			switch fieldType.Kind() {
+			case reflect.Bool:
+				f.InputType = TypeCheckbox
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+				reflect.Float32, reflect.Float64:
+				f.InputType = TypeNumber
+			case reflect.String:
+				f.InputType = TypeText
+			}
 		}
 
 		parseTag(tag, &f)
