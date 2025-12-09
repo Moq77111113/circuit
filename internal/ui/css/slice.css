@@ -44,18 +44,6 @@
   flex: 1;
 }
 
-.slice__struct-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-xs);
-}
-
-.slice__struct-label {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  color: var(--c-text-secondary);
-}
-
 .slice__remove-button {
   height: 32px;
   padding: 0 var(--s-md);
