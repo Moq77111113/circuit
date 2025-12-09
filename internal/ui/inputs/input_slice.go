@@ -2,6 +2,7 @@ package inputs
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/moq77111113/circuit/internal/tags"
 	g "maragu.dev/gomponents"
@@ -36,6 +37,28 @@ func Slice(field tags.Field, value any) g.Node {
 }
 
 func renderSliceItem(field tags.Field, index int, value any) g.Node {
+	var content g.Node
+
+	if len(field.Fields) > 0 {
+		content = renderStructItem(field, index, value)
+	} else {
+		content = renderPrimitiveItem(field, index, value)
+	}
+
+	return h.Div(
+		h.Class("slice__item"),
+		content,
+		h.Button(
+			h.Type("submit"),
+			h.Name("action"),
+			h.Value(fmt.Sprintf("remove:%s:%d", field.Name, index)),
+			h.Class("slice__remove-button"),
+			g.Text("Remove"),
+		),
+	)
+}
+
+func renderPrimitiveItem(field tags.Field, index int, value any) g.Node {
 	indexedName := fmt.Sprintf("%s.%d", field.Name, index)
 	indexedField := tags.Field{
 		Name:      indexedName,
@@ -47,28 +70,71 @@ func renderSliceItem(field tags.Field, index int, value any) g.Node {
 		Step:      field.Step,
 	}
 
-	var input g.Node
 	switch field.InputType {
 	case tags.TypeText:
-		input = Text(indexedField, value)
+		return Text(indexedField, value)
 	case tags.TypeNumber:
-		input = Number(indexedField, value)
+		return Number(indexedField, value)
 	case tags.TypeCheckbox:
-		input = Checkbox(indexedField, value)
+		return Checkbox(indexedField, value)
 	default:
-		input = Text(indexedField, value)
+		return Text(indexedField, value)
 	}
-
-	return h.Div(
-		h.Class("slice__item"),
-		input,
-		h.Button(
-			h.Type("submit"),
-			h.Name("action"),
-			h.Value(fmt.Sprintf("remove:%s:%d", field.Name, index)),
-			h.Class("slice__remove-btn"),
-			g.Text("Remove"),
-		),
-	)
 }
 
+func renderStructItem(field tags.Field, index int, value any) g.Node {
+	var fields []g.Node
+	for _, subfield := range field.Fields {
+		indexedName := fmt.Sprintf("%s.%d.%s", field.Name, index, subfield.Name)
+		indexedField := subfield
+		indexedField.Name = indexedName
+
+		subval := extractStructField(value, subfield.Name)
+
+		var input g.Node
+		switch subfield.InputType {
+		case tags.TypeText:
+			input = Text(indexedField, subval)
+		case tags.TypeNumber:
+			input = Number(indexedField, subval)
+		case tags.TypeCheckbox:
+			input = Checkbox(indexedField, subval)
+		default:
+			input = Text(indexedField, subval)
+		}
+
+		fields = append(fields, h.Div(
+			h.Class("slice__struct-field"),
+			h.Label(
+				h.For(indexedName),
+				h.Class("slice__struct-label"),
+				g.Text(subfield.Name),
+			),
+			input,
+		))
+	}
+
+	return h.Div(h.Class("slice__struct"), g.Group(fields))
+}
+
+func extractStructField(v any, fieldName string) any {
+	if v == nil {
+		return nil
+	}
+
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Pointer {
+		rv = rv.Elem()
+	}
+
+	if rv.Kind() != reflect.Struct {
+		return nil
+	}
+
+	fv := rv.FieldByName(fieldName)
+	if !fv.IsValid() {
+		return nil
+	}
+
+	return fv.Interface()
+}

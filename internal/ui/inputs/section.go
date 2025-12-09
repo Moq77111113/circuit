@@ -6,7 +6,7 @@ import (
 )
 
 func Section(title string, children []g.Node) g.Node {
-	return h.Div(
+	return h.Section(
 		h.ID("section-"+title),
 		h.Class("section"),
 		h.H3(h.Class("section__title"), g.Text(title)),

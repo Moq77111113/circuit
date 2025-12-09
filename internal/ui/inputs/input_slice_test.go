@@ -12,7 +12,7 @@ import (
 func renderToString(node any) string {
 	var buf bytes.Buffer
 	if n, ok := node.(interface{ Render(io.Writer) error }); ok {
-		n.Render(&buf)
+		_ = n.Render(&buf)
 	}
 	return buf.String()
 }

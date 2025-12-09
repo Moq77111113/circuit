@@ -57,6 +57,9 @@ func renderInput(field tags.Field, value any) g.Node {
 	if field.InputType == tags.TypeSection {
 		return renderSection(field, value)
 	}
+	if field.IsSlice {
+		return inputs.Slice(field, value)
+	}
 	if renderer, ok := renderers[field.InputType]; ok {
 		return renderer(field, value)
 	}

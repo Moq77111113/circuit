@@ -20,7 +20,11 @@ func ExtractValues(cfg any, s schema.Schema) map[string]any {
 			continue
 		}
 
-		values[field.Name] = fv.Interface()
+		val := fv.Interface()
+		if fv.Kind() == reflect.Pointer && !fv.IsNil() {
+			val = fv.Elem().Interface()
+		}
+		values[field.Name] = val
 	}
 
 	return values

@@ -187,7 +187,7 @@ func TestExtract_AdvancedTags(t *testing.T) {
 	if len(category.Options) != 2 {
 		t.Fatalf("expected 2 options, got %d", len(category.Options))
 	}
-	if category.Options[0].Label != "A" || category.Options[0].Value != "Option A" {
+	if category.Options[0].Value != "A" || category.Options[0].Label != "Option A" {
 		t.Errorf("expected option A=Option A, got %v", category.Options[0])
 	}
 
@@ -198,7 +198,7 @@ func TestExtract_AdvancedTags(t *testing.T) {
 	if len(gender.Options) != 2 {
 		t.Fatalf("expected 2 options, got %d", len(gender.Options))
 	}
-	if gender.Options[1].Label != "F" || gender.Options[1].Value != "Female" {
+	if gender.Options[1].Value != "F" || gender.Options[1].Label != "Female" {
 		t.Errorf("expected option F=Female, got %v", gender.Options[1])
 	}
 }

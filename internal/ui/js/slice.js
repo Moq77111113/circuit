@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         input.value = '';
       }
 
-      const removeBtn = clone.querySelector('.slice__remove-btn');
+      const removeBtn = clone.querySelector('.slice__remove-button');
       if (removeBtn) {
         const currentIndex = parseInt(removeBtn.value.split(':')[2]);
         const newIndex = currentIndex + 1;
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     slice.addEventListener('click', function(e) {
-      if (e.target.classList.contains('slice__remove-btn')) {
+      if (e.target.classList.contains('slice__remove-button')) {
         e.preventDefault();
         const item = e.target.closest('.slice__item');
         if (item) {

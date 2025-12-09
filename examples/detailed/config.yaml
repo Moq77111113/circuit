@@ -1,11 +1,24 @@
 server:
-  host: "localhost"
+  host: localhost
   port: 8080
   tls: false
 ui:
-  theme: "light"
-password: "secret-password"
-log_level: "info"
+  theme: light
+password: admin123
+log_level: info
 max_connections: 50
-start_date: "2023-01-01"
+start_date: "2025-01-01"
 backup_time: "03:00"
+allowed_ips:
+  - 127.0.0.1
+  - 192.168.1.0/24
+blocked_ports:
+  - 22
+  - 23
+  - 3389
+rules:
+  - name: Rate Limit
+    active: true
+  - name: IP Blocking
+    active: false
+admin_user: admin
