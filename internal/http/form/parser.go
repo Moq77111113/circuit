@@ -1,4 +1,4 @@
-package http
+package form
 
 import (
 	"net/url"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func parseIndexedField(form url.Values, fieldName string) []string {
+func ParseIndexedField(form url.Values, fieldName string) []string {
 	prefix := fieldName + "."
 	indices := make(map[int]string)
 	keys := []int{}

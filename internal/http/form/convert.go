@@ -1,25 +1,16 @@
-package http
+package form
 
 import (
 	"fmt"
 	"net/url"
 	"reflect"
-	"strconv"
 
 	"github.com/moq77111113/circuit/internal/schema"
 	"github.com/moq77111113/circuit/internal/tags"
 )
 
-type valueApplier func(reflect.Value, string) error
-
-var appliers = map[string]valueApplier{
-	"string": applyString,
-	"int":    applyInt,
-	"bool":   applyBool,
-}
-
-// extractValues reads field values from a config struct.
-func extractValues(cfg any, s schema.Schema) map[string]any {
+// ExtractValues reads field values from a config struct.
+func ExtractValues(cfg any, s schema.Schema) map[string]any {
 	values := make(map[string]any)
 	rv := reflect.ValueOf(cfg).Elem()
 
@@ -36,7 +27,7 @@ func extractValues(cfg any, s schema.Schema) map[string]any {
 }
 
 // applyForm updates a config struct from form data.
-func applyForm(cfg any, s schema.Schema, form url.Values) error {
+func Apply(cfg any, s schema.Schema, form url.Values) error {
 	rv := reflect.ValueOf(cfg).Elem()
 	return applyValues(rv, s.Fields, form)
 }
@@ -55,6 +46,13 @@ func applyValues(rv reflect.Value, fields []tags.Field, form url.Values) error {
 			continue
 		}
 
+		if field.IsSlice {
+			if err := applySlice(fv, field, form); err != nil {
+				return fmt.Errorf("%s: %w", field.Name, err)
+			}
+			continue
+		}
+
 		applier, exists := appliers[field.Type]
 		if !exists {
 			continue
@@ -68,27 +66,22 @@ func applyValues(rv reflect.Value, fields []tags.Field, form url.Values) error {
 	return nil
 }
 
-func applyString(fv reflect.Value, value string) error {
-	fv.SetString(value)
-	return nil
-}
+func applySlice(fv reflect.Value, field tags.Field, form url.Values) error {
+	values := ParseIndexedField(form, field.Name)
 
-func applyInt(fv reflect.Value, value string) error {
-	if value == "" {
-		fv.SetInt(0)
-		return nil
+	newSlice := reflect.MakeSlice(fv.Type(), len(values), len(values))
+
+	applier, exists := appliers[field.ElementType]
+	if !exists {
+		return fmt.Errorf("no applier for type %s", field.ElementType)
 	}
 
-	val, err := strconv.ParseInt(value, 10, 64)
-	if err != nil {
-		return fmt.Errorf("invalid int: %w", err)
+	for i, val := range values {
+		if err := applier(newSlice.Index(i), val); err != nil {
+			return fmt.Errorf("index %d: %w", i, err)
+		}
 	}
 
-	fv.SetInt(val)
-	return nil
-}
-
-func applyBool(fv reflect.Value, value string) error {
-	fv.SetBool(value == "on")
+	fv.Set(newSlice)
 	return nil
 }

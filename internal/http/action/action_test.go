@@ -1,4 +1,4 @@
-package http
+package action
 
 import (
 	"net/url"
@@ -10,7 +10,7 @@ func TestParseAction_Save(t *testing.T) {
 		"action": {"save"},
 	}
 
-	action := parseAction(form)
+	action := Parse(form)
 
 	if action.Type != ActionSave {
 		t.Errorf("expected action type %s, got %s", ActionSave, action.Type)
@@ -22,7 +22,7 @@ func TestParseAction_Add(t *testing.T) {
 		"action": {"add:tags"},
 	}
 
-	action := parseAction(form)
+	action := Parse(form)
 
 	if action.Type != ActionAdd {
 		t.Errorf("expected action type %s, got %s", ActionAdd, action.Type)
@@ -37,7 +37,7 @@ func TestParseAction_Remove(t *testing.T) {
 		"action": {"remove:items:2"},
 	}
 
-	action := parseAction(form)
+	action := Parse(form)
 
 	if action.Type != ActionRemove {
 		t.Errorf("expected action type %s, got %s", ActionRemove, action.Type)
@@ -55,7 +55,7 @@ func TestParseAction_InvalidIndex(t *testing.T) {
 		"action": {"remove:items:invalid"},
 	}
 
-	action := parseAction(form)
+	action := Parse(form)
 
 	if action.Type != ActionSave {
 		t.Errorf("expected fallback to save action, got %s", action.Type)
@@ -65,7 +65,7 @@ func TestParseAction_InvalidIndex(t *testing.T) {
 func TestParseAction_Empty(t *testing.T) {
 	form := url.Values{}
 
-	action := parseAction(form)
+	action := Parse(form)
 
 	if action.Type != ActionSave {
 		t.Errorf("expected default save action, got %s", action.Type)
@@ -90,7 +90,7 @@ func TestParseAction_Malformed(t *testing.T) {
 				"action": {tt.value},
 			}
 
-			action := parseAction(form)
+			action := Parse(form)
 
 			if action.Type != ActionSave {
 				t.Errorf("expected fallback to save for %q, got %s", tt.value, action.Type)

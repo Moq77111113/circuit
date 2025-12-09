@@ -1,4 +1,4 @@
-package http
+package form
 
 import (
 	"net/url"
@@ -13,7 +13,7 @@ func TestParseIndexedField_StringSlice(t *testing.T) {
 		"tags.2": {"python"},
 	}
 
-	result := parseIndexedField(form, "tags")
+	result := ParseIndexedField(form, "tags")
 
 	expected := []string{"golang", "rust", "python"}
 	if !reflect.DeepEqual(result, expected) {
@@ -28,7 +28,7 @@ func TestParseIndexedField_WithGaps(t *testing.T) {
 		"tags.5": {"java"},
 	}
 
-	result := parseIndexedField(form, "tags")
+	result := ParseIndexedField(form, "tags")
 
 	expected := []string{"golang", "python", "java"}
 	if !reflect.DeepEqual(result, expected) {
@@ -43,7 +43,7 @@ func TestParseIndexedField_OutOfOrder(t *testing.T) {
 		"tags.1": {"rust"},
 	}
 
-	result := parseIndexedField(form, "tags")
+	result := ParseIndexedField(form, "tags")
 
 	expected := []string{"golang", "rust", "python"}
 	if !reflect.DeepEqual(result, expected) {
@@ -54,7 +54,7 @@ func TestParseIndexedField_OutOfOrder(t *testing.T) {
 func TestParseIndexedField_Empty(t *testing.T) {
 	form := url.Values{}
 
-	result := parseIndexedField(form, "tags")
+	result := ParseIndexedField(form, "tags")
 
 	if len(result) != 0 {
 		t.Errorf("expected empty slice, got %v", result)
@@ -67,7 +67,7 @@ func TestParseIndexedField_NonIndexedField(t *testing.T) {
 		"port": {"8080"},
 	}
 
-	result := parseIndexedField(form, "tags")
+	result := ParseIndexedField(form, "tags")
 
 	if len(result) != 0 {
 		t.Errorf("expected empty slice for non-existent field, got %v", result)
@@ -83,8 +83,8 @@ func TestParseIndexedField_MixedFields(t *testing.T) {
 		"ports.1": {"9090"},
 	}
 
-	tagsResult := parseIndexedField(form, "tags")
-	portsResult := parseIndexedField(form, "ports")
+	tagsResult := ParseIndexedField(form, "tags")
+	portsResult := ParseIndexedField(form, "ports")
 
 	expectedTags := []string{"go", "rust"}
 	expectedPorts := []string{"8080", "9090"}
@@ -105,7 +105,7 @@ func TestParseIndexedField_EmptyValues(t *testing.T) {
 		"tags.2": {""},
 	}
 
-	result := parseIndexedField(form, "tags")
+	result := ParseIndexedField(form, "tags")
 
 	expected := []string{"", "rust", ""}
 	if !reflect.DeepEqual(result, expected) {

@@ -1,4 +1,4 @@
-package http
+package action
 
 import (
 	"net/url"
@@ -20,7 +20,7 @@ type Action struct {
 	Index int
 }
 
-func parseAction(form url.Values) Action {
+func Parse(form url.Values) Action {
 	value := form.Get("action")
 	if value == "" {
 		return Action{Type: ActionSave}

@@ -1,13 +1,13 @@
-package http
+package handler
 
 import (
 	"net/http"
-	"os"
 
+	"github.com/moq77111113/circuit/internal/http/action"
+	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/reload"
 	"github.com/moq77111113/circuit/internal/schema"
 	"github.com/moq77111113/circuit/internal/ui"
-	"github.com/moq77111113/circuit/internal/yaml"
 )
 
 // Handler serves the config UI over HTTP.
@@ -46,7 +46,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) get(w http.ResponseWriter, _ *http.Request) {
 	var values map[string]any
 	h.loader.WithLock(func() {
-		values = extractValues(h.cfg, h.schema)
+		values = form.ExtractValues(h.cfg, h.schema)
 	})
 
 	page := ui.Page(h.schema, values, h.title, h.brand)
@@ -65,30 +65,21 @@ func (h *Handler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.loader.WithLock(func() {
-		err = applyForm(h.cfg, h.schema, r.Form)
-	})
+	act := action.Parse(r.Form)
+
+	switch act.Type {
+	case action.ActionAdd:
+		err = h.handleAdd(act.Field)
+	case action.ActionRemove:
+		err = h.handleRemove(act.Field, act.Index)
+	case action.ActionSave:
+		err = h.handleSave(r.Form)
+	}
 
 	if err != nil {
-		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var data []byte
-	h.loader.WithLock(func() {
-		data, err = yaml.Encode(h.cfg)
-	})
-
-	if err != nil {
-		http.Error(w, "Failed to encode config", http.StatusInternalServerError)
-		return
-	}
-
-	err = os.WriteFile(h.path, data, 0644)
-	if err != nil {
-		http.Error(w, "Failed to save config", http.StatusInternalServerError)
-		return
-	}
-
-	h.get(w, r)
+	http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 }
