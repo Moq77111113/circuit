@@ -39,13 +39,14 @@ func extractFields(rt reflect.Type) []Field {
 			continue
 		}
 
+		fieldType := dereferenceType(field.Type)
+
 		f := Field{
 			Name: field.Name,
-			Type: field.Type.Kind().String(),
+			Type: fieldType.Kind().String(),
 		}
 
-		// Set default InputType based on Go type
-		switch field.Type.Kind() {
+		switch fieldType.Kind() {
 		case reflect.Bool:
 			f.InputType = TypeCheckbox
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
@@ -56,9 +57,8 @@ func extractFields(rt reflect.Type) []Field {
 			f.InputType = TypeText
 		}
 
-		// Handle nested structs
-		if field.Type.Kind() == reflect.Struct && field.Type.Name() != "Time" {
-			f.Fields = extractFields(field.Type)
+		if fieldType.Kind() == reflect.Struct && fieldType.Name() != "Time" {
+			f.Fields = extractFields(fieldType)
 			f.InputType = TypeSection
 		}
 

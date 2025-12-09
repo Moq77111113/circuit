@@ -265,3 +265,42 @@ func TestExtract_ComplexTags(t *testing.T) {
 		t.Error("expected required to be true")
 	}
 }
+
+func TestExtract_PointerFields(t *testing.T) {
+	type Config struct {
+		Host *string
+		Port *int
+		Flag *bool
+	}
+
+	cfg := Config{}
+	fields, err := Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(fields) != 3 {
+		t.Fatalf("expected 3 fields, got %d", len(fields))
+	}
+
+	if fields[0].Type != "string" {
+		t.Errorf("expected type string for *string, got %s", fields[0].Type)
+	}
+	if fields[0].InputType != "text" {
+		t.Errorf("expected input type text for *string, got %s", fields[0].InputType)
+	}
+
+	if fields[1].Type != "int" {
+		t.Errorf("expected type int for *int, got %s", fields[1].Type)
+	}
+	if fields[1].InputType != "number" {
+		t.Errorf("expected input type number for *int, got %s", fields[1].InputType)
+	}
+
+	if fields[2].Type != "bool" {
+		t.Errorf("expected type bool for *bool, got %s", fields[2].Type)
+	}
+	if fields[2].InputType != "checkbox" {
+		t.Errorf("expected input type checkbox for *bool, got %s", fields[2].InputType)
+	}
+}
