@@ -41,9 +41,20 @@ func extractFields(rt reflect.Type) []Field {
 
 		fieldType := dereferenceType(field.Type)
 
+		elemType, isSlice := elementType(fieldType)
+		if isSlice {
+			fieldType = elemType
+		}
+
 		f := Field{
-			Name: field.Name,
-			Type: fieldType.Kind().String(),
+			Name:        field.Name,
+			Type:        fieldType.Kind().String(),
+			IsSlice:     isSlice,
+			ElementType: fieldType.Kind().String(),
+		}
+
+		if isSlice {
+			f.Type = "slice"
 		}
 
 		switch fieldType.Kind() {

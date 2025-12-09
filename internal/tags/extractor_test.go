@@ -304,3 +304,80 @@ func TestExtract_PointerFields(t *testing.T) {
 		t.Errorf("expected input type checkbox for *bool, got %s", fields[2].InputType)
 	}
 }
+
+func TestExtract_SliceFields(t *testing.T) {
+	type Config struct {
+		Tags  []string
+		Ports []int
+		Flags []bool
+	}
+
+	cfg := Config{}
+	fields, err := Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(fields) != 3 {
+		t.Fatalf("expected 3 fields, got %d", len(fields))
+	}
+
+	tags := fields[0]
+	if !tags.IsSlice {
+		t.Error("expected Tags to be marked as slice")
+	}
+	if tags.ElementType != "string" {
+		t.Errorf("expected element type string, got %s", tags.ElementType)
+	}
+	if tags.Type != "slice" {
+		t.Errorf("expected type slice, got %s", tags.Type)
+	}
+
+	ports := fields[1]
+	if !ports.IsSlice {
+		t.Error("expected Ports to be marked as slice")
+	}
+	if ports.ElementType != "int" {
+		t.Errorf("expected element type int, got %s", ports.ElementType)
+	}
+
+	flags := fields[2]
+	if !flags.IsSlice {
+		t.Error("expected Flags to be marked as slice")
+	}
+	if flags.ElementType != "bool" {
+		t.Errorf("expected element type bool, got %s", flags.ElementType)
+	}
+}
+
+func TestExtract_SliceOfStructs(t *testing.T) {
+	type Server struct {
+		Host string
+		Port int
+	}
+
+	type Config struct {
+		Servers []Server
+	}
+
+	cfg := Config{}
+	fields, err := Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(fields) != 1 {
+		t.Fatalf("expected 1 field, got %d", len(fields))
+	}
+
+	servers := fields[0]
+	if !servers.IsSlice {
+		t.Error("expected Servers to be marked as slice")
+	}
+	if servers.ElementType != "struct" {
+		t.Errorf("expected element type struct, got %s", servers.ElementType)
+	}
+	if len(servers.Fields) != 2 {
+		t.Errorf("expected 2 nested fields, got %d", len(servers.Fields))
+	}
+}
