@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
-	internalhttp "github.com/moq77111113/circuit/internal/http"
+	"github.com/moq77111113/circuit/internal/http/handler"
 	"github.com/moq77111113/circuit/internal/reload"
 	"github.com/moq77111113/circuit/internal/schema"
 )
@@ -49,5 +49,5 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
 
-	return internalhttp.New(s, cfg, conf.path, conf.title, conf.brand, loader), nil
+	return handler.New(s, cfg, conf.path, conf.title, conf.brand, loader), nil
 }

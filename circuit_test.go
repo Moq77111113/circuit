@@ -84,8 +84,8 @@ func TestUI_POST(t *testing.T) {
 
 	h.ServeHTTP(rec, req)
 
-	if rec.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rec.Code)
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected status 303, got %d", rec.Code)
 	}
 
 	// Wait for reload to propagate

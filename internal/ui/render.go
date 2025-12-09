@@ -41,6 +41,7 @@ func Page(s schema.Schema, values map[string]any, title string, brand bool) g.No
 						),
 					),
 				),
+				h.Script(g.Raw(DefaultJS)),
 			),
 		},
 	})
