@@ -57,8 +57,7 @@ func main() {
 	handler, err := circuit.From(&app.config,
 		circuit.WithPath("config.yaml"),
 		circuit.WithTitle("Reload Example"),
-		circuit.OnApply(func() {
-			// This callback is triggered when config is saved
+		circuit.WithOnChange(func(e circuit.ChangeEvent) {
 			app.UpdateConfig(app.config)
 		}),
 	)

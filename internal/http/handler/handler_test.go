@@ -35,7 +35,7 @@ func TestHandler_GET(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil)
+	loader, err := reload.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func TestHandler_POST(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil)
+	loader, err := reload.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,7 +131,7 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil)
+	loader, err := reload.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}

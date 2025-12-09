@@ -22,7 +22,7 @@ func TestLoad_InitialLoad(t *testing.T) {
 	}
 
 	var cfg Config
-	loader, err := Load(path, &cfg, func() {})
+	loader, err := Load(path, &cfg, func(ce ChangeEvent) {}, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,9 +49,9 @@ func TestLoad_ReloadOnChange(t *testing.T) {
 	var cfg Config
 	var callbackCalled atomic.Bool
 
-	loader, err := Load(path, &cfg, func() {
+	loader, err := Load(path, &cfg, func(ce ChangeEvent) {
 		callbackCalled.Store(true)
-	})
+	}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func TestLoad_InvalidFile(t *testing.T) {
 	path := "/nonexistent/config.yaml"
 	var cfg Config
 
-	_, err := Load(path, &cfg, func() {})
+	_, err := Load(path, &cfg, func(ce ChangeEvent) {}, false)
 	if err == nil {
 		t.Fatal("expected error for invalid file path")
 	}
@@ -119,7 +119,7 @@ func TestLoad_InvalidYAML(t *testing.T) {
 	}
 
 	var cfg Config
-	_, err = Load(path, &cfg, func() {})
+	_, err = Load(path, &cfg, func(ce ChangeEvent) {}, false)
 	if err == nil {
 		t.Fatal("expected error for invalid YAML")
 	}
@@ -141,9 +141,9 @@ func TestLoad_Stop(t *testing.T) {
 	var cfg Config
 	var callbackCalled atomic.Bool
 
-	loader, err := Load(path, &cfg, func() {
+	loader, err := Load(path, &cfg, func(ce ChangeEvent) {
 		callbackCalled.Store(true)
-	})
+	}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,9 +192,9 @@ func TestLoad_MultipleReloads(t *testing.T) {
 	var cfg Config
 	var count atomic.Int32
 
-	loader, err := Load(path, &cfg, func() {
+	loader, err := Load(path, &cfg, func(ce ChangeEvent) {
 		count.Add(1)
-	})
+	}, true)
 	if err != nil {
 		t.Fatal(err)
 	}

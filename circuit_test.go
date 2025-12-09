@@ -65,7 +65,7 @@ func TestUI_POST(t *testing.T) {
 	}
 
 	var callbackCalled atomic.Bool
-	h, err := From(&cfg, WithPath(path), OnApply(func() {
+	h, err := From(&cfg, WithPath(path), WithOnChange(func(e ChangeEvent) {
 		callbackCalled.Store(true)
 	}))
 	if err != nil {

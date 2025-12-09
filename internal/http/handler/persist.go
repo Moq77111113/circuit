@@ -3,6 +3,7 @@ package handler
 import (
 	"os"
 
+	"github.com/moq77111113/circuit/internal/reload"
 	"github.com/moq77111113/circuit/internal/yaml"
 )
 
@@ -17,5 +18,12 @@ func (h *Handler) writeConfig() error {
 		return err
 	}
 
-	return os.WriteFile(h.path, data, 0644)
+	err = os.WriteFile(h.path, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	h.loader.EmitChange(reload.SourceFormSubmit)
+
+	return nil
 }
