@@ -18,7 +18,6 @@ func renderStructItem(field tags.Field, index int, value any, depth int) g.Node 
 
 		subval := extractStructField(value, subfield.Name)
 
-
 		if subfield.IsSlice {
 			fields = append(fields, SliceWithDepth(indexedField, subval, depth+1))
 			continue

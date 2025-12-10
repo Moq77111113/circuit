@@ -126,7 +126,6 @@ func TestSliceWithDepth_ShallowFull(t *testing.T) {
 	}
 	value := []struct{ Name string }{{Name: "API"}}
 
-
 	for _, depth := range []int{0, 1} {
 		node := SliceWithDepth(field, value, depth)
 		html := renderToString(node)
