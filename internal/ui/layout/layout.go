@@ -1,4 +1,4 @@
-package ui
+package layout
 
 import (
 	g "maragu.dev/gomponents"

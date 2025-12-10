@@ -1,0 +1,188 @@
+.slice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-md);
+}
+
+.slice__empty {
+  padding: var(--s-md);
+  background: var(--c-surface-alt);
+  border: 1px dashed var(--c-border);
+  border-radius: var(--r-sm);
+  color: var(--c-text-tertiary);
+  text-align: center;
+  font-size: var(--fs-sm);
+}
+
+.slice__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+  padding: var(--s-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+}
+
+.slice__item--primitive {
+  /* Primitive items keep the simple layout */
+}
+
+@media (min-width: 768px) {
+  .slice__item--primitive {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.slice__item--struct {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.slice__item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  padding: var(--s-sm) var(--s-md);
+  background: var(--c-surface-alt);
+  border-bottom: 1px solid var(--c-border);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.slice__item-header:hover {
+  background: var(--c-border);
+}
+
+.slice__item--struct .slice__chevron {
+  font-size: var(--fs-sm);
+  transition: transform 0.2s ease;
+  color: var(--c-text-secondary);
+}
+
+.slice__item--struct.collapsed .slice__chevron {
+  transform: rotate(-90deg);
+}
+
+.slice__item-title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-text-primary);
+  flex: 1;
+}
+
+.slice__item-body {
+  padding: var(--s-md);
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.slice__item--struct.collapsed .slice__item-body {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.slice__item input,
+.slice__item .field {
+  flex: 1;
+  margin: 0;
+}
+
+.slice__struct {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+  flex: 1;
+}
+
+/* Compact Item Styles */
+.slice__item--compact .slice__item-header {
+  display: flex;
+  gap: var(--s-xs);
+  padding: var(--s-xs) var(--s-sm);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  align-items: center;
+  background: transparent;
+  border-bottom: none;
+  transition: background 0.15s ease;
+}
+
+.slice__item--compact .slice__item-header:hover {
+  background: var(--c-surface-alt);
+}
+
+.slice__item--compact.collapsed .slice__item-body {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.slice__remove-button {
+  height: 32px;
+  padding: 0 var(--s-md);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  color: var(--c-text-secondary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* Specific styles for remove button in struct header */
+.slice__item--struct .slice__remove-button {
+  height: 24px;
+  padding: 0 var(--s-sm);
+  font-size: var(--fs-xs);
+  width: auto;
+  border-color: transparent;
+  background: transparent;
+}
+
+.slice__item--struct .slice__remove-button:hover {
+  background: var(--c-danger);
+  color: var(--c-surface);
+}
+
+@media (min-width: 768px) {
+  .slice__remove-button {
+    width: auto;
+  }
+}
+
+.slice__item--primitive .slice__remove-button:hover {
+  background: var(--c-danger);
+  border-color: var(--c-danger);
+  color: var(--c-surface);
+  transform: translateY(-1px);
+}
+
+.slice__add-button {
+  margin: var(--s-sm);
+  padding: var(--s-xs) var(--s-sm);
+  background: var(--c-text-primary);
+  border: 1px solid var(--c-text-primary);
+  border-radius: var(--r-sm);
+  color: var(--c-bg);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  align-self: flex-start;
+}
+
+.slice__add-button:hover {
+  background: var(--c-text-secondary);
+  border-color: var(--c-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}

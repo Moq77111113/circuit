@@ -1,4 +1,4 @@
-package ui
+package layout
 
 import (
 	"strings"
@@ -6,7 +6,14 @@ import (
 
 	"github.com/moq77111113/circuit/internal/schema"
 	"github.com/moq77111113/circuit/internal/tags"
+	g "maragu.dev/gomponents"
 )
+
+func renderToString(node g.Node) string {
+	var sb strings.Builder
+	_ = node.Render(&sb)
+	return sb.String()
+}
 
 func TestPage_Complete(t *testing.T) {
 	s := schema.Schema{

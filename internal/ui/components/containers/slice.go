@@ -1,10 +1,9 @@
-package inputs
+package containers
 
 import (
 	"fmt"
 
 	"github.com/moq77111113/circuit/internal/tags"
-	"github.com/moq77111113/circuit/internal/ui/components/containers"
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 )
@@ -25,7 +24,12 @@ func SliceWithDepth(field tags.Field, value any, depth int) g.Node {
 		))
 	} else {
 		for i, item := range items {
-			nodes = append(nodes, containers.RenderSliceItem(field, i, item, depth))
+			// Use compact rendering at depth >= 2 for struct slices
+			if depth >= 2 && len(field.Fields) > 0 {
+				nodes = append(nodes, Render(field, i, item, depth))
+			} else {
+				nodes = append(nodes, RenderSliceItem(field, i, item, depth))
+			}
 		}
 	}
 
@@ -37,8 +41,8 @@ func SliceWithDepth(field tags.Field, value any, depth int) g.Node {
 		g.Text("Add Item"),
 	))
 
-	header := containers.CollapsibleHeader(field.Name, len(items), containers.IsCollapsed(depth), "")
-	body := containers.CollapsibleBody(nodes)
+	header := CollapsibleHeader(field.Name, len(items), IsCollapsed(depth), "")
+	body := CollapsibleBody(nodes)
 
-	return containers.CollapsibleContainer(depth, header, body)
+	return CollapsibleContainer(depth, header, body)
 }

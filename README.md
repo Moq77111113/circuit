@@ -39,7 +39,9 @@ You now have a production-grade web UI. Deploy to **Kubernetes sidecars**, **edg
 - **30-second setup** - One function call, no configuration files
 - **Auto-generated forms** - Struct tags → beautiful UI
 - **Hot-reload** - File changes reflect instantly
-- **Zero dependencies** - Embedded CSS, no npm, no webpack
+- **Zero dependencies** - Embedded CSS/JS, no npm, no webpack, no build step
+- **Minimal JavaScript** - Progressive enhancement, works without JS for core functionality
+- **Responsive design** - Mobile-first UI with slide-in drawer navigation
 - **Framework agnostic** - Works with stdlib, Echo, Gin, Fiber, Chi
 - **Production ready** - Use it in real industrial systems and cloud deployments
 - **Tiny footprint** - Perfect for constrained environments (IoT, edge, containers)
@@ -97,14 +99,21 @@ circuit.From(&cfg,
 
 ## Supported Types
 
+### Input Types
 - `text` - string input
 - `number` - int/float input
 - `checkbox` - boolean
 - `password` - hidden text
 - `select` - dropdown (define options in tag)
-- `range` - slider
+- `range` - slider with min/max
 - `date`, `time` - date/time pickers
 - `radio` - radio buttons
+
+### Complex Types
+- **Slices** - Dynamic arrays with add/remove buttons (`[]string`, `[]int`, `[]float64`)
+- **Slice of structs** - Nested forms with multiple items (`[]MyStruct`)
+- **Nested structs** - Grouped sections for organization
+- **Pointers** - Automatically dereferenced for display
 
 ## Real-World Examples
 
@@ -136,12 +145,27 @@ type SidecarConfig struct {
 }
 ```
 
-More in [`examples/`](./examples): basic setup, nested structs, hot-reload patterns.
+### Dynamic Configuration with Slices
+```go
+type Config struct {
+    AllowedIPs   []string `yaml:"allowed_ips" circuit:"type:text,help:Allowed IP addresses"`
+    BlockedPorts []int    `yaml:"blocked_ports" circuit:"type:number,help:Blocked ports"`
+    Rules        []Rule   `yaml:"rules"`
+}
+
+type Rule struct {
+    Name   string `yaml:"name" circuit:"type:text,help:Rule name"`
+    Active bool   `yaml:"active" circuit:"type:checkbox,help:Rule enabled"`
+}
+```
+
+More in [`examples/`](./examples): basic setup, nested structs, hot-reload patterns, slices, and complex forms.
 
 ## Design Philosophy
 
 - **Minimal API**: `circuit.From()` - that's the entire public surface
 - **No magic**: Reflection for schema extraction, that's it. No code generation, no build steps
+- **Progressive enhancement**: Core functionality works without JavaScript, JS adds polish
 - **Production-first**: Battle-tested in industrial IoT deployments and cloud microservices
 - **Zero infrastructure**: No database, no message queue, no external dependencies
 - **Fail gracefully**: Invalid configs → validation errors, not panics
@@ -153,6 +177,8 @@ More in [`examples/`](./examples): basic setup, nested structs, hot-reload patte
 3. Renders a clean HTML form (via [gomponents](https://github.com/maragudk/gomponents))
 4. Watches the file for external changes
 5. Saves edits back to YAML when you submit
+6. Minimal JS for progressive enhancement (mobile menu, dynamic arrays)
+7. Works on desktop, tablet, and mobile with responsive design
 
 
 ## Roadmap

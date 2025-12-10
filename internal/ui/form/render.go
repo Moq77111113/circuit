@@ -1,11 +1,12 @@
-package ui
+package form
 
 import (
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/tags"
-	"github.com/moq77111113/circuit/internal/ui/inputs"
+	"github.com/moq77111113/circuit/internal/ui/components/containers"
+	"github.com/moq77111113/circuit/internal/ui/components/inputs"
 )
 
 var renderers = map[tags.InputType]func(tags.Field, any) g.Node{
@@ -26,7 +27,7 @@ func renderField(field tags.Field, values map[string]any) g.Node {
 		value = values[field.Name]
 	}
 
-	if field.InputType == tags.TypeSection {
+	if field.InputType == tags.TypeSection || field.IsSlice {
 		return renderInput(field, value)
 	}
 
@@ -58,7 +59,7 @@ func renderInput(field tags.Field, value any) g.Node {
 		return renderSection(field, value)
 	}
 	if field.IsSlice {
-		return inputs.Slice(field, value)
+		return containers.Slice(field, value)
 	}
 	if renderer, ok := renderers[field.InputType]; ok {
 		return renderer(field, value)

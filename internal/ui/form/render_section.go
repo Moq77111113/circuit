@@ -1,4 +1,4 @@
-package ui
+package form
 
 import (
 	"reflect"
@@ -6,7 +6,7 @@ import (
 	g "maragu.dev/gomponents"
 
 	"github.com/moq77111113/circuit/internal/tags"
-	"github.com/moq77111113/circuit/internal/ui/inputs"
+	"github.com/moq77111113/circuit/internal/ui/components/containers"
 )
 
 func renderSection(field tags.Field, value any) g.Node {
@@ -29,5 +29,5 @@ func renderSection(field tags.Field, value any) g.Node {
 		children = append(children, renderField(subField, map[string]any{subField.Name: subValue}))
 	}
 
-	return inputs.Section(field.Name, children)
+	return containers.Section(field.Name, children, true, false)
 }

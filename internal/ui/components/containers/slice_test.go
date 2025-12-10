@@ -1,4 +1,4 @@
-package inputs
+package containers
 
 import (
 	"bytes"
@@ -112,5 +112,85 @@ func TestSlice_AddButton(t *testing.T) {
 
 	if !strings.Contains(html, "add:Tags") {
 		t.Error("expected add button with correct action")
+	}
+}
+
+func TestSliceWithDepth_ShallowFull(t *testing.T) {
+	field := tags.Field{
+		Name: "Services",
+		Fields: []tags.Field{
+			{Name: "Name", Type: "string"},
+		},
+		IsSlice:     true,
+		ElementType: "struct",
+	}
+	value := []struct{ Name string }{{Name: "API"}}
+
+	for _, depth := range []int{0, 1} {
+		node := SliceWithDepth(field, value, depth)
+		html := renderToString(node)
+
+		if strings.Contains(html, "slice__item--compact") {
+			t.Errorf("depth %d should NOT use compact rendering", depth)
+		}
+	}
+}
+
+func TestSliceWithDepth_DeepCompact(t *testing.T) {
+	field := tags.Field{
+		Name: "Services",
+		Fields: []tags.Field{
+			{Name: "Name", Type: "string"},
+		},
+		IsSlice:     true,
+		ElementType: "struct",
+	}
+	value := []struct{ Name string }{{Name: "API"}}
+
+	node := SliceWithDepth(field, value, 2)
+	html := renderToString(node)
+
+	if !strings.Contains(html, "slice__item--compact") {
+		t.Error("depth 2 should use compact rendering")
+	}
+}
+
+func TestSliceWithDepth_Summary(t *testing.T) {
+	field := tags.Field{
+		Name: "Services",
+		Fields: []tags.Field{
+			{Name: "Name", Type: "string"},
+			{Name: "Type", Type: "string"},
+		},
+		IsSlice:     true,
+		ElementType: "struct",
+	}
+	value := []struct {
+		Name string
+		Type string
+	}{{Name: "User Service", Type: "HTTP"}}
+
+	node := SliceWithDepth(field, value, 1)
+	html := renderToString(node)
+
+	if !strings.Contains(html, "User Service") || !strings.Contains(html, "HTTP") {
+		t.Error("should include summary in header for struct slices")
+	}
+}
+
+func TestSliceWithDepth_PrimitiveNoSummary(t *testing.T) {
+	field := tags.Field{
+		Name:        "Tags",
+		IsSlice:     true,
+		ElementType: "string",
+		InputType:   tags.TypeText,
+	}
+	value := []string{"go", "web"}
+
+	node := SliceWithDepth(field, value, 1)
+	html := renderToString(node)
+
+	if !strings.Contains(html, "slice__header") {
+		t.Error("should render header for primitive slice")
 	}
 }

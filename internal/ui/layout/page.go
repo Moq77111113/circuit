@@ -1,4 +1,4 @@
-package ui
+package layout
 
 import (
 	g "maragu.dev/gomponents"
@@ -6,6 +6,8 @@ import (
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ui/assets"
+	"github.com/moq77111113/circuit/internal/ui/form"
 )
 
 func Page(s schema.Schema, values map[string]any, title string, brand bool) g.Node {
@@ -25,7 +27,7 @@ func Page(s schema.Schema, values map[string]any, title string, brand bool) g.No
 				),
 				FavIcons(),
 				h.TitleEl(g.Text(title)),
-				h.StyleEl(g.Raw(DefaultCSS)),
+				h.StyleEl(g.Raw(assets.DefaultCSS)),
 			),
 			h.Body(
 				h.Button(
@@ -47,12 +49,12 @@ func Page(s schema.Schema, values map[string]any, title string, brand bool) g.No
 						h.Div(
 							h.Class("app__container"),
 							Header(title, "Configure your application settings below."),
-							Form(s, values),
+							form.Form(s, values),
 							g.If(brand, Footer()),
 						),
 					),
 				),
-				h.Script(g.Raw(DefaultJS)),
+				h.Script(g.Raw(assets.DefaultJS)),
 			),
 		},
 	})

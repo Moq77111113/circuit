@@ -1,27 +1,69 @@
-/* Sections */
-.section {
+/* Container (for collapsible sections) - matches slice styling */
+.container {
   border: 1px solid var(--c-border);
-  border-radius: var(--r-md);
-  padding: var(--s-lg);
-  margin-bottom: var(--s-lg);
-  background: var(--c-surface-alt);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  margin-bottom: var(--s-md);
+  transition: background-color 0.15s ease;
 }
 
-.section__title {
-  font-size: var(--fs-lg);
+.container--depth-0 {
+  padding: 0;
+}
+
+.container__header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  padding: var(--s-sm) var(--s-md);
+  background: var(--c-surface-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+  font-size: var(--fs-sm);
+}
+
+.container__header:hover {
+  background: var(--c-surface-hover);
+}
+
+.container__chevron {
+  transition: transform 0.2s ease;
+  font-size: 0.75em;
+  color: var(--c-text-secondary);
+}
+
+.container.collapsed .container__chevron {
+  transform: rotate(-90deg);
+}
+
+.container__title {
   font-weight: var(--fw-medium);
   color: var(--c-text-primary);
-  padding: 0 var(--s-sm);
-  margin-bottom: var(--s-sm);
-  border-bottom: 1px solid var(--c-border);
-  padding-bottom: var(--s-sm);
+  flex: 1;
 }
 
-.section__content {
-  display: flex;
-  flex-direction: column;
+.container__body {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--s-lg);
-  margin-top: var(--s-md);
+  padding: var(--s-lg);
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.container.collapsed .container__body {
+  display: none;
+}
+
+/* Non-collapsible section title */
+.section__title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--c-text-primary);
+  margin: 0;
 }
 
 /* Select */
@@ -113,6 +155,16 @@ input[type="range"] {
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   color: var(--c-text-primary);
+}
+
+.field__label--clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.field__label--clickable:hover {
+  color: var(--c-brand);
 }
 
 .field__label-required {
