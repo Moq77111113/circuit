@@ -11,7 +11,7 @@ import (
 
 func RenderSliceItem(field tags.Field, index int, value any, depth int) g.Node {
 	isStruct := len(field.Fields) > 0
-	removeBtn := h.Button(
+	removebutton := h.Button(
 		h.Type("submit"),
 		h.Name("action"),
 		h.Value(fmt.Sprintf("remove:%s:%d", field.Name, index)),
@@ -20,12 +20,36 @@ func RenderSliceItem(field tags.Field, index int, value any, depth int) g.Node {
 	)
 
 	if isStruct {
+		summary := Extract(field, value, 3)
+		title := fmt.Sprintf("#%d", index+1)
+		if len(summary.Fields) > 0 {
+			title = fmt.Sprintf("%s: %s", summary.Fields[0].Name, summary.Fields[0].Value)
+		}
+
+		var summaryText string
+		if len(summary.Fields) > 1 {
+			summaryText = Format(Summary{Fields: summary.Fields[1:]})
+		}
+
+		titleNode := h.Span(h.Class("slice__item-title"), g.Text(title))
+		var headerChildren []g.Node
+		headerChildren = append(headerChildren,
+			h.Span(h.Class("slice__chevron"), g.Text("▼")),
+			titleNode,
+		)
+		if summaryText != "" {
+			headerChildren = append(headerChildren,
+				h.Span(h.Class("slice__summary"), g.Text(summaryText)),
+			)
+		}
+		headerChildren = append(headerChildren, removebutton)
+
 		return h.Div(
 			h.Class("slice__item slice__item--struct"),
 			h.Div(
 				h.Class("slice__item-header"),
-				h.Span(h.Class("slice__item-title"), g.Text(fmt.Sprintf("#%d", index+1))),
-				removeBtn,
+				g.Attr("onclick", "toggleCollapse(this)"),
+				g.Group(headerChildren),
 			),
 			h.Div(
 				h.Class("slice__item-body"),
@@ -37,7 +61,7 @@ func RenderSliceItem(field tags.Field, index int, value any, depth int) g.Node {
 	return h.Div(
 		h.Class("slice__item slice__item--primitive"),
 		renderPrimitiveItem(field, index, value),
-		removeBtn,
+		removebutton,
 	)
 }
 

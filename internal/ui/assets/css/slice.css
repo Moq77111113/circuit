@@ -44,22 +44,47 @@
 .slice__item-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--s-sm);
   padding: var(--s-sm) var(--s-md);
   background: var(--c-surface-alt);
   border-bottom: 1px solid var(--c-border);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.slice__item-header:hover {
+  background: var(--c-border);
+}
+
+.slice__item--struct .slice__chevron {
+  font-size: var(--fs-sm);
+  transition: transform 0.2s ease;
+  color: var(--c-text-secondary);
+}
+
+.slice__item--struct.collapsed .slice__chevron {
+  transform: rotate(-90deg);
 }
 
 .slice__item-title {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  color: var(--c-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-text-primary);
+  flex: 1;
 }
 
 .slice__item-body {
   padding: var(--s-md);
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.slice__item--struct.collapsed .slice__item-body {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
 }
 
 .slice__item input,
@@ -73,6 +98,30 @@
   flex-direction: column;
   gap: var(--s-sm);
   flex: 1;
+}
+
+/* Compact Item Styles */
+.slice__item--compact .slice__item-header {
+  display: flex;
+  gap: var(--s-xs);
+  padding: var(--s-xs) var(--s-sm);
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  align-items: center;
+  background: transparent;
+  border-bottom: none;
+  transition: background 0.15s ease;
+}
+
+.slice__item--compact .slice__item-header:hover {
+  background: var(--c-surface-alt);
+}
+
+.slice__item--compact.collapsed .slice__item-body {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .slice__remove-button {
@@ -117,7 +166,8 @@
   transform: translateY(-1px);
 }
 
-.slice__add-btn {
+.slice__add-button {
+  margin: var(--s-sm);
   padding: var(--s-xs) var(--s-sm);
   background: var(--c-text-primary);
   border: 1px solid var(--c-text-primary);
@@ -130,7 +180,7 @@
   align-self: flex-start;
 }
 
-.slice__add-btn:hover {
+.slice__add-button:hover {
   background: var(--c-text-secondary);
   border-color: var(--c-border-hover);
   transform: translateY(-1px);

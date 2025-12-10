@@ -125,8 +125,8 @@ type AlertRule struct {
 
 func main() {
 	ui, err := circuit.From(&Config{},
-		circuit.WithPath("nested_config.yaml"),
-		circuit.WithTitle("Deep Nested Configuration"),
+		circuit.WithPath("deep_config.yaml"),
+		circuit.WithTitle("Deep Configuration"),
 		circuit.WithOnChange(func(e circuit.ChangeEvent) {
 			log.Printf("Configuration changed via %v\n", e.Source)
 		}),

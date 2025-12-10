@@ -10,7 +10,7 @@ import (
 )
 
 func renderNestedSection(field tags.Field, value any, depth int) g.Node {
-	var fields []g.Node
+	var children []g.Node
 	for _, subfield := range field.Fields {
 		nestedName := fmt.Sprintf("%s.%s", field.Name, subfield.Name)
 		nestedField := subfield
@@ -46,7 +46,7 @@ func renderNestedSection(field tags.Field, value any, depth int) g.Node {
 			}
 		}
 
-		fields = append(fields, h.Div(
+		children = append(children, h.Div(
 			h.Class("field"),
 			h.Label(
 				h.For(nestedName),
@@ -57,5 +57,5 @@ func renderNestedSection(field tags.Field, value any, depth int) g.Node {
 		))
 	}
 
-	return h.Div(h.Class("section__content"), g.Group(fields))
+	return Section(field.Name, children, true, false)
 }

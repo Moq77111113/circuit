@@ -27,7 +27,7 @@ func renderField(field tags.Field, values map[string]any) g.Node {
 		value = values[field.Name]
 	}
 
-	if field.InputType == tags.TypeSection {
+	if field.InputType == tags.TypeSection || field.IsSlice {
 		return renderInput(field, value)
 	}
 

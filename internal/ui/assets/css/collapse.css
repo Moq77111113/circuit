@@ -38,6 +38,18 @@
   margin-left: auto;
 }
 
+.slice__summary {
+  font-size: var(--fs-xs);
+  color: var(--c-text-secondary);
+  padding: 0 var(--s-xs);
+}
+
+.slice__summary::before {
+  content: "•";
+  color: var(--c-text-tertiary);
+  padding-right: var(--s-xs);
+}
+
 .slice__body {
   display: flex;
   flex-direction: column;
@@ -54,36 +66,42 @@
 
 /* Depth-Based Visual Hierarchy */
 .slice--depth-0 {
-  /* Root level - full prominence */
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  font-size: 1em;
 }
 
 .slice--depth-1 {
   margin-left: var(--s-md);
   opacity: 0.98;
+  font-size: 0.95em;
 }
 
 .slice--depth-1 .slice__header {
   background: oklch(98% 0 0);
+  border: 1px solid oklch(94% 0 0);
 }
 
 .slice--depth-2 {
   margin-left: var(--s-xl);
   opacity: 0.95;
+  font-size: 0.9em;
 }
 
 .slice--depth-2 .slice__header {
   background: oklch(96% 0 0);
-  border-style: dashed;
+  border: 1px dashed oklch(90% 0 0);
 }
 
 .slice--depth-3 {
   margin-left: calc(var(--s-xl) + var(--s-md));
   opacity: 0.92;
+  font-size: 0.85em;
 }
 
 .slice--depth-3 .slice__header {
   background: oklch(94% 0 0);
-  border-style: dashed;
+  border: 1px dotted oklch(88% 0 0);
 }
 
 @media (max-width: 767px) {

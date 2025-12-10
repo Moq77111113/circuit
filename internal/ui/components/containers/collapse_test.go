@@ -9,7 +9,7 @@ import (
 )
 
 func TestCollapsibleHeader(t *testing.T) {
-	node := CollapsibleHeader("Test Title", 5, false)
+	node := CollapsibleHeader("Test Title", 5, false, "")
 	html := renderNode(node)
 
 	if !strings.Contains(html, "Test Title") {
@@ -23,6 +23,27 @@ func TestCollapsibleHeader(t *testing.T) {
 	}
 	if !strings.Contains(html, "onclick=\"toggleCollapse(this)\"") {
 		t.Error("Header should have onclick handler")
+	}
+}
+
+func TestCollapsibleHeader_WithSummary(t *testing.T) {
+	node := CollapsibleHeader("Services", 2, false, "Name: API • Type: HTTP")
+	html := renderNode(node)
+
+	if !strings.Contains(html, "Name: API • Type: HTTP") {
+		t.Error("Header should contain summary text")
+	}
+	if !strings.Contains(html, "slice__summary") {
+		t.Error("Header should have slice__summary class for summary")
+	}
+}
+
+func TestCollapsibleHeader_EmptySummary(t *testing.T) {
+	node := CollapsibleHeader("Test", 1, false, "")
+	html := renderNode(node)
+
+	if strings.Contains(html, "slice__summary") {
+		t.Error("Header should NOT have slice__summary class when summary is empty")
 	}
 }
 

@@ -24,7 +24,12 @@ func SliceWithDepth(field tags.Field, value any, depth int) g.Node {
 		))
 	} else {
 		for i, item := range items {
-			nodes = append(nodes, RenderSliceItem(field, i, item, depth))
+			// Use compact rendering at depth >= 2 for struct slices
+			if depth >= 2 && len(field.Fields) > 0 {
+				nodes = append(nodes, Render(field, i, item, depth))
+			} else {
+				nodes = append(nodes, RenderSliceItem(field, i, item, depth))
+			}
 		}
 	}
 
@@ -32,11 +37,11 @@ func SliceWithDepth(field tags.Field, value any, depth int) g.Node {
 		h.Type("submit"),
 		h.Name("action"),
 		h.Value(fmt.Sprintf("add:%s", field.Name)),
-		h.Class("slice__add-btn"),
+		h.Class("slice__add-button"),
 		g.Text("Add Item"),
 	))
 
-	header := CollapsibleHeader(field.Name, len(items), IsCollapsed(depth))
+	header := CollapsibleHeader(field.Name, len(items), IsCollapsed(depth), "")
 	body := CollapsibleBody(nodes)
 
 	return CollapsibleContainer(depth, header, body)

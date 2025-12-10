@@ -33,11 +33,11 @@ func SliceWithDepth(field tags.Field, value any, depth int) g.Node {
 		h.Type("submit"),
 		h.Name("action"),
 		h.Value(fmt.Sprintf("add:%s", field.Name)),
-		h.Class("slice__add-btn"),
+		h.Class("slice__add-button"),
 		g.Text("Add Item"),
 	))
 
-	header := containers.CollapsibleHeader(field.Name, len(items), containers.IsCollapsed(depth))
+	header := containers.CollapsibleHeader(field.Name, len(items), containers.IsCollapsed(depth), "")
 	body := containers.CollapsibleBody(nodes)
 
 	return containers.CollapsibleContainer(depth, header, body)

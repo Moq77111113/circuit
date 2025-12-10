@@ -1,6 +1,5 @@
 app_name: Production API
 version: v2.1.0
-
 server:
   host: 0.0.0.0
   port: 8443
@@ -35,7 +34,6 @@ server:
     - name: Recovery
       enabled: true
       order: 3
-
 database:
   driver: postgres
   host: db.production.internal
@@ -66,7 +64,6 @@ database:
     alert_emails:
       - ops@example.com
       - dba@example.com
-
 services:
   - name: User Service
     enabled: true
@@ -107,7 +104,7 @@ services:
           enabled: true
         - name: Slow Response Time
           metric: http_request_duration_seconds
-          threshold: 2.0
+          threshold: 2
           enabled: true
   - name: Payment Service
     enabled: true
@@ -139,3 +136,19 @@ services:
           metric: payment_failures_total
           threshold: 5
           enabled: true
+  - name: ""
+    enabled: false
+    type: ""
+    endpoints: []
+    auth:
+      type: ""
+      secret: ""
+      token_ttl: 0
+      providers: []
+    monitoring:
+      enabled: false
+      metrics_port: 0
+      health_path: ""
+      log_level: ""
+      tracing_enabled: false
+      alert_rules: []

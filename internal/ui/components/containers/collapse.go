@@ -2,19 +2,34 @@ package containers
 
 import (
 	"fmt"
+	"strings"
 
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 )
 
 // CollapsibleHeader renders the header for a collapsible section or slice.
-func CollapsibleHeader(title string, count int, collapsed bool) g.Node {
+func CollapsibleHeader(title string, count int, collapsed bool, summary string) g.Node {
+	displayTitle := title
+	if strings.Contains(title, ".") {
+		parts := strings.Split(title, ".")
+		displayTitle = parts[len(parts)-1]
+	}
+
+	children := []g.Node{
+		h.Span(h.Class("slice__chevron"), g.Text("▼")),
+		h.Span(h.Class("slice__title"), g.Text(displayTitle)),
+		h.Span(h.Class("slice__count"), g.Textf("(%d)", count)),
+	}
+
+	if summary != "" {
+		children = append(children, h.Span(h.Class("slice__summary"), g.Text(summary)))
+	}
+
 	return h.Div(
 		h.Class("slice__header"),
 		g.Attr("onclick", "toggleCollapse(this)"),
-		h.Span(h.Class("slice__chevron"), g.Text("▼")),
-		h.Span(h.Class("slice__title"), g.Text(title)),
-		h.Span(h.Class("slice__count"), g.Textf("(%d)", count)),
+		g.Group(children),
 	)
 }
 

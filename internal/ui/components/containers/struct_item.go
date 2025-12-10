@@ -18,34 +18,33 @@ func renderStructItem(field tags.Field, index int, value any, depth int) g.Node 
 
 		subval := extractStructField(value, subfield.Name)
 
-		var input g.Node
 
-		// Handle slices recursively
 		if subfield.IsSlice {
-			input = SliceWithDepth(indexedField, subval, depth+1)
+			fields = append(fields, SliceWithDepth(indexedField, subval, depth+1))
+			continue
 		} else if subfield.InputType == tags.TypeSection {
-			// Handle nested struct as section (recursively render its fields)
-			input = renderNestedSection(indexedField, subval, depth+1)
-		} else {
-			// Handle primitive inputs
-			switch subfield.InputType {
-			case tags.TypeText:
-				input = inputs.Text(indexedField, subval)
-			case tags.TypeNumber:
-				input = inputs.Number(indexedField, subval)
-			case tags.TypeCheckbox:
-				input = inputs.Checkbox(indexedField, subval)
-			case tags.TypePassword:
-				input = inputs.Password(indexedField, subval)
-			case tags.TypeSelect:
-				input = inputs.Select(indexedField, subval)
-			case tags.TypeRadio:
-				input = inputs.Radio(indexedField, subval)
-			case tags.TypeRange:
-				input = inputs.Range(indexedField, subval)
-			default:
-				input = inputs.Text(indexedField, subval)
-			}
+			fields = append(fields, renderNestedSection(indexedField, subval, depth+1))
+			continue
+		}
+
+		var input g.Node
+		switch subfield.InputType {
+		case tags.TypeText:
+			input = inputs.Text(indexedField, subval)
+		case tags.TypeNumber:
+			input = inputs.Number(indexedField, subval)
+		case tags.TypeCheckbox:
+			input = inputs.Checkbox(indexedField, subval)
+		case tags.TypePassword:
+			input = inputs.Password(indexedField, subval)
+		case tags.TypeSelect:
+			input = inputs.Select(indexedField, subval)
+		case tags.TypeRadio:
+			input = inputs.Radio(indexedField, subval)
+		case tags.TypeRange:
+			input = inputs.Range(indexedField, subval)
+		default:
+			input = inputs.Text(indexedField, subval)
 		}
 
 		fields = append(fields, h.Div(
