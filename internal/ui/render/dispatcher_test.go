@@ -69,7 +69,7 @@ func TestDispatcher_RoutesToStruct(t *testing.T) {
 	if !strings.Contains(html, `<section`) {
 		t.Error("expected section element")
 	}
-		if !strings.Contains(html, `name="Database.Host"`) {
+	if !strings.Contains(html, `name="Database.Host"`) {
 		t.Error("expected nested field path")
 	}
 }

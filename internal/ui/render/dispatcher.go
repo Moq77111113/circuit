@@ -12,7 +12,6 @@ type Context struct {
 	Depth int         // Nesting depth (used for collapsed rendering at depth >= 2)
 }
 
-
 type Renderer interface {
 	Render(node schema.Node, ctx Context) g.Node
 }

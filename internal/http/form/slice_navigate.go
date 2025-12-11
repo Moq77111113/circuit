@@ -5,6 +5,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/schema"
 )
+
 // findNodeAndValue locates the Node and its corresponding reflect.Value based on the provided path.
 func findNodeAndValue(nodes []schema.Node, path schema.Path, rootValue reflect.Value) (*schema.Node, reflect.Value) {
 	fieldPath := path.String()

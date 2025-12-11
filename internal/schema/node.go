@@ -7,8 +7,8 @@ type NodeKind uint8
 
 const (
 	KindPrimitive NodeKind = iota // string, int, bool, float
-	KindStruct                     // nested object
-	KindSlice                      // []T
+	KindStruct                    // nested object
+	KindSlice                     // []T
 )
 
 type ValueType uint8
@@ -21,11 +21,11 @@ const (
 )
 
 type Node struct {
-	Name string
-	Kind NodeKind
-	ValueType ValueType
-	InputType tags.InputType
-	Children []Node
+	Name        string
+	Kind        NodeKind
+	ValueType   ValueType
+	InputType   tags.InputType
+	Children    []Node
 	ElementKind NodeKind
 
 	Help        string

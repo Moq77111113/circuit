@@ -78,7 +78,7 @@ func TestPage_WithValues(t *testing.T) {
 
 func TestPage_ContainsCSS(t *testing.T) {
 	s := schema.Schema{
-		Name:   "Config",
+		Name:  "Config",
 		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
@@ -98,7 +98,7 @@ func TestPage_ContainsCSS(t *testing.T) {
 
 func TestPage_ContainsBranding(t *testing.T) {
 	s := schema.Schema{
-		Name:   "Config",
+		Name:  "Config",
 		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
@@ -120,7 +120,7 @@ func TestPage_ContainsBranding(t *testing.T) {
 
 func TestPage_WithoutBranding(t *testing.T) {
 	s := schema.Schema{
-		Name:   "Config",
+		Name:  "Config",
 		Nodes: schema.FromTags([]tags.Field{}),
 	}
 

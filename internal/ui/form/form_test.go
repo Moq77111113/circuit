@@ -141,7 +141,7 @@ func TestForm_WithValues(t *testing.T) {
 
 func TestForm_EmptySchema(t *testing.T) {
 	s := schema.Schema{
-		Name:   "Empty",
+		Name:  "Empty",
 		Nodes: schema.FromTags([]tags.Field{}),
 	}
 

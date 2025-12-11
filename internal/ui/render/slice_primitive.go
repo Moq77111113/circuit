@@ -19,7 +19,6 @@ func (r *SliceRenderer) renderPrimitiveItem(node schema.Node, index int, value a
 		g.Text("Remove"),
 	)
 
-
 	itemNode := schema.Node{
 		Name:      path.String(),
 		Kind:      schema.KindPrimitive,
@@ -34,7 +33,7 @@ func (r *SliceRenderer) renderPrimitiveItem(node schema.Node, index int, value a
 	itemCtx := Context{
 		Path:  path,
 		Value: value,
-		Depth: 0, 
+		Depth: 0,
 	}
 
 	input := (&PrimitiveRenderer{}).Render(itemNode, itemCtx)

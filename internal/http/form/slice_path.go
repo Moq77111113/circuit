@@ -18,7 +18,6 @@ func extractPathSegments(path string) []pathSegment {
 	var segments []pathSegment
 	parts := parseFieldNames(path)
 
-
 	pathParts := []string{}
 	current := ""
 	for i := 0; i < len(path); i++ {
