@@ -12,8 +12,8 @@ import (
 func Form(s schema.Schema, values map[string]any) g.Node {
 	var fields []g.Node
 
-	for _, field := range s.Fields {
-		fields = append(fields, renderField(field, values))
+	for _, node := range s.Nodes {
+		fields = append(fields, renderNode(node, values))
 	}
 
 	return h.Form(

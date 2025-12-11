@@ -38,3 +38,32 @@ func ParseIndexedField(form url.Values, fieldName string) []string {
 
 	return result
 }
+
+func ParseSliceIndices(form url.Values, fieldName string) []int {
+	prefix := fieldName + "."
+	uniqueIndices := make(map[int]bool)
+
+	for key := range form {
+		if !strings.HasPrefix(key, prefix) {
+			continue
+		}
+
+		rest := strings.TrimPrefix(key, prefix)
+		parts := strings.SplitN(rest, ".", 2)
+		indexStr := parts[0]
+
+		index, err := strconv.Atoi(indexStr)
+		if err != nil {
+			continue
+		}
+		uniqueIndices[index] = true
+	}
+
+	keys := make([]int, 0, len(uniqueIndices))
+	for k := range uniqueIndices {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	return keys
+}

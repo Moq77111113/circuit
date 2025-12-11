@@ -5,64 +5,51 @@ import (
 	"reflect"
 
 	"github.com/moq77111113/circuit/internal/schema"
-	"github.com/moq77111113/circuit/internal/tags"
 )
 
-func AddSliceItem(cfg any, s schema.Schema, fieldName string) error {
-	field := findField(s.Fields, fieldName)
-	if field == nil || !field.IsSlice {
-		return fmt.Errorf("field %s not found or not a slice", fieldName)
+// AddSliceItemNode adds a zero-value item to a slice field using Node system.
+func AddSliceItemNode(cfg any, nodes []schema.Node, fieldPath string) error {
+	path := schema.ParsePath(fieldPath)
+	node, rv := findNodeAndValue(nodes, path, reflect.ValueOf(cfg).Elem())
+
+	if node == nil || node.Kind != schema.KindSlice {
+		return fmt.Errorf("field %s not found or not a slice", fieldPath)
 	}
 
-	rv := reflect.ValueOf(cfg).Elem()
-	fv := rv.FieldByName(field.Name)
-	if !fv.IsValid() || !fv.CanSet() {
-		return fmt.Errorf("cannot set field %s", fieldName)
+	if !rv.IsValid() || !rv.CanSet() {
+		return fmt.Errorf("cannot set field %s", fieldPath)
 	}
 
-	elemType := fv.Type().Elem()
+	elemType := rv.Type().Elem()
 	zero := reflect.Zero(elemType)
-	newSlice := reflect.Append(fv, zero)
-	fv.Set(newSlice)
+	newSlice := reflect.Append(rv, zero)
+	rv.Set(newSlice)
 
 	return nil
 }
 
-func RemoveSliceItem(cfg any, s schema.Schema, fieldName string, index int) error {
-	field := findField(s.Fields, fieldName)
-	if field == nil || !field.IsSlice {
-		return fmt.Errorf("field %s not found or not a slice", fieldName)
+// RemoveSliceItemNode removes an item at index from a slice field using Node system.
+func RemoveSliceItemNode(cfg any, nodes []schema.Node, fieldPath string, index int) error {
+	path := schema.ParsePath(fieldPath)
+	node, rv := findNodeAndValue(nodes, path, reflect.ValueOf(cfg).Elem())
+
+	if node == nil || node.Kind != schema.KindSlice {
+		return fmt.Errorf("field %s not found or not a slice", fieldPath)
 	}
 
-	rv := reflect.ValueOf(cfg).Elem()
-	fv := rv.FieldByName(field.Name)
-	if !fv.IsValid() || !fv.CanSet() {
-		return fmt.Errorf("cannot set field %s", fieldName)
+	if !rv.IsValid() || !rv.CanSet() {
+		return fmt.Errorf("cannot set field %s", fieldPath)
 	}
 
-	if index < 0 || index >= fv.Len() {
-		return fmt.Errorf("index %d out of range for field %s", index, fieldName)
+	if index < 0 || index >= rv.Len() {
+		return fmt.Errorf("index %d out of range for field %s", index, fieldPath)
 	}
 
 	newSlice := reflect.AppendSlice(
-		fv.Slice(0, index),
-		fv.Slice(index+1, fv.Len()),
+		rv.Slice(0, index),
+		rv.Slice(index+1, rv.Len()),
 	)
-	fv.Set(newSlice)
+	rv.Set(newSlice)
 
-	return nil
-}
-
-func findField(fields []tags.Field, name string) *tags.Field {
-	for i := range fields {
-		if fields[i].Name == name {
-			return &fields[i]
-		}
-		if fields[i].InputType == tags.TypeSection {
-			if found := findField(fields[i].Fields, name); found != nil {
-				return found
-			}
-		}
-	}
 	return nil
 }

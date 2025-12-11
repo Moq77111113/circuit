@@ -72,7 +72,6 @@
 }
 
 .slice--depth-1 {
-  margin-left: var(--s-md);
   opacity: 0.98;
   font-size: 0.95em;
 }
@@ -83,7 +82,6 @@
 }
 
 .slice--depth-2 {
-  margin-left: var(--s-xl);
   opacity: 0.95;
   font-size: 0.9em;
 }
@@ -94,7 +92,6 @@
 }
 
 .slice--depth-3 {
-  margin-left: calc(var(--s-xl) + var(--s-md));
   opacity: 0.92;
   font-size: 0.85em;
 }
@@ -104,13 +101,6 @@
   border: 1px dotted oklch(88% 0 0);
 }
 
-@media (max-width: 767px) {
-  .slice--depth-1,
-  .slice--depth-2,
-  .slice--depth-3 {
-    margin-left: var(--s-sm); /* Reduce indent on mobile */
-  }
-}
 
 /* Section Collapsible Styles */
 .section__header {

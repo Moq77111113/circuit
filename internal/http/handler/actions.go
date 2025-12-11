@@ -18,7 +18,7 @@ func (h *Handler) handleSave(formData map[string][]string) error {
 func (h *Handler) handleAdd(fieldName string) error {
 	var err error
 	h.loader.WithLock(func() {
-		err = form.AddSliceItem(h.cfg, h.schema, fieldName)
+		err = form.AddSliceItemNode(h.cfg, h.schema.Nodes, fieldName)
 	})
 
 	if err != nil {
@@ -31,7 +31,7 @@ func (h *Handler) handleAdd(fieldName string) error {
 func (h *Handler) handleRemove(fieldName string, index int) error {
 	var err error
 	h.loader.WithLock(func() {
-		err = form.RemoveSliceItem(h.cfg, h.schema, fieldName, index)
+		err = form.RemoveSliceItemNode(h.cfg, h.schema.Nodes, fieldName, index)
 	})
 
 	if err != nil {

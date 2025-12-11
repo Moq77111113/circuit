@@ -78,6 +78,9 @@
   padding: var(--s-md);
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
 }
 
 .slice__item--struct.collapsed .slice__item-body {

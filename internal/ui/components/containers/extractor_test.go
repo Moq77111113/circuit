@@ -3,19 +3,20 @@ package containers
 import (
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/tags"
+	"github.com/moq77111113/circuit/internal/schema"
 )
 
 func TestExtract_SingleString(t *testing.T) {
-	field := tags.Field{
+	node := schema.Node{
 		Name: "Service",
-		Fields: []tags.Field{
-			{Name: "Name", Type: "string"},
+		Kind: schema.KindStruct,
+		Children: []schema.Node{
+			{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
 		},
 	}
 	value := struct{ Name string }{Name: "User Service"}
 
-	got := Extract(field, value, 3)
+	got := Extract(node, value, 3)
 
 	if len(got.Fields) != 1 {
 		t.Fatalf("expected 1 field, got %d", len(got.Fields))
@@ -29,12 +30,13 @@ func TestExtract_SingleString(t *testing.T) {
 }
 
 func TestExtract_MixedTypes(t *testing.T) {
-	field := tags.Field{
+	node := schema.Node{
 		Name: "Service",
-		Fields: []tags.Field{
-			{Name: "Name", Type: "string"},
-			{Name: "Enabled", Type: "bool"},
-			{Name: "Port", Type: "int"},
+		Kind: schema.KindStruct,
+		Children: []schema.Node{
+			{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			{Name: "Enabled", Kind: schema.KindPrimitive, ValueType: schema.ValueBool},
+			{Name: "Port", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
 		},
 	}
 	value := struct {
@@ -43,7 +45,7 @@ func TestExtract_MixedTypes(t *testing.T) {
 		Port    int
 	}{Name: "API", Enabled: true, Port: 8080}
 
-	got := Extract(field, value, 3)
+	got := Extract(node, value, 3)
 
 	if len(got.Fields) != 3 {
 		t.Fatalf("expected 3 fields, got %d", len(got.Fields))
@@ -51,8 +53,8 @@ func TestExtract_MixedTypes(t *testing.T) {
 }
 
 func TestExtract_NilValue(t *testing.T) {
-	field := tags.Field{Name: "Test"}
-	got := Extract(field, nil, 3)
+	node := schema.Node{Name: "Test", Kind: schema.KindStruct}
+	got := Extract(node, nil, 3)
 
 	if len(got.Fields) != 0 {
 		t.Errorf("expected 0 fields for nil value, got %d", len(got.Fields))
@@ -60,20 +62,21 @@ func TestExtract_NilValue(t *testing.T) {
 }
 
 func TestExtract_MaxFields(t *testing.T) {
-	field := tags.Field{
+	node := schema.Node{
 		Name: "Service",
-		Fields: []tags.Field{
-			{Name: "Field1", Type: "string"},
-			{Name: "Field2", Type: "string"},
-			{Name: "Field3", Type: "string"},
-			{Name: "Field4", Type: "string"},
+		Kind: schema.KindStruct,
+		Children: []schema.Node{
+			{Name: "Field1", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			{Name: "Field2", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			{Name: "Field3", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			{Name: "Field4", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
 		},
 	}
 	value := struct {
 		Field1, Field2, Field3, Field4 string
 	}{"A", "B", "C", "D"}
 
-	got := Extract(field, value, 2)
+	got := Extract(node, value, 2)
 
 	if len(got.Fields) != 2 {
 		t.Errorf("expected max 2 fields, got %d", len(got.Fields))
@@ -81,12 +84,13 @@ func TestExtract_MaxFields(t *testing.T) {
 }
 
 func TestExtract_ZeroValues(t *testing.T) {
-	field := tags.Field{
+	node := schema.Node{
 		Name: "Service",
-		Fields: []tags.Field{
-			{Name: "Name", Type: "string"},
-			{Name: "Enabled", Type: "bool"},
-			{Name: "Count", Type: "int"},
+		Kind: schema.KindStruct,
+		Children: []schema.Node{
+			{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			{Name: "Enabled", Kind: schema.KindPrimitive, ValueType: schema.ValueBool},
+			{Name: "Count", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
 		},
 	}
 	value := struct {
@@ -95,7 +99,7 @@ func TestExtract_ZeroValues(t *testing.T) {
 		Count   int
 	}{Name: "", Enabled: false, Count: 0}
 
-	got := Extract(field, value, 3)
+	got := Extract(node, value, 3)
 
 	if len(got.Fields) != 0 {
 		t.Errorf("expected 0 fields (all zero values), got %d", len(got.Fields))

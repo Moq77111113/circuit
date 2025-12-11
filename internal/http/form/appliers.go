@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+
+	"github.com/moq77111113/circuit/internal/schema"
 )
 
 type valueApplier func(reflect.Value, string) error
 
-var appliers = map[string]valueApplier{
-	"string": applyString,
-	"int":    applyInt,
-	"bool":   applyBool,
+var appliers = map[schema.ValueType]valueApplier{
+	schema.ValueString: applyString,
+	schema.ValueInt:    applyInt,
+	schema.ValueBool:   applyBool,
+	schema.ValueFloat:  applyFloat,
 }
 
 func applyString(fv reflect.Value, value string) error {
@@ -36,5 +39,20 @@ func applyInt(fv reflect.Value, value string) error {
 
 func applyBool(fv reflect.Value, value string) error {
 	fv.SetBool(value == "on")
+	return nil
+}
+
+func applyFloat(fv reflect.Value, value string) error {
+	if value == "" {
+		fv.SetFloat(0)
+		return nil
+	}
+
+	val, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return fmt.Errorf("invalid float: %w", err)
+	}
+
+	fv.SetFloat(val)
 	return nil
 }
