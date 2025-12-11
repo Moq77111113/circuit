@@ -58,7 +58,7 @@ func TestCollapsibleContainer(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		node := CollapsibleContainer(tt.depth, h.Div())
+		node := CollapsibleContainer(tt.depth, "", h.Div())
 		html := renderNode(node)
 
 		if !strings.Contains(html, DepthClass(tt.depth)) {
@@ -74,6 +74,24 @@ func TestCollapsibleContainer(t *testing.T) {
 				t.Errorf("Container should NOT have collapsed class for depth %d", tt.depth)
 			}
 		}
+	}
+}
+
+func TestCollapsibleContainer_WithID(t *testing.T) {
+	node := CollapsibleContainer(0, "Services", h.Div())
+	html := renderNode(node)
+
+	if !strings.Contains(html, `id="slice-Services"`) {
+		t.Error("Container should have ID when provided")
+	}
+}
+
+func TestCollapsibleContainer_WithoutID(t *testing.T) {
+	node := CollapsibleContainer(0, "", h.Div())
+	html := renderNode(node)
+
+	if strings.Contains(html, `id=`) {
+		t.Error("Container should NOT have ID when empty string provided")
 	}
 }
 

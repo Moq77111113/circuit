@@ -181,3 +181,48 @@ func TestApplyForm_Multiple(t *testing.T) {
 		t.Errorf("expected Debug=true, got %v", cfg.Debug)
 	}
 }
+
+type Middleware struct {
+	Name    string `yaml:"name" circuit:"type:text"`
+	Enabled bool   `yaml:"enabled" circuit:"type:checkbox"`
+}
+
+type ConfigWithSliceStruct struct {
+	Middlewares []Middleware `yaml:"middlewares"`
+}
+
+func TestApplyForm_SliceStruct(t *testing.T) {
+	cfg := ConfigWithSliceStruct{}
+	s, err := schema.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	form := url.Values{}
+	form.Set("Middlewares.0.Name", "Logger")
+	form.Set("Middlewares.0.Enabled", "on")
+	form.Set("Middlewares.1.Name", "Recovery")
+
+	err = Apply(&cfg, s, form)
+	if err != nil {
+		t.Fatalf("Apply failed: %v", err)
+	}
+
+	if len(cfg.Middlewares) != 2 {
+		t.Errorf("expected 2 middlewares, got %d", len(cfg.Middlewares))
+	}
+
+	if cfg.Middlewares[0].Name != "Logger" {
+		t.Errorf("expected middleware 0 name Logger, got %s", cfg.Middlewares[0].Name)
+	}
+	if !cfg.Middlewares[0].Enabled {
+		t.Errorf("expected middleware 0 enabled, got false")
+	}
+
+	if cfg.Middlewares[1].Name != "Recovery" {
+		t.Errorf("expected middleware 1 name Recovery, got %s", cfg.Middlewares[1].Name)
+	}
+	if cfg.Middlewares[1].Enabled {
+		t.Errorf("expected middleware 1 disabled, got true")
+	}
+}

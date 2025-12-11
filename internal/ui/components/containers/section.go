@@ -43,7 +43,7 @@ func sectionCollapsibleHeader(title string) g.Node {
 	return h.Div(
 		h.Class("container__header"),
 		g.Attr("onclick", "toggleCollapse(this)"),
-		h.Span(h.Class("container__chevron"), g.Text("▼")),
+		h.Span(h.Class("container__chevron"), g.Text("▾")),
 		h.Span(h.Class("container__title"), g.Text(displayTitle)),
 	)
 }

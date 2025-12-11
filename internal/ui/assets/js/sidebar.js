@@ -15,3 +15,8 @@ function closeSidebar() {
   overlay.classList.remove("is-visible");
   toggle.classList.remove("is-active");
 }
+
+function toggleNavItem(element) {
+  const listItem = element.parentElement;
+  listItem.classList.toggle("collapsed");
+}

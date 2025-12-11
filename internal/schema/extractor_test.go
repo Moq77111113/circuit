@@ -15,39 +15,45 @@ func TestExtract_BasicTypes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(schema.Fields) != 3 {
-		t.Fatalf("expected 3 fields, got %d", len(schema.Fields))
+	if len(schema.Nodes) != 3 {
+		t.Fatalf("expected 3 nodes, got %d", len(schema.Nodes))
 	}
 
 	if schema.Name != "Config" {
 		t.Errorf("expected name Config, got %s", schema.Name)
 	}
 
-	// Verify Host field
-	host := schema.Fields[0]
+	host := schema.Nodes[0]
 	if host.Name != "Host" {
 		t.Errorf("expected Host, got %s", host.Name)
 	}
-	if host.Type != "string" {
-		t.Errorf("expected string, got %s", host.Type)
+	if host.Kind != KindPrimitive {
+		t.Errorf("expected KindPrimitive, got %v", host.Kind)
+	}
+	if host.ValueType != ValueString {
+		t.Errorf("expected ValueString, got %v", host.ValueType)
 	}
 
-	// Verify Port field
-	port := schema.Fields[1]
+	port := schema.Nodes[1]
 	if port.Name != "Port" {
 		t.Errorf("expected Port, got %s", port.Name)
 	}
-	if port.Type != "int" {
-		t.Errorf("expected int, got %s", port.Type)
+	if port.Kind != KindPrimitive {
+		t.Errorf("expected KindPrimitive, got %v", port.Kind)
+	}
+	if port.ValueType != ValueInt {
+		t.Errorf("expected ValueInt, got %v", port.ValueType)
 	}
 
-	// Verify TLS field
-	tls := schema.Fields[2]
+	tls := schema.Nodes[2]
 	if tls.Name != "TLS" {
 		t.Errorf("expected TLS, got %s", tls.Name)
 	}
-	if tls.Type != "bool" {
-		t.Errorf("expected bool, got %s", tls.Type)
+	if tls.Kind != KindPrimitive {
+		t.Errorf("expected KindPrimitive, got %v", tls.Kind)
+	}
+	if tls.ValueType != ValueBool {
+		t.Errorf("expected ValueBool, got %v", tls.ValueType)
 	}
 }
 
@@ -60,8 +66,8 @@ func TestExtract_EmptyStruct(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(schema.Fields) != 0 {
-		t.Errorf("expected 0 fields, got %d", len(schema.Fields))
+	if len(schema.Nodes) != 0 {
+		t.Errorf("expected 0 nodes, got %d", len(schema.Nodes))
 	}
 
 	if schema.Name != "Empty" {

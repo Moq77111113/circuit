@@ -17,7 +17,7 @@ func CollapsibleHeader(title string, count int, collapsed bool, summary string) 
 	}
 
 	children := []g.Node{
-		h.Span(h.Class("slice__chevron"), g.Text("▼")),
+		h.Span(h.Class("slice__chevron"), g.Text("▾")),
 		h.Span(h.Class("slice__title"), g.Text(displayTitle)),
 		h.Span(h.Class("slice__count"), g.Textf("(%d)", count)),
 	}
@@ -39,12 +39,17 @@ func CollapsibleBody(children []g.Node) g.Node {
 }
 
 // CollapsibleContainer renders the container for a collapsible section or slice.
-func CollapsibleContainer(depth int, children ...g.Node) g.Node {
+func CollapsibleContainer(depth int, id string, children ...g.Node) g.Node {
 	containerClass := fmt.Sprintf("slice %s", DepthClass(depth))
 	if IsCollapsed(depth) {
 		containerClass += " collapsed"
 	}
-	return h.Div(h.Class(containerClass), g.Group(children))
+	attrs := []g.Node{h.Class(containerClass)}
+	if id != "" {
+		attrs = append(attrs, h.ID("slice-"+id))
+	}
+	attrs = append(attrs, g.Group(children))
+	return h.Div(attrs...)
 }
 
 // SectionHeader renders the header for a section, optionally collapsible.
@@ -53,7 +58,7 @@ func SectionHeader(title string, collapsible bool) g.Node {
 		return h.Div(
 			h.Class("section__header"),
 			g.Attr("onclick", "toggleCollapse(this)"),
-			h.Span(h.Class("section__chevron"), g.Text("▼")),
+			h.Span(h.Class("section__chevron"), g.Text("▾")),
 			h.H3(h.Class("section__title"), g.Text(title)),
 		)
 	}

@@ -25,7 +25,7 @@ func Page(s schema.Schema, values map[string]any, title string, brand bool) g.No
 					h.Name("viewport"),
 					h.Content("width=device-width, initial-scale=1"),
 				),
-				FavIcons(),
+				Links(),
 				h.TitleEl(g.Text(title)),
 				h.StyleEl(g.Raw(assets.DefaultCSS)),
 			),
@@ -43,7 +43,7 @@ func Page(s schema.Schema, values map[string]any, title string, brand bool) g.No
 				),
 				h.Div(
 					h.Class("app"),
-					Sidebar(s),
+					Sidebar(s, values),
 					h.Main(
 						h.Class("app__main"),
 						h.Div(

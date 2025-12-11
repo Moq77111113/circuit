@@ -24,7 +24,7 @@ func Extract(v any) (Schema, error) {
 	name := rv.Type().Name()
 
 	return Schema{
-		Name:   name,
-		Fields: fields,
+		Name:  name,
+		Nodes: FromTags(fields),
 	}, nil
 }

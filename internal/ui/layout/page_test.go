@@ -18,10 +18,10 @@ func renderToString(node g.Node) string {
 func TestPage_Complete(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text", Help: "Server host"},
 			{Name: "Port", Type: "int", InputType: "number", Help: "Server port"},
-		},
+		}),
 	}
 
 	html := renderToString(Page(s, nil, "", true))
@@ -46,8 +46,8 @@ func TestPage_Complete(t *testing.T) {
 
 func TestPage_CustomTitle(t *testing.T) {
 	s := schema.Schema{
-		Name:   "Config",
-		Fields: []tags.Field{},
+		Name:  "Config",
+		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
 	html := renderToString(Page(s, nil, "My Custom Settings", true))
@@ -60,9 +60,9 @@ func TestPage_CustomTitle(t *testing.T) {
 func TestPage_WithValues(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text"},
-		},
+		}),
 	}
 
 	values := map[string]any{
@@ -79,7 +79,7 @@ func TestPage_WithValues(t *testing.T) {
 func TestPage_ContainsCSS(t *testing.T) {
 	s := schema.Schema{
 		Name:   "Config",
-		Fields: []tags.Field{},
+		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
 	html := renderToString(Page(s, nil, "", true))
@@ -99,7 +99,7 @@ func TestPage_ContainsCSS(t *testing.T) {
 func TestPage_ContainsBranding(t *testing.T) {
 	s := schema.Schema{
 		Name:   "Config",
-		Fields: []tags.Field{},
+		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
 	html := renderToString(Page(s, nil, "", true))
@@ -121,7 +121,7 @@ func TestPage_ContainsBranding(t *testing.T) {
 func TestPage_WithoutBranding(t *testing.T) {
 	s := schema.Schema{
 		Name:   "Config",
-		Fields: []tags.Field{},
+		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
 	html := renderToString(Page(s, nil, "", false))

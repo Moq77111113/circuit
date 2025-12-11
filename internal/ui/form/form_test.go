@@ -11,7 +11,7 @@ import (
 func TestForm_TextInput(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{
 				Name:      "Host",
 				Type:      "string",
@@ -19,7 +19,7 @@ func TestForm_TextInput(t *testing.T) {
 				Help:      "Server hostname",
 				Required:  false,
 			},
-		},
+		}),
 	}
 
 	html := renderToString(Form(s, nil))
@@ -38,7 +38,7 @@ func TestForm_TextInput(t *testing.T) {
 func TestForm_NumberInput(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{
 				Name:      "Port",
 				Type:      "int",
@@ -46,7 +46,7 @@ func TestForm_NumberInput(t *testing.T) {
 				Help:      "Server port",
 				Required:  true,
 			},
-		},
+		}),
 	}
 
 	html := renderToString(Form(s, nil))
@@ -68,7 +68,7 @@ func TestForm_NumberInput(t *testing.T) {
 func TestForm_Checkbox(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{
 				Name:      "TLS",
 				Type:      "bool",
@@ -76,7 +76,7 @@ func TestForm_Checkbox(t *testing.T) {
 				Help:      "Enable TLS",
 				Required:  false,
 			},
-		},
+		}),
 	}
 
 	html := renderToString(Form(s, nil))
@@ -95,11 +95,11 @@ func TestForm_Checkbox(t *testing.T) {
 func TestForm_MultipleFields(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text", Help: "Hostname"},
 			{Name: "Port", Type: "int", InputType: "number", Help: "Port"},
 			{Name: "TLS", Type: "bool", InputType: "checkbox", Help: "TLS"},
-		},
+		}),
 	}
 
 	html := renderToString(Form(s, nil))
@@ -118,10 +118,10 @@ func TestForm_MultipleFields(t *testing.T) {
 func TestForm_WithValues(t *testing.T) {
 	s := schema.Schema{
 		Name: "Config",
-		Fields: []tags.Field{
+		Nodes: schema.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text"},
 			{Name: "Port", Type: "int", InputType: "number"},
-		},
+		}),
 	}
 
 	values := map[string]any{
@@ -142,7 +142,7 @@ func TestForm_WithValues(t *testing.T) {
 func TestForm_EmptySchema(t *testing.T) {
 	s := schema.Schema{
 		Name:   "Empty",
-		Fields: []tags.Field{},
+		Nodes: schema.FromTags([]tags.Field{}),
 	}
 
 	html := renderToString(Form(s, nil))

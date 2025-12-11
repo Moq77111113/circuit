@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/moq77111113/circuit/internal/tags"
+	"github.com/moq77111113/circuit/internal/schema"
 )
 
 type Summary struct {
@@ -17,7 +17,7 @@ type Field struct {
 	Value string
 }
 
-func Extract(field tags.Field, value any, maxFields int) Summary {
+func Extract(node schema.Node, value any, maxFields int) Summary {
 	if value == nil || maxFields <= 0 {
 		return Summary{}
 	}
@@ -34,36 +34,43 @@ func Extract(field tags.Field, value any, maxFields int) Summary {
 	}
 
 	var fields []Field
-	for i := 0; i < len(field.Fields) && len(fields) < maxFields; i++ {
-		f := field.Fields[i]
-		fv := v.FieldByName(f.Name)
+	for i := 0; i < len(node.Children) && len(fields) < maxFields; i++ {
+		child := node.Children[i]
+		fv := v.FieldByName(child.Name)
 		if !fv.IsValid() {
 			continue
 		}
 
-		valueStr := extractFieldValue(f, fv)
+		valueStr := extractFieldValue(child, fv)
 		if valueStr == "" {
 			continue
 		}
-		fields = append(fields, Field{Name: f.Name, Value: valueStr})
+		fields = append(fields, Field{Name: child.Name, Value: valueStr})
 	}
 
 	return Summary{Fields: fields}
 }
 
-func extractFieldValue(f tags.Field, fv reflect.Value) string {
-	switch f.Type {
-	case "string":
-		return fv.String()
-	case "bool":
-		if fv.Bool() {
-			return "true"
+func extractFieldValue(node schema.Node, fv reflect.Value) string {
+	switch node.Kind {
+	case schema.KindPrimitive:
+		switch node.ValueType {
+		case schema.ValueString:
+			return fv.String()
+		case schema.ValueBool:
+			if fv.Bool() {
+				return "true"
+			}
+		case schema.ValueInt:
+			if i := fv.Int(); i != 0 {
+				return fmt.Sprintf("%d", i)
+			}
+		case schema.ValueFloat:
+			if f := fv.Float(); f != 0 {
+				return fmt.Sprintf("%.2f", f)
+			}
 		}
-	case "int":
-		if i := fv.Int(); i != 0 {
-			return fmt.Sprintf("%d", i)
-		}
-	case "slice":
+	case schema.KindSlice:
 		if n := fv.Len(); n > 0 {
 			return fmt.Sprintf("%d", n)
 		}
