@@ -1,15 +1,16 @@
 package form
 
 import (
-	"fmt"
 	"net/url"
 	"reflect"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/ast/walk"
 )
 
-// ExtractValues reads field values from a config struct
-func ExtractValues(cfg any, s schema.Schema) map[string]any {
+// ExtractValues reads field values from a config struct.
+func ExtractValues(cfg any, s ast.Schema) map[string]any {
 	values := make(map[string]any)
 	rv := reflect.ValueOf(cfg).Elem()
 
@@ -29,56 +30,95 @@ func ExtractValues(cfg any, s schema.Schema) map[string]any {
 	return values
 }
 
-// Apply updates a config struct from form data
-func Apply(cfg any, s schema.Schema, form url.Values) error {
+// Apply updates a config struct from form data using the Visitor pattern.
+func Apply(cfg any, s ast.Schema, form url.Values) error {
 	return ApplyNodes(cfg, s.Nodes, form)
 }
 
-// ApplyNodes updates a config struct from form data using the new Node system.
-func ApplyNodes(cfg any, nodes []schema.Node, form url.Values) error {
+// ApplyNodes updates a config struct from form data using FormVisitor.
+func ApplyNodes(cfg any, nodes []ast.Node, form url.Values) error {
+	tree := &ast.Tree{Nodes: nodes}
+	visitor := &FormVisitor{form: form}
+
 	rv := reflect.ValueOf(cfg).Elem()
-	return applyNodes(rv, nodes, schema.Path{}, form)
-}
+	state := NewFormState(rv)
 
-// applyNodes recursively applies form values to struct fields using Node and Path
-func applyNodes(rv reflect.Value, nodes []schema.Node, basePath schema.Path, form url.Values) error {
-	for _, node := range nodes {
-		path := basePath.Child(node.Name)
-		fv := rv.FieldByName(node.Name)
+	// Walk the tree, visiting each node
+	for i := range nodes {
+		node := &nodes[i]
+		fieldValue := rv.FieldByName(node.Name)
 
-		if !fv.IsValid() || !fv.CanSet() {
+		if !fieldValue.IsValid() || !fieldValue.CanSet() {
 			continue
 		}
 
+		// Update state with current field
+		state.Current = fieldValue
+
+		// Create context for this node
+		ctx := &walk.VisitContext{
+			Tree:   tree,
+			State:  state,
+			Path:   path.NewPath(node.Name),
+			Depth:  0,
+			Parent: nil,
+			Index:  -1,
+		}
+
+		// Visit based on kind
+		var err error
 		switch node.Kind {
-		case schema.KindPrimitive:
-			if err := applyPrimitive(fv, node, path.String(), form); err != nil {
-				return fmt.Errorf("%s: %w", node.Name, err)
-			}
+		case ast.KindPrimitive:
+			err = visitor.VisitPrimitive(ctx, node)
+		case ast.KindStruct:
+			// For structs, we need to recurse into children
+			err = visitStructChildren(visitor, ctx, node, fieldValue)
+		case ast.KindSlice:
+			err = visitor.VisitSlice(ctx, node)
+		}
 
-		case schema.KindStruct:
-			if err := applyNodes(fv, node.Children, path, form); err != nil {
-				return err
-			}
-
-		case schema.KindSlice:
-			if err := applySliceNode(fv, node, path, form); err != nil {
-				return fmt.Errorf("%s: %w", node.Name, err)
-			}
+		if err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
-// applyPrimitive applies a form value to a primitive field.
-func applyPrimitive(fv reflect.Value, node schema.Node, fieldName string, form url.Values) error {
-	value := form.Get(fieldName)
+// visitStructChildren recursively visits all children of a struct node.
+func visitStructChildren(visitor *FormVisitor, parentCtx *walk.VisitContext, node *ast.Node, structValue reflect.Value) error {
+	for i := range node.Children {
+		child := &node.Children[i]
+		childFieldValue := structValue.FieldByName(child.Name)
 
-	applier, exists := appliers[node.ValueType]
-	if !exists {
-		return fmt.Errorf("no applier for type %v", node.ValueType)
+		if !childFieldValue.IsValid() || !childFieldValue.CanSet() {
+			continue
+		}
+
+		childState := &FormState{Current: childFieldValue}
+		childCtx := &walk.VisitContext{
+			Tree:   parentCtx.Tree,
+			State:  childState,
+			Path:   parentCtx.Path.Child(child.Name),
+			Depth:  parentCtx.Depth + 1,
+			Parent: node,
+			Index:  -1,
+		}
+
+		var err error
+		switch child.Kind {
+		case ast.KindPrimitive:
+			err = visitor.VisitPrimitive(childCtx, child)
+		case ast.KindStruct:
+			err = visitStructChildren(visitor, childCtx, child, childFieldValue)
+		case ast.KindSlice:
+			err = visitor.VisitSlice(childCtx, child)
+		}
+
+		if err != nil {
+			return err
+		}
 	}
 
-	return applier(fv, value)
+	return nil
 }
