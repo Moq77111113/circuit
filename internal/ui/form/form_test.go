@@ -4,14 +4,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/tags"
 )
 
 func TestForm_TextInput(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{
 				Name:      "Host",
 				Type:      "string",
@@ -36,9 +36,9 @@ func TestForm_TextInput(t *testing.T) {
 }
 
 func TestForm_NumberInput(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{
 				Name:      "Port",
 				Type:      "int",
@@ -66,9 +66,9 @@ func TestForm_NumberInput(t *testing.T) {
 }
 
 func TestForm_Checkbox(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{
 				Name:      "TLS",
 				Type:      "bool",
@@ -93,9 +93,9 @@ func TestForm_Checkbox(t *testing.T) {
 }
 
 func TestForm_MultipleFields(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text", Help: "Hostname"},
 			{Name: "Port", Type: "int", InputType: "number", Help: "Port"},
 			{Name: "TLS", Type: "bool", InputType: "checkbox", Help: "TLS"},
@@ -116,9 +116,9 @@ func TestForm_MultipleFields(t *testing.T) {
 }
 
 func TestForm_WithValues(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text"},
 			{Name: "Port", Type: "int", InputType: "number"},
 		}),
@@ -140,9 +140,9 @@ func TestForm_WithValues(t *testing.T) {
 }
 
 func TestForm_EmptySchema(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name:  "Empty",
-		Nodes: schema.FromTags([]tags.Field{}),
+		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
 	html := renderToString(Form(s, nil))

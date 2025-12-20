@@ -6,13 +6,13 @@ import (
 	"github.com/moq77111113/circuit/internal/http/action"
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/reload"
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ui/layout"
 )
 
 // Handler serves the config UI over HTTP.
 type Handler struct {
-	schema schema.Schema
+	schema ast.Schema
 	cfg    any
 	path   string
 	title  string
@@ -21,7 +21,7 @@ type Handler struct {
 }
 
 // New creates a new HTTP handler for the config UI.
-func New(schema schema.Schema, cfg any, path, title string, brand bool, loader *reload.Loader) *Handler {
+func New(schema ast.Schema, cfg any, path, title string, brand bool, loader *reload.Loader) *Handler {
 	return &Handler{
 		schema: schema,
 		cfg:    cfg,

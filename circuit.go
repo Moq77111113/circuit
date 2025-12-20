@@ -7,7 +7,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/http/handler"
 	"github.com/moq77111113/circuit/internal/reload"
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 )
 
 // From creates and returns an `http.Handler` that serves a small web UI for
@@ -40,7 +40,7 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		return nil, fmt.Errorf("path is required (use WithPath)")
 	}
 
-	s, err := schema.Extract(cfg)
+	s, err := ast.Extract(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("extract schema: %w", err)
 	}

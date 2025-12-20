@@ -3,15 +3,15 @@ package containers
 import (
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 )
 
 func TestExtract_SingleString(t *testing.T) {
-	node := schema.Node{
+	node := ast.Node{
 		Name: "Service",
-		Kind: schema.KindStruct,
-		Children: []schema.Node{
-			{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+		Kind: ast.KindStruct,
+		Children: []ast.Node{
+			{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
 		},
 	}
 	value := struct{ Name string }{Name: "User Service"}
@@ -30,13 +30,13 @@ func TestExtract_SingleString(t *testing.T) {
 }
 
 func TestExtract_MixedTypes(t *testing.T) {
-	node := schema.Node{
+	node := ast.Node{
 		Name: "Service",
-		Kind: schema.KindStruct,
-		Children: []schema.Node{
-			{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-			{Name: "Enabled", Kind: schema.KindPrimitive, ValueType: schema.ValueBool},
-			{Name: "Port", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
+		Kind: ast.KindStruct,
+		Children: []ast.Node{
+			{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+			{Name: "Enabled", Kind: ast.KindPrimitive, ValueType: ast.ValueBool},
+			{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
 		},
 	}
 	value := struct {
@@ -53,7 +53,7 @@ func TestExtract_MixedTypes(t *testing.T) {
 }
 
 func TestExtract_NilValue(t *testing.T) {
-	node := schema.Node{Name: "Test", Kind: schema.KindStruct}
+	node := ast.Node{Name: "Test", Kind: ast.KindStruct}
 	got := Extract(node, nil, 3)
 
 	if len(got.Fields) != 0 {
@@ -62,14 +62,14 @@ func TestExtract_NilValue(t *testing.T) {
 }
 
 func TestExtract_MaxFields(t *testing.T) {
-	node := schema.Node{
+	node := ast.Node{
 		Name: "Service",
-		Kind: schema.KindStruct,
-		Children: []schema.Node{
-			{Name: "Field1", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-			{Name: "Field2", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-			{Name: "Field3", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-			{Name: "Field4", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+		Kind: ast.KindStruct,
+		Children: []ast.Node{
+			{Name: "Field1", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+			{Name: "Field2", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+			{Name: "Field3", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+			{Name: "Field4", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
 		},
 	}
 	value := struct {
@@ -84,13 +84,13 @@ func TestExtract_MaxFields(t *testing.T) {
 }
 
 func TestExtract_ZeroValues(t *testing.T) {
-	node := schema.Node{
+	node := ast.Node{
 		Name: "Service",
-		Kind: schema.KindStruct,
-		Children: []schema.Node{
-			{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-			{Name: "Enabled", Kind: schema.KindPrimitive, ValueType: schema.ValueBool},
-			{Name: "Count", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
+		Kind: ast.KindStruct,
+		Children: []ast.Node{
+			{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+			{Name: "Enabled", Kind: ast.KindPrimitive, ValueType: ast.ValueBool},
+			{Name: "Count", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
 		},
 	}
 	value := struct {

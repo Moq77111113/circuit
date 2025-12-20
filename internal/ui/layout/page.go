@@ -5,12 +5,12 @@ import (
 	c "maragu.dev/gomponents/components"
 	h "maragu.dev/gomponents/html"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ui/assets"
 	"github.com/moq77111113/circuit/internal/ui/form"
 )
 
-func Page(s schema.Schema, values map[string]any, title string, brand bool) g.Node {
+func Page(s ast.Schema, values map[string]any, title string, brand bool) g.Node {
 	if title == "" {
 		title = s.Name + " Configuration"
 	}

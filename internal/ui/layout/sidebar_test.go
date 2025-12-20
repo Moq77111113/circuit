@@ -4,30 +4,30 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 )
 
 func TestSidebar_NestedStructLinks(t *testing.T) {
-	nodes := []schema.Node{
+	nodes := []ast.Node{
 		{
 			Name: "Server",
-			Kind: schema.KindStruct,
-			Children: []schema.Node{
-				{Name: "Host", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			Kind: ast.KindStruct,
+			Children: []ast.Node{
+				{Name: "Host", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
 				{
 					Name: "Database",
-					Kind: schema.KindStruct,
-					Children: []schema.Node{
-						{Name: "User", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-						{Name: "Port", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
+					Kind: ast.KindStruct,
+					Children: []ast.Node{
+						{Name: "User", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+						{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
 					},
 				},
 			},
 		},
-		{Name: "Debug", Kind: schema.KindPrimitive, ValueType: schema.ValueBool},
+		{Name: "Debug", Kind: ast.KindPrimitive, ValueType: ast.ValueBool},
 	}
 
-	s := schema.Schema{Nodes: nodes}
+	s := ast.Schema{Nodes: nodes}
 	values := map[string]any{
 		"Server.Host":          "localhost",
 		"Server.Database.User": "admin",
@@ -59,19 +59,19 @@ func TestSidebar_NestedStructLinks(t *testing.T) {
 }
 
 func TestSidebar_SliceLinks(t *testing.T) {
-	nodes := []schema.Node{
+	nodes := []ast.Node{
 		{
 			Name:        "Services",
-			Kind:        schema.KindSlice,
-			ElementKind: schema.KindStruct,
-			Children: []schema.Node{
-				{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-				{Name: "Port", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
+			Kind:        ast.KindSlice,
+			ElementKind: ast.KindStruct,
+			Children: []ast.Node{
+				{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+				{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
 			},
 		},
 	}
 
-	s := schema.Schema{Nodes: nodes}
+	s := ast.Schema{Nodes: nodes}
 
 	values := map[string]any{
 		"Services": []map[string]any{
@@ -99,23 +99,23 @@ func TestSidebar_SliceLinks(t *testing.T) {
 }
 
 func TestSidebar_CollapsibleItems(t *testing.T) {
-	nodes := []schema.Node{
+	nodes := []ast.Node{
 		{
 			Name: "Server",
-			Kind: schema.KindStruct,
-			Children: []schema.Node{
-				{Name: "Host", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			Kind: ast.KindStruct,
+			Children: []ast.Node{
+				{Name: "Host", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
 			},
 		},
 		{
 			Name:        "Tags",
-			Kind:        schema.KindSlice,
-			ElementKind: schema.KindPrimitive,
-			ValueType:   schema.ValueString,
+			Kind:        ast.KindSlice,
+			ElementKind: ast.KindPrimitive,
+			ValueType:   ast.ValueString,
 		},
 	}
 
-	s := schema.Schema{Nodes: nodes}
+	s := ast.Schema{Nodes: nodes}
 	values := map[string]any{
 		"Server.Host": "localhost",
 		"Tags":        []string{"prod", "api"},

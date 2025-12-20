@@ -6,20 +6,18 @@ import (
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
-func Form(s schema.Schema, values map[string]any) g.Node {
-	var fields []g.Node
-
-	for _, node := range s.Nodes {
-		fields = append(fields, renderNode(node, values))
-	}
+func Form(s ast.Schema, values map[string]any) g.Node {
+	// Use the new Render API that takes all nodes at once
+	fields := render.Render(s.Nodes, values)
 
 	return h.Form(
 		h.Method("post"),
 		h.Class("form"),
-		g.Group(fields),
+		fields,
 		h.Div(
 			h.Class("form__actions"),
 			h.Button(
