@@ -1,0 +1,89 @@
+package walk
+
+import (
+	"github.com/moq77111113/circuit/internal/ast/node"
+)
+
+// WalkConfig holds configuration for tree walking.
+type WalkConfig struct {
+	MaxDepth int
+}
+
+// WalkOption configures a Walker.
+type WalkOption func(*WalkConfig)
+
+// WithMaxDepth sets the maximum depth for traversal.
+func WithMaxDepth(depth int) WalkOption {
+	return func(cfg *WalkConfig) {
+		cfg.MaxDepth = depth
+	}
+}
+
+// Walker traverses an AST and calls visitor methods.
+type Walker struct {
+	visitor Visitor
+	config  WalkConfig
+}
+
+// NewWalker creates a new Walker with the given visitor and options.
+func NewWalker(v Visitor, opts ...WalkOption) *Walker {
+	w := &Walker{
+		visitor: v,
+		config:  WalkConfig{MaxDepth: -1},
+	}
+	for _, opt := range opts {
+		opt(&w.config)
+	}
+	return w
+}
+
+// Walk traverses the tree and calls visitor methods.
+func (w *Walker) Walk(tree *node.Tree, state any) error {
+	ctx := NewContext(tree, state)
+	return w.walkNodes(tree.Nodes, ctx)
+}
+
+func (w *Walker) walkNodes(nodes []node.Node, ctx *VisitContext) error {
+	for i := range nodes {
+		nodeCtx := *ctx
+		nodeCtx.Path = ctx.Path.Child(nodes[i].Name)
+
+		if err := w.walkNode(&nodes[i], &nodeCtx); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (w *Walker) walkNode(n *node.Node, ctx *VisitContext) error {
+	if w.config.MaxDepth >= 0 && ctx.Depth > w.config.MaxDepth {
+		return nil
+	}
+
+	// Visit current node (SINGLE SWITCH POINT)
+	if err := w.visit(n, ctx); err != nil {
+		return err
+	}
+
+	// Recurse into children for structs
+	if n.Kind == node.KindStruct && len(n.Children) > 0 {
+		childCtx := *ctx
+		childCtx.Depth++
+		childCtx.Parent = n
+		return w.walkNodes(n.Children, &childCtx)
+	}
+
+	return nil
+}
+
+func (w *Walker) visit(n *node.Node, ctx *VisitContext) error {
+	switch n.Kind {
+	case node.KindPrimitive:
+		return w.visitor.VisitPrimitive(ctx, n)
+	case node.KindStruct:
+		return w.visitor.VisitStruct(ctx, n)
+	case node.KindSlice:
+		return w.visitor.VisitSlice(ctx, n)
+	}
+	return nil
+}
