@@ -1,4 +1,4 @@
-package schema
+package node
 
 import (
 	"testing"
@@ -19,7 +19,7 @@ func TestNode_PrimitiveConstruction(t *testing.T) {
 				Name:      "Host",
 				Kind:      KindPrimitive,
 				ValueType: ValueString,
-				InputType: tags.TypeText,
+				UI:        &UIMetadata{InputType: tags.TypeText},
 			},
 			wantKind:  KindPrimitive,
 			wantValue: ValueString,
@@ -30,7 +30,7 @@ func TestNode_PrimitiveConstruction(t *testing.T) {
 				Name:      "Port",
 				Kind:      KindPrimitive,
 				ValueType: ValueInt,
-				InputType: tags.TypeNumber,
+				UI:        &UIMetadata{InputType: tags.TypeNumber},
 			},
 			wantKind:  KindPrimitive,
 			wantValue: ValueInt,
@@ -41,7 +41,7 @@ func TestNode_PrimitiveConstruction(t *testing.T) {
 				Name:      "Enabled",
 				Kind:      KindPrimitive,
 				ValueType: ValueBool,
-				InputType: tags.TypeCheckbox,
+				UI:        &UIMetadata{InputType: tags.TypeCheckbox},
 			},
 			wantKind:  KindPrimitive,
 			wantValue: ValueBool,
@@ -69,13 +69,13 @@ func TestNode_StructConstruction(t *testing.T) {
 				Name:      "Host",
 				Kind:      KindPrimitive,
 				ValueType: ValueString,
-				InputType: tags.TypeText,
+				UI:        &UIMetadata{InputType: tags.TypeText},
 			},
 			{
 				Name:      "Port",
 				Kind:      KindPrimitive,
 				ValueType: ValueInt,
-				InputType: tags.TypeNumber,
+				UI:        &UIMetadata{InputType: tags.TypeNumber},
 			},
 		},
 	}
@@ -105,7 +105,7 @@ func TestNode_SliceConstruction(t *testing.T) {
 				Kind:        KindSlice,
 				ElementKind: KindPrimitive,
 				ValueType:   ValueString,
-				InputType:   tags.TypeText,
+				UI:          &UIMetadata{InputType: tags.TypeText},
 			},
 			wantKind:    KindSlice,
 			wantElement: KindPrimitive,
@@ -121,7 +121,7 @@ func TestNode_SliceConstruction(t *testing.T) {
 						Name:      "Name",
 						Kind:      KindPrimitive,
 						ValueType: ValueString,
-						InputType: tags.TypeText,
+						UI:        &UIMetadata{InputType: tags.TypeText},
 					},
 				},
 			},
@@ -153,7 +153,7 @@ func TestNode_DeepNested(t *testing.T) {
 				Name:      "Name",
 				Kind:      KindPrimitive,
 				ValueType: ValueString,
-				InputType: tags.TypeText,
+				UI:        &UIMetadata{InputType: tags.TypeText},
 			},
 			{
 				Name:        "Endpoints",
@@ -164,14 +164,14 @@ func TestNode_DeepNested(t *testing.T) {
 						Name:      "Path",
 						Kind:      KindPrimitive,
 						ValueType: ValueString,
-						InputType: tags.TypeText,
+						UI:        &UIMetadata{InputType: tags.TypeText},
 					},
 					{
 						Name:        "AllowedRoles",
 						Kind:        KindSlice,
 						ElementKind: KindPrimitive,
 						ValueType:   ValueString,
-						InputType:   tags.TypeText,
+						UI:          &UIMetadata{InputType: tags.TypeText},
 					},
 				},
 			},

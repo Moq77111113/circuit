@@ -1,4 +1,4 @@
-package schema
+package node
 
 import (
 	"testing"
@@ -242,19 +242,19 @@ func TestFromTags_PreservesMetadata(t *testing.T) {
 	}
 
 	node := nodes[0]
-	if node.Help != "Server port" {
-		t.Errorf("node.Help = %s, want 'Server port'", node.Help)
+	if node.UI.Help != "Server port" {
+		t.Errorf("node.UI.Help = %s, want 'Server port'", node.UI.Help)
 	}
-	if !node.Required {
-		t.Error("node.Required should be true")
+	if !node.UI.Required {
+		t.Error("node.UI.Required should be true")
 	}
-	if node.Min != "1" {
-		t.Errorf("node.Min = %s, want '1'", node.Min)
+	if node.UI.Min != "1" {
+		t.Errorf("node.UI.Min = %s, want '1'", node.UI.Min)
 	}
-	if node.Max != "65535" {
-		t.Errorf("node.Max = %s, want '65535'", node.Max)
+	if node.UI.Max != "65535" {
+		t.Errorf("node.UI.Max = %s, want '65535'", node.UI.Max)
 	}
-	if node.Step != "1" {
-		t.Errorf("node.Step = %s, want '1'", node.Step)
+	if node.UI.Step != "1" {
+		t.Errorf("node.UI.Step = %s, want '1'", node.UI.Step)
 	}
 }
