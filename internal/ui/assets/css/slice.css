@@ -171,12 +171,13 @@
 
 .slice__add-button {
   margin: var(--s-sm);
-  padding: var(--s-xs) var(--s-sm);
-  background: var(--c-text-primary);
-  border: 1px solid var(--c-text-primary);
-  border-radius: var(--r-sm);
-  color: var(--c-bg);
-  font-size: var(--fs-xs);
+  padding: var(--s-sm) var(--s-md);
+  min-height: 32px;
+  background: var(--c-brand);
+  border: 1px solid var(--c-brand);
+  border-radius: var(--r-md);
+  color: var(--c-brand-text);
+  font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -184,8 +185,14 @@
 }
 
 .slice__add-button:hover {
-  background: var(--c-text-secondary);
-  border-color: var(--c-border-hover);
+  background: var(--c-brand-hover);
+  border-color: var(--c-brand-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+}
+
+.slice__add-button:active {
+  transform: translateY(0);
+  background: var(--c-brand-active);
+  border-color: var(--c-brand-active);
 }

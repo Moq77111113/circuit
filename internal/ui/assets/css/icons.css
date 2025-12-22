@@ -1,0 +1,48 @@
+/* Icon System - CSS-based icons using ::before pseudo-elements */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chevron Down - Default collapsed state */
+.icon--chevron-down::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+/* Chevron Right - For collapsed items */
+.icon--chevron-right::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+}
+
+/* Arrow Right - For navigation/links */
+.icon--arrow-right::before {
+  content: "→";
+  font-size: 1.2em;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.icon--arrow-right:hover::before {
+  transform: translateX(2px);
+}
+
+/* State modifiers */
+.collapsed .icon--chevron-down::before {
+  transform: rotate(-45deg); /* Points right when collapsed */
+}

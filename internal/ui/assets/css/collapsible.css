@@ -1,0 +1,109 @@
+/* Collapsible Component - Unified BEM-style collapsible */
+
+.collapsible {
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  margin-bottom: var(--s-md);
+  transition: background-color 0.15s ease;
+}
+
+.collapsible__header {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  padding: var(--s-sm) var(--s-md);
+  background: var(--c-surface-alt);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+  font-size: var(--fs-sm);
+}
+
+.collapsible__header:hover {
+  background: var(--c-surface-hover);
+}
+
+.collapsible__icon {
+  color: var(--c-text-secondary);
+  font-size: var(--fs-sm);
+  transition: transform 0.2s ease;
+}
+
+.collapsible__title {
+  font-weight: var(--fw-medium);
+  color: var(--c-text-primary);
+  flex: 1;
+}
+
+.collapsible__count {
+  font-size: var(--fs-xs);
+  color: var(--c-text-tertiary);
+  margin-left: auto;
+}
+
+.collapsible__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-md);
+  padding: var(--s-lg);
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.collapsible--collapsed .collapsible__body {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* Depth modifiers - use CSS variables */
+.collapsible--depth-0 {
+  background: var(--depth-0-surface);
+  border-color: var(--depth-0-border);
+}
+
+.collapsible--depth-1 {
+  background: var(--depth-1-surface);
+  border-color: var(--depth-1-border);
+  font-size: 0.95em;
+}
+
+.collapsible--depth-1 .collapsible__header {
+  background: var(--depth-1-surface);
+}
+
+.collapsible--depth-2 {
+  background: var(--depth-2-surface);
+  border-color: var(--depth-2-border);
+  font-size: 0.9em;
+}
+
+.collapsible--depth-2 .collapsible__header {
+  background: var(--depth-2-surface);
+  border-style: solid;
+}
+
+.collapsible--depth-3 {
+  background: var(--depth-3-surface);
+  border-color: var(--depth-3-border);
+  font-size: 0.85em;
+}
+
+.collapsible--depth-3 .collapsible__header {
+  background: var(--depth-3-surface);
+  border-style: dashed;
+}
+
+.collapsible--depth-4 {
+  background: var(--depth-4-surface);
+  border-color: var(--depth-4-border);
+  font-size: 0.8em;
+}
+
+.collapsible--depth-4 .collapsible__header {
+  background: var(--depth-4-surface);
+  border-style: dotted;
+}

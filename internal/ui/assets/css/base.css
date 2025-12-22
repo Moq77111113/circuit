@@ -3,6 +3,7 @@
   --c-bg: oklch(99% 0 0);
   --c-surface: oklch(100% 0 0);
   --c-surface-alt: oklch(97% 0 0);
+  --c-surface-hover: oklch(96% 0 0);
   --c-border: oklch(92% 0 0);
   --c-border-hover: oklch(80% 0 0);
   --c-border-focus: oklch(55% 0.2 260);
@@ -10,11 +11,29 @@
   --c-text-secondary: oklch(45% 0 0);
   --c-text-tertiary: oklch(65% 0 0);
 
+  /* Brand colors (primary action) */
   --c-brand: oklch(55% 0.2 260);
-  --c-brand-hover: oklch(45% 0.2 260);
+  --c-brand-hover: oklch(50% 0.22 260);
+  --c-brand-active: oklch(45% 0.2 260);
   --c-brand-text: oklch(100% 0 0);
 
+  /* Semantic colors */
   --c-danger: oklch(60% 0.15 20);
+  --c-danger-hover: oklch(55% 0.18 20);
+  --c-focus-ring: oklch(55% 0.2 260 / 0.2);
+  --c-hover-bg: oklch(97% 0 0);
+
+  /* Depth-based color scale (0-4) for nested components */
+  --depth-0-surface: oklch(100% 0 0);
+  --depth-0-border: oklch(92% 0 0);
+  --depth-1-surface: oklch(98% 0 0);
+  --depth-1-border: oklch(90% 0 0);
+  --depth-2-surface: oklch(96% 0 0);
+  --depth-2-border: oklch(88% 0 0);
+  --depth-3-surface: oklch(94% 0 0);
+  --depth-3-border: oklch(86% 0 0);
+  --depth-4-surface: oklch(92% 0 0);
+  --depth-4-border: oklch(84% 0 0);
 
   /* Spacing */
   --s-xs: 0.25rem;
@@ -30,7 +49,7 @@
   --f-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --fs-xs: 0.75rem;
-  --fs-sm: 0.825rem;
+  --fs-sm: 0.875rem;
   --fs-base: 1rem;
   --fs-lg: 1.25rem;
   --fs-xl: 1.5rem;
@@ -38,7 +57,8 @@
 
   --fw-normal: 400;
   --fw-medium: 500;
-  --fw-bold: 600;
+  --fw-semibold: 600;
+  --fw-bold: 700;
 
   /* UI */
   --r-sm: 4px;

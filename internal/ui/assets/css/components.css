@@ -216,11 +216,12 @@ input[type="range"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  gap: var(--s-xs);
+  min-height: 36px;
   padding: 0 var(--s-lg);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -230,25 +231,26 @@ input[type="range"] {
 }
 
 .button--primary {
-  background: var(--c-text-primary);
-  color: var(--c-bg);
-  border-color: var(--c-text-primary);
+  background: var(--c-brand);
+  color: var(--c-brand-text);
+  border-color: var(--c-brand);
 }
 
 .button--primary:hover {
-  background: var(--c-text-secondary);
-  border-color: var(--c-border-hover);
+  background: var(--c-brand-hover);
+  border-color: var(--c-brand-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .button--primary:active {
   transform: translateY(0);
-  background: var(--c-text-primary);
+  background: var(--c-brand-active);
+  border-color: var(--c-brand-active);
   box-shadow: none;
 }
 
 .button--primary:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--c-bg), 0 0 0 4px var(--c-text-primary);
+  box-shadow: 0 0 0 2px var(--c-bg), 0 0 0 4px var(--c-brand);
 }
