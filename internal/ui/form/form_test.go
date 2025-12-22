@@ -6,6 +6,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/tags"
+	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
 func TestForm_TextInput(t *testing.T) {
@@ -22,7 +23,7 @@ func TestForm_TextInput(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil))
+	html := renderToString(Form(s, nil, path.Root()))
 
 	if !strings.Contains(html, `type="text"`) {
 		t.Error("expected text input type")
@@ -49,7 +50,7 @@ func TestForm_NumberInput(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil))
+	html := renderToString(Form(s, nil, path.Root()))
 
 	if !strings.Contains(html, `type="number"`) {
 		t.Error("expected number input type")
@@ -79,7 +80,7 @@ func TestForm_Checkbox(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil))
+	html := renderToString(Form(s, nil, path.Root()))
 
 	if !strings.Contains(html, `type="checkbox"`) {
 		t.Error("expected checkbox input type")
@@ -102,7 +103,7 @@ func TestForm_MultipleFields(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil))
+	html := renderToString(Form(s, nil, path.Root()))
 
 	if !strings.Contains(html, `name="Host"`) {
 		t.Error("expected Host field")
@@ -129,7 +130,7 @@ func TestForm_WithValues(t *testing.T) {
 		"Port": 8080,
 	}
 
-	html := renderToString(Form(s, values))
+	html := renderToString(Form(s, values, path.Root()))
 
 	if !strings.Contains(html, `value="localhost"`) {
 		t.Error("expected Host value")
@@ -145,7 +146,7 @@ func TestForm_EmptySchema(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Form(s, nil))
+	html := renderToString(Form(s, nil, path.Root()))
 
 	if !strings.Contains(html, "<form") {
 		t.Error("expected form element even for empty schema")

@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/http/action"
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/reload"
@@ -43,13 +44,21 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) get(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	var values map[string]any
 	h.loader.WithLock(func() {
 		values = form.ExtractValues(h.cfg, h.schema)
 	})
 
-	page := layout.Page(h.schema, values, h.title, h.brand)
+	focusParam := r.URL.Query().Get("focus")
+	var focusPath path.Path
+	if focusParam == "" {
+		focusPath = path.Root()
+	} else {
+		focusPath = path.ParsePath(focusParam)
+	}
+
+	page := layout.Page(h.schema, values, h.title, h.brand, focusPath)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := page.Render(w); err != nil {

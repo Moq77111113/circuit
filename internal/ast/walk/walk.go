@@ -2,11 +2,13 @@ package walk
 
 import (
 	"github.com/moq77111113/circuit/internal/ast/node"
+	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
 // WalkConfig holds configuration for tree walking.
 type WalkConfig struct {
 	MaxDepth int
+	BasePath path.Path
 }
 
 // WalkOption configures a Walker.
@@ -16,6 +18,13 @@ type WalkOption func(*WalkConfig)
 func WithMaxDepth(depth int) WalkOption {
 	return func(cfg *WalkConfig) {
 		cfg.MaxDepth = depth
+	}
+}
+
+// WithBasePath sets the base path to prepend to all paths during traversal.
+func WithBasePath(p path.Path) WalkOption {
+	return func(cfg *WalkConfig) {
+		cfg.BasePath = p
 	}
 }
 
@@ -39,7 +48,7 @@ func NewWalker(v Visitor, opts ...WalkOption) *Walker {
 
 // Walk traverses the tree and calls visitor methods.
 func (w *Walker) Walk(tree *node.Tree, state any) error {
-	ctx := NewContext(tree, state)
+	ctx := NewContext(tree, state, w.config.BasePath)
 	return w.walkNodes(tree.Nodes, ctx)
 }
 

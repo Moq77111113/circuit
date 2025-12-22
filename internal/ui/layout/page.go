@@ -6,11 +6,13 @@ import (
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ui/assets"
 	"github.com/moq77111113/circuit/internal/ui/form"
+	"github.com/moq77111113/circuit/internal/ui/layout/breadcrumb"
 )
 
-func Page(s ast.Schema, values map[string]any, title string, brand bool) g.Node {
+func Page(s ast.Schema, values map[string]any, title string, brand bool, focus path.Path) g.Node {
 	if title == "" {
 		title = s.Name + " Configuration"
 	}
@@ -43,13 +45,14 @@ func Page(s ast.Schema, values map[string]any, title string, brand bool) g.Node 
 				),
 				h.Div(
 					h.Class("app"),
-					Sidebar(s, values),
+					Sidebar(s, values, focus),
 					h.Main(
 						h.Class("app__main"),
 						h.Div(
 							h.Class("app__container"),
+							breadcrumb.RenderBreadcrumb(focus, s.Nodes),
 							Header(title, "Configure your application settings below."),
-							form.Form(s, values),
+							form.Form(s, values, focus),
 							g.If(brand, Footer()),
 						),
 					),

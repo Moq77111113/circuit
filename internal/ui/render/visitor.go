@@ -33,10 +33,14 @@ func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) e
 }
 
 // VisitStruct renders a struct node.
-// The Walker handles recursion into children automatically.
 func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) error {
-	// Nothing to do here - Walker will visit all children
-	// If we wanted to wrap structs in sections, we'd do it here
+	state := ctx.State.(*RenderState)
+
+	if ctx.Depth == 0 {
+		card := RenderStructCard(*node, ctx.Path, v.values)
+		state.Append(card)
+	}
+
 	return nil
 }
 

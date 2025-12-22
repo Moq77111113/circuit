@@ -23,11 +23,11 @@ type VisitContext struct {
 	State any // Visitor-specific state
 }
 
-// NewContext creates a new visit context.
-func NewContext(tree *node.Tree, state any) *VisitContext {
+// NewContext creates a new visit context with an optional base path.
+func NewContext(tree *node.Tree, state any, basePath path.Path) *VisitContext {
 	return &VisitContext{
 		Tree:  tree,
-		Path:  path.Path{},
+		Path:  basePath,
 		Depth: 0,
 		Index: -1,
 		State: state,

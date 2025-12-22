@@ -7,6 +7,7 @@ import (
 	g "maragu.dev/gomponents"
 
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/tags"
 )
 
@@ -30,7 +31,7 @@ func TestRenderVisitor_Primitive(t *testing.T) {
 		"Port": 8080,
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	if !strings.Contains(html, `class="field"`) {
 		t.Error("expected field wrapper class")
@@ -56,7 +57,7 @@ func TestRenderVisitor_PrimitiveString(t *testing.T) {
 		"Name": "test-server",
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	if !strings.Contains(html, `type="text"`) {
 		t.Error("expected text input type")
@@ -92,7 +93,7 @@ func TestRenderVisitor_Struct(t *testing.T) {
 		"Database.Port": 5432,
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	// Check nested paths
 	if !strings.Contains(html, `name="Database.Host"`) {
@@ -123,7 +124,7 @@ func TestRenderVisitor_SlicePrimitive(t *testing.T) {
 		"Tags": []string{"go", "web", "api"},
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	// Check indexed paths
 	if !strings.Contains(html, `name="Tags.0"`) {
@@ -186,7 +187,7 @@ func TestRenderVisitor_SliceStruct(t *testing.T) {
 		"Services.1.Port": 3000,
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	// Check struct slice items (fields should be rendered)
 	if !strings.Contains(html, `name="Services.0.Name"`) {
@@ -234,7 +235,7 @@ func TestRenderVisitor_NestedStruct(t *testing.T) {
 		"Server.Database.Host": "localhost",
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	// Check deeply nested path
 	if !strings.Contains(html, `name="Server.Database.Host"`) {
@@ -259,7 +260,7 @@ func TestRenderVisitor_EmptySlice(t *testing.T) {
 		"Tags": []string{},
 	}
 
-	html := renderToString(Render(nodes, values))
+	html := renderToString(Render(nodes, values, path.Root()))
 
 	// Empty slice should still have add button
 	if !strings.Contains(html, `value="add:Tags"`) {

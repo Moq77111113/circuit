@@ -1,0 +1,42 @@
+.sidebar-tree {
+  font-size: var(--fs-sm);
+}
+
+.tree-root {
+  font-weight: var(--fw-bold);
+  padding: var(--s-sm) 0;
+  margin-bottom: var(--s-xs);
+  color: var(--c-text-primary);
+}
+
+.tree-node {
+  margin-bottom: 2px;
+}
+
+.tree-node__link {
+  display: block;
+  padding: var(--s-xs) var(--s-sm);
+  border-radius: var(--r-sm);
+  color: var(--c-text-secondary);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.tree-node__link:hover {
+  background: var(--c-surface-alt);
+  color: var(--c-text-primary);
+}
+
+.tree-node--active .tree-node__link {
+  background: var(--c-brand);
+  color: var(--c-brand-text);
+  font-weight: var(--fw-medium);
+}
+
+.tree-node--expanded {
+  margin-bottom: var(--s-xs);
+}
+
+.tree-node--leaf .tree-node__link {
+  padding-left: calc(var(--s-sm) + var(--s-md));
+}

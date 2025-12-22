@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/tags"
 	g "maragu.dev/gomponents"
 )
@@ -24,7 +25,7 @@ func TestPage_Complete(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Page(s, nil, "", true))
+	html := renderToString(Page(s, nil, "", true, path.Root()))
 
 	// Check HTML structure
 	if !strings.Contains(html, "<!doctype html>") && !strings.Contains(html, "<html") {
@@ -50,7 +51,7 @@ func TestPage_CustomTitle(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "My Custom Settings", true))
+	html := renderToString(Page(s, nil, "My Custom Settings", true, path.Root()))
 
 	if !strings.Contains(html, "My Custom Settings") {
 		t.Error("expected custom title")
@@ -69,7 +70,7 @@ func TestPage_WithValues(t *testing.T) {
 		"Host": "example.com",
 	}
 
-	html := renderToString(Page(s, values, "", true))
+	html := renderToString(Page(s, values, "", true, path.Root()))
 
 	if !strings.Contains(html, `value="example.com"`) {
 		t.Error("expected value in rendered page")
@@ -82,7 +83,7 @@ func TestPage_ContainsCSS(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", true))
+	html := renderToString(Page(s, nil, "", true, path.Root()))
 
 	// Check for key CSS classes
 	if !strings.Contains(html, ".app__container") {
@@ -102,7 +103,7 @@ func TestPage_ContainsBranding(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", true))
+	html := renderToString(Page(s, nil, "", true, path.Root()))
 
 	if !strings.Contains(html, "Powered by") {
 		t.Error("expected 'Powered by' text")
@@ -124,7 +125,7 @@ func TestPage_WithoutBranding(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", false))
+	html := renderToString(Page(s, nil, "", false, path.Root()))
 
 	if strings.Contains(html, "Powered by") {
 		t.Error("did not expect 'Powered by' text")

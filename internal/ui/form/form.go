@@ -7,12 +7,14 @@ import (
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
-func Form(s ast.Schema, values map[string]any) g.Node {
-	// Use the new Render API that takes all nodes at once
-	fields := render.Render(s.Nodes, values)
+func Form(s ast.Schema, values map[string]any, focus path.Path) g.Node {
+	filteredNodes := render.FilterByFocus(s.Nodes, focus)
+	basePath := computeBasePath(filteredNodes, focus)
+	fields := render.Render(filteredNodes, values, basePath)
 
 	return h.Form(
 		h.Method("post"),
@@ -27,6 +29,24 @@ func Form(s ast.Schema, values map[string]any) g.Node {
 			),
 		),
 	)
+}
+
+func computeBasePath(nodes []ast.Node, focus path.Path) path.Path {
+	if focus.IsRoot() {
+		return path.Root()
+	}
+	if len(nodes) == 1 {
+		segments := focus.Segments()
+		if len(segments) > 0 && nodes[0].Name == segments[len(segments)-1] {
+
+			parentPath := path.Root()
+			for _, seg := range segments[:len(segments)-1] {
+				parentPath = parentPath.Child(seg)
+			}
+			return parentPath
+		}
+	}
+	return focus
 }
 
 func renderToString(node g.Node) string {
