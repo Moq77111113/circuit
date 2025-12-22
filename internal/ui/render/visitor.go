@@ -57,13 +57,9 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 			itemPath := ctx.Path.Index(i)
 
 			if node.ElementKind == ast.KindPrimitive {
-				// Primitive slice: render input for each item
 				itemNodes = append(itemNodes, renderPrimitiveSliceItem(node, i, itemValue, itemPath))
 			} else {
-				// Struct slice: render summary link for each item
-				summary := containers.Extract(*node, itemValue, 3)
-				summaryStr := containers.Format(summary)
-				itemNodes = append(itemNodes, renderStructSliceItem(i, summaryStr, itemPath))
+				itemNodes = append(itemNodes, v.renderStructSliceItemWithFields(ctx, node, i, itemPath))
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package form
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/moq77111113/circuit/internal/ast"
 )
@@ -63,34 +64,38 @@ func RemoveSliceItemNode(cfg any, nodes []ast.Node, fieldPath string, index int)
 }
 
 // findNodeAndField finds a node and its corresponding field value by path.
+// Handles dotted paths like "Database.Maintenance.AlertEmails".
 func findNodeAndField(nodes []ast.Node, rootValue reflect.Value, path string) (*ast.Node, reflect.Value, error) {
-	// Parse path (e.g., "Services" or "Server.Database")
-	currentValue := rootValue
-	currentNodes := nodes
+	
+	segments := strings.Split(path, ".")
+	return findNodeAndFieldBySegments(nodes, rootValue, segments)
+}
 
-	// For now, assume simple paths (just field name, no dots)
-	// This matches the current usage in the handler
-	for _, node := range currentNodes {
-		if node.Name == path {
-			fieldValue := currentValue.FieldByName(node.Name)
+// findNodeAndFieldBySegments recursively traverses nodes and values following path segments.
+func findNodeAndFieldBySegments(nodes []ast.Node, currentValue reflect.Value, segments []string) (*ast.Node, reflect.Value, error) {
+	if len(segments) == 0 {
+		return nil, reflect.Value{}, fmt.Errorf("empty path")
+	}
+
+	targetName := segments[0]
+	for i := range nodes {
+		if nodes[i].Name == targetName {
+			fieldValue := currentValue.FieldByName(nodes[i].Name)
 			if !fieldValue.IsValid() {
-				return nil, reflect.Value{}, fmt.Errorf("field %s not found", path)
+				return nil, reflect.Value{}, fmt.Errorf("field %s not found", targetName)
 			}
-			return &node, fieldValue, nil
-		}
 
-		// Check nested structs
-		if node.Kind == ast.KindStruct {
-			// Recursively search in children
-			childValue := currentValue.FieldByName(node.Name)
-			if childValue.IsValid() {
-				foundNode, foundValue, err := findNodeAndField(node.Children, childValue, path)
-				if err == nil {
-					return foundNode, foundValue, nil
-				}
+			if len(segments) == 1 {
+				return &nodes[i], fieldValue, nil
 			}
+
+			if nodes[i].Kind == ast.KindStruct && len(nodes[i].Children) > 0 {
+				return findNodeAndFieldBySegments(nodes[i].Children, fieldValue, segments[1:])
+			}
+
+			return nil, reflect.Value{}, fmt.Errorf("cannot traverse into %s", targetName)
 		}
 	}
 
-	return nil, reflect.Value{}, fmt.Errorf("field %s not found in schema", path)
+	return nil, reflect.Value{}, fmt.Errorf("field %s not found in schema", strings.Join(segments, "."))
 }

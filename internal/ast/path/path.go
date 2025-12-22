@@ -54,3 +54,16 @@ func (p Path) String() string {
 	}
 	return strings.Join(parts, ".")
 }
+
+// FieldPath returns the path without indices (e.g., "Services.Endpoints").
+func (p Path) FieldPath() string {
+	if len(p.segments) == 0 {
+		return ""
+	}
+
+	var names []string
+	for _, seg := range p.segments {
+		names = append(names, seg.name)
+	}
+	return strings.Join(names, ".")
+}

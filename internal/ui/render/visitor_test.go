@@ -151,8 +151,8 @@ func TestRenderVisitor_SlicePrimitive(t *testing.T) {
 	if !strings.Contains(html, `name="action"`) {
 		t.Error("expected add button")
 	}
-	if !strings.Contains(html, `value="add_Tags"`) {
-		t.Error("expected add_Tags action")
+	if !strings.Contains(html, `value="add:Tags"`) {
+		t.Error("expected add:Tags action")
 	}
 }
 
@@ -179,29 +179,33 @@ func TestRenderVisitor_SliceStruct(t *testing.T) {
 		},
 	}
 	values := map[string]any{
-		"Services": []struct {
-			Name string
-			Port int
-		}{
-			{Name: "api", Port: 8080},
-			{Name: "web", Port: 3000},
-		},
+		"Services":        []struct{ Name string; Port int }{{Name: "api", Port: 8080}, {Name: "web", Port: 3000}},
+		"Services.0.Name": "api",
+		"Services.0.Port": 8080,
+		"Services.1.Name": "web",
+		"Services.1.Port": 3000,
 	}
 
 	html := renderToString(Render(nodes, values))
 
-	// Check struct slice items (summary should be rendered)
-	if !strings.Contains(html, "api") {
-		t.Error("expected service name in summary")
+	// Check struct slice items (fields should be rendered)
+	if !strings.Contains(html, `name="Services.0.Name"`) {
+		t.Error("expected Services.0.Name field")
 	}
-	if !strings.Contains(html, "web") {
-		t.Error("expected second service name in summary")
+	if !strings.Contains(html, `name="Services.1.Name"`) {
+		t.Error("expected Services.1.Name field")
 	}
-
-	// Check collapsible container for slice (has depth class)
-	if !strings.Contains(html, `class="slice slice--depth-0"`) &&
-		!strings.Contains(html, `class="slice slice--depth-0 collapsed"`) {
-		t.Error("expected slice container with depth class")
+	if !strings.Contains(html, `value="api"`) {
+		t.Error("expected service name value api")
+	}
+	if !strings.Contains(html, `value="web"`) {
+		t.Error("expected service name value web")
+	}
+	if !strings.Contains(html, `value="8080"`) {
+		t.Error("expected port value 8080")
+	}
+	if !strings.Contains(html, `value="3000"`) {
+		t.Error("expected port value 3000")
 	}
 }
 
@@ -258,7 +262,7 @@ func TestRenderVisitor_EmptySlice(t *testing.T) {
 	html := renderToString(Render(nodes, values))
 
 	// Empty slice should still have add button
-	if !strings.Contains(html, `value="add_Tags"`) {
+	if !strings.Contains(html, `value="add:Tags"`) {
 		t.Error("expected add button for empty slice")
 	}
 

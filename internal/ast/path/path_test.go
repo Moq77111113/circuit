@@ -191,3 +191,51 @@ func TestPath_Empty(t *testing.T) {
 		t.Errorf("String() = %q, want %q", got, want)
 	}
 }
+
+func TestPath_FieldPath(t *testing.T) {
+	tests := []struct {
+		name string
+		path Path
+		want string
+	}{
+		{
+			name: "simple path",
+			path: NewPath("Port"),
+			want: "Port",
+		},
+		{
+			name: "nested path",
+			path: NewPath("Database").Child("Host"),
+			want: "Database.Host",
+		},
+		{
+			name: "path with index strips index",
+			path: NewPath("Services").Index(0),
+			want: "Services",
+		},
+		{
+			name: "deep path with indices strips all indices",
+			path: NewPath("Services").Index(0).Child("Endpoints").Index(2).Child("Name"),
+			want: "Services.Endpoints.Name",
+		},
+		{
+			name: "multiple indices",
+			path: NewPath("Database").Child("Replicas").Index(1).Child("Servers").Index(3).Child("Host"),
+			want: "Database.Replicas.Servers.Host",
+		},
+		{
+			name: "empty path",
+			path: Path{},
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.path.FieldPath()
+			if got != tt.want {
+				t.Errorf("FieldPath() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

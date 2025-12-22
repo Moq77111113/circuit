@@ -59,8 +59,11 @@ func (v *FormVisitor) applyStructSliceItems(ctx *walk.VisitContext, node *ast.No
 						Index:  -1,
 					}
 
-					if err := v.VisitPrimitive(grandchildCtx, &grandchild); err != nil {
-						return err
+					
+					if grandchild.Kind == ast.KindPrimitive {
+						if err := v.VisitPrimitive(grandchildCtx, &grandchild); err != nil {
+							return err
+						}
 					}
 				}
 			}

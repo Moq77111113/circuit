@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"strings"
 
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
@@ -10,12 +11,21 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
+// parseItemPath extracts the field path and index from a full item path
+func parseItemPath(itemPath string) (field string, index string) {
+	lastDot := strings.LastIndex(itemPath, ".")
+	if lastDot == -1 {
+		return "", itemPath
+	}
+	return itemPath[:lastDot], itemPath[lastDot+1:]
+}
+
 // renderAddButton creates an "Add" button for slices
 func renderAddButton(path path.Path) g.Node {
 	return h.Button(
 		h.Type("submit"),
 		h.Name("action"),
-		h.Value(fmt.Sprintf("add_%s", path.String())),
+		h.Value(fmt.Sprintf("add:%s", path.FieldPath())),
 		h.Class("btn btn--add"),
 		g.Text("Add"),
 	)
@@ -32,6 +42,7 @@ func renderEmptyState() g.Node {
 // renderPrimitiveSliceItem renders a single primitive item in a slice
 func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Path) g.Node {
 	itemPath := path.String()
+	field, idx := parseItemPath(itemPath)
 	return h.Div(
 		h.Class("slice-item slice-item--primitive"),
 		h.Div(
@@ -42,26 +53,7 @@ func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Pa
 		h.Button(
 			h.Type("submit"),
 			h.Name("action"),
-			h.Value(fmt.Sprintf("remove_%s", itemPath)),
-			h.Class("btn btn--remove"),
-			g.Text("Remove"),
-		),
-	)
-}
-
-// renderStructSliceItem renders a single struct item in a slice (collapsed summary)
-func renderStructSliceItem(index int, summary string, path path.Path) g.Node {
-	return h.Div(
-		h.Class("slice-item slice-item--struct"),
-		h.A(
-			h.Href("#"+path.String()),
-			h.Class("slice-item__link"),
-			g.Textf("#%d: %s", index, summary),
-		),
-		h.Button(
-			h.Type("submit"),
-			h.Name("action"),
-			h.Value(fmt.Sprintf("remove_%s", path.String())),
+			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
 			h.Class("btn btn--remove"),
 			g.Text("Remove"),
 		),
