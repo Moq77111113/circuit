@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/http/handler"
 	"github.com/moq77111113/circuit/internal/reload"
-	"github.com/moq77111113/circuit/internal/ast"
 )
 
 // From creates and returns an `http.Handler` that serves a small web UI for
