@@ -57,7 +57,6 @@ func findNodeByPath(nodes []ast.Node, segments []string) []ast.Node {
 		}
 	}
 
-
 	return nodes
 }
 

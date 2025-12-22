@@ -41,6 +41,7 @@ var (
 	NewPath   = path.NewPath
 	ParsePath = path.ParsePath
 )
+
 type (
 	Visitor      = walk.Visitor
 	VisitContext = walk.VisitContext

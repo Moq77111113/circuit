@@ -180,7 +180,10 @@ func TestRenderVisitor_SliceStruct(t *testing.T) {
 		},
 	}
 	values := map[string]any{
-		"Services":        []struct{ Name string; Port int }{{Name: "api", Port: 8080}, {Name: "web", Port: 3000}},
+		"Services": []struct {
+			Name string
+			Port int
+		}{{Name: "api", Port: 8080}, {Name: "web", Port: 3000}},
 		"Services.0.Name": "api",
 		"Services.0.Port": 8080,
 		"Services.1.Name": "web",

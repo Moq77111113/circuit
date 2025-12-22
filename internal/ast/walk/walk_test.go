@@ -80,7 +80,7 @@ func TestWalker_RespectsMaxDepth(t *testing.T) {
 
 	visitor := &MockVisitor{}
 	walker := NewWalker(visitor, WithMaxDepth(1))
-	walker.Walk(tree, nil)
+	_ = walker.Walk(tree, nil)
 
 	// Level2 should NOT be visited (depth = 2)
 	for _, name := range visitor.visited {
@@ -99,7 +99,7 @@ func TestWalker_TracksPath(t *testing.T) {
 
 	visitor := &PathRecorderVisitor{}
 	walker := NewWalker(visitor)
-	walker.Walk(tree, nil)
+	_ = walker.Walk(tree, nil)
 
 	expected := []string{"Server", "Server.Port"}
 	if !reflect.DeepEqual(visitor.paths, expected) {

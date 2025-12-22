@@ -66,7 +66,7 @@ func RemoveSliceItemNode(cfg any, nodes []ast.Node, fieldPath string, index int)
 // findNodeAndField finds a node and its corresponding field value by path.
 // Handles dotted paths like "Database.Maintenance.AlertEmails".
 func findNodeAndField(nodes []ast.Node, rootValue reflect.Value, path string) (*ast.Node, reflect.Value, error) {
-	
+
 	segments := strings.Split(path, ".")
 	return findNodeAndFieldBySegments(nodes, rootValue, segments)
 }

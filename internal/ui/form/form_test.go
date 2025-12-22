@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/moq77111113/circuit/internal/ast"
-	"github.com/moq77111113/circuit/internal/tags"
 	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/tags"
 )
 
 func TestForm_TextInput(t *testing.T) {

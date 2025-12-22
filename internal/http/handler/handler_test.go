@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/moq77111113/circuit/internal/reload"
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/reload"
 )
 
 type TestConfig struct {
