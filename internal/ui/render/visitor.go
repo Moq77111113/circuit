@@ -7,7 +7,8 @@ import (
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/walk"
 	"github.com/moq77111113/circuit/internal/reflection"
-	"github.com/moq77111113/circuit/internal/ui/components/containers"
+	"github.com/moq77111113/circuit/internal/ui/components/collapsible"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
 // RenderVisitor implements walk.Visitor for HTML rendering.
@@ -21,7 +22,7 @@ func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) e
 	value := v.values[ctx.Path.String()]
 
 	field := h.Div(
-		h.Class("field"),
+		h.Class(styles.Field),
 		h.ID("field-"+ctx.Path.String()),
 		renderLabel(node, ctx.Path.String()),
 		renderInput(node, ctx.Path.String(), value),
@@ -51,7 +52,6 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 	items := reflection.SliceValues(value)
 
 	isCollapsed := ctx.Depth >= 2
-	header := containers.CollapsibleHeader(node.Name, len(items), isCollapsed, "")
 
 	var itemNodes []g.Node
 	if len(items) == 0 {
@@ -71,8 +71,14 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 	// Add button at the end
 	itemNodes = append(itemNodes, renderAddButton(ctx.Path))
 
-	body := containers.CollapsibleBody(itemNodes)
-	container := containers.CollapsibleContainer(ctx.Depth, ctx.Path.String(), header, body)
+	cfg := collapsible.Config{
+		ID:        "slice-" + ctx.Path.String(),
+		Title:     node.Name,
+		Depth:     ctx.Depth,
+		Count:     len(items),
+		Collapsed: isCollapsed,
+	}
+	container := collapsible.Collapsible(cfg, itemNodes)
 
 	state.Append(container)
 	return nil

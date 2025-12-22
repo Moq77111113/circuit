@@ -1,7 +1,5 @@
 package styles
 
-// BEM-style CSS class constants
-// Block__Element--Modifier naming convention
 
 const (
 	// Collapsible component
@@ -32,11 +30,21 @@ const (
 	ButtonPrimary = "button--primary"
 
 	// Card component
-	Card       = "card"
-	CardHeader = "card__header"
-	CardTitle  = "card__title"
-	CardBody   = "card__body"
-	CardIcon   = "card__icon"
+	Card        = "card"
+	CardHeader  = "card__header"
+	CardTitle   = "card__title"
+	CardBody    = "card__body"
+	CardIcon    = "card__icon"
+	CardName    = "card__name"
+	CardArrow   = "card__arrow"
+	CardPreview = "card__preview"
+
+	// Struct card (specific type of card)
+	StructCard        = "struct-card"
+	StructCardHeader  = "struct-card__header"
+	StructCardName    = "struct-card__name"
+	StructCardArrow   = "struct-card__arrow"
+	StructCardPreview = "struct-card__preview"
 
 	// Nav component
 	Nav        = "nav"

@@ -6,15 +6,15 @@
   --c-surface-hover: oklch(96% 0 0);
   --c-border: oklch(92% 0 0);
   --c-border-hover: oklch(80% 0 0);
-  --c-border-focus: oklch(55% 0.2 260);
+  --c-border-focus: oklch(0.205 0 0);
   --c-text-primary: oklch(20% 0 0);
   --c-text-secondary: oklch(45% 0 0);
   --c-text-tertiary: oklch(65% 0 0);
 
   /* Brand colors (primary action) */
-  --c-brand: oklch(55% 0.2 260);
-  --c-brand-hover: oklch(50% 0.22 260);
-  --c-brand-active: oklch(45% 0.2 260);
+  --c-brand: oklch(0.205 0 0);
+  --c-brand-hover: oklch(0.25 0 0);
+  --c-brand-active: oklch(0.18 0 0);
   --c-brand-text: oklch(100% 0 0);
 
   /* Semantic colors */
