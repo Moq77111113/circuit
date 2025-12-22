@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 )
 
 type Summary struct {
@@ -17,7 +17,7 @@ type Field struct {
 	Value string
 }
 
-func Extract(node schema.Node, value any, maxFields int) Summary {
+func Extract(node ast.Node, value any, maxFields int) Summary {
 	if value == nil || maxFields <= 0 {
 		return Summary{}
 	}
@@ -51,26 +51,26 @@ func Extract(node schema.Node, value any, maxFields int) Summary {
 	return Summary{Fields: fields}
 }
 
-func extractFieldValue(node schema.Node, fv reflect.Value) string {
+func extractFieldValue(node ast.Node, fv reflect.Value) string {
 	switch node.Kind {
-	case schema.KindPrimitive:
+	case ast.KindPrimitive:
 		switch node.ValueType {
-		case schema.ValueString:
+		case ast.ValueString:
 			return fv.String()
-		case schema.ValueBool:
+		case ast.ValueBool:
 			if fv.Bool() {
 				return "true"
 			}
-		case schema.ValueInt:
+		case ast.ValueInt:
 			if i := fv.Int(); i != 0 {
 				return fmt.Sprintf("%d", i)
 			}
-		case schema.ValueFloat:
+		case ast.ValueFloat:
 			if f := fv.Float(); f != 0 {
 				return fmt.Sprintf("%.2f", f)
 			}
 		}
-	case schema.KindSlice:
+	case ast.KindSlice:
 		if n := fv.Len(); n > 0 {
 			return fmt.Sprintf("%d", n)
 		}

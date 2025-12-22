@@ -5,16 +5,16 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 )
 
 type valueApplier func(reflect.Value, string) error
 
-var appliers = map[schema.ValueType]valueApplier{
-	schema.ValueString: applyString,
-	schema.ValueInt:    applyInt,
-	schema.ValueBool:   applyBool,
-	schema.ValueFloat:  applyFloat,
+var appliers = map[ast.ValueType]valueApplier{
+	ast.ValueString: applyString,
+	ast.ValueInt:    applyInt,
+	ast.ValueBool:   applyBool,
+	ast.ValueFloat:  applyFloat,
 }
 
 func applyString(fv reflect.Value, value string) error {

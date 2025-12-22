@@ -6,20 +6,20 @@ import (
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
-func Form(s schema.Schema, values map[string]any) g.Node {
-	var fields []g.Node
-
-	for _, node := range s.Nodes {
-		fields = append(fields, renderNode(node, values))
-	}
+func Form(s ast.Schema, values map[string]any, focus path.Path) g.Node {
+	filteredNodes := render.FilterByFocus(s.Nodes, focus)
+	basePath := computeBasePath(filteredNodes, focus)
+	fields := render.Render(filteredNodes, values, basePath)
 
 	return h.Form(
 		h.Method("post"),
 		h.Class("form"),
-		g.Group(fields),
+		fields,
 		h.Div(
 			h.Class("form__actions"),
 			h.Button(
@@ -29,6 +29,24 @@ func Form(s schema.Schema, values map[string]any) g.Node {
 			),
 		),
 	)
+}
+
+func computeBasePath(nodes []ast.Node, focus path.Path) path.Path {
+	if focus.IsRoot() {
+		return path.Root()
+	}
+	if len(nodes) == 1 {
+		segments := focus.Segments()
+		if len(segments) > 0 && nodes[0].Name == segments[len(segments)-1] {
+
+			parentPath := path.Root()
+			for _, seg := range segments[:len(segments)-1] {
+				parentPath = parentPath.Child(seg)
+			}
+			return parentPath
+		}
+	}
+	return focus
 }
 
 func renderToString(node g.Node) string {

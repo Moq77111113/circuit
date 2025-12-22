@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/reload"
-	"github.com/moq77111113/circuit/internal/schema"
 )
 
 type TestConfig struct {
@@ -30,7 +30,7 @@ func TestHandler_GET(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func TestHandler_POST(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}

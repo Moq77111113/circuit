@@ -4,49 +4,53 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
 func TestSidebar_NestedStructLinks(t *testing.T) {
-	nodes := []schema.Node{
+	nodes := []ast.Node{
 		{
 			Name: "Server",
-			Kind: schema.KindStruct,
-			Children: []schema.Node{
-				{Name: "Host", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			Kind: ast.KindStruct,
+			Children: []ast.Node{
+				{Name: "Host", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
 				{
 					Name: "Database",
-					Kind: schema.KindStruct,
-					Children: []schema.Node{
-						{Name: "User", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-						{Name: "Port", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
+					Kind: ast.KindStruct,
+					Children: []ast.Node{
+						{Name: "User", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+						{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
 					},
 				},
 			},
 		},
-		{Name: "Debug", Kind: schema.KindPrimitive, ValueType: schema.ValueBool},
+		{Name: "Debug", Kind: ast.KindPrimitive, ValueType: ast.ValueBool},
 	}
 
-	s := schema.Schema{Nodes: nodes}
+	s := ast.Schema{Nodes: nodes}
 	values := map[string]any{
 		"Server.Host":          "localhost",
 		"Server.Database.User": "admin",
 		"Server.Database.Port": 5432,
 		"Debug":                true,
 	}
-	result := Sidebar(s, values)
+	result := Sidebar(s, values, path.Root())
 	html := renderToString(result)
 
 	tests := []struct {
 		name     string
 		expected string
 	}{
-		{"root struct link", `href="#section-Server"`},
-		{"root field link", `href="#field-Debug"`},
-		{"nested struct link", `href="#section-Server.Database"`},
-		{"nested field in root struct", `href="#field-Server.Host"`},
-		{"nested field in nested struct", `href="#field-Server.Database.User"`},
-		{"nested field in nested struct 2", `href="#field-Server.Database.Port"`},
+		{"tree structure", `class="sidebar-tree"`},
+		{"root label", `Config`},
+		{"root struct link", `href="?focus=Server"`},
+		{"root field link", `href="?focus=Debug"`},
+		{"nested struct link", `href="?focus=Server.Database"`},
+		{"nested field in root struct", `href="?focus=Server.Host"`},
+		{"nested field in nested struct", `href="?focus=Server.Database.User"`},
+		{"nested field in nested struct 2", `href="?focus=Server.Database.Port"`},
+		{"tree node class", `class="tree-node`},
 	}
 
 	for _, tt := range tests {
@@ -59,19 +63,19 @@ func TestSidebar_NestedStructLinks(t *testing.T) {
 }
 
 func TestSidebar_SliceLinks(t *testing.T) {
-	nodes := []schema.Node{
+	nodes := []ast.Node{
 		{
 			Name:        "Services",
-			Kind:        schema.KindSlice,
-			ElementKind: schema.KindStruct,
-			Children: []schema.Node{
-				{Name: "Name", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
-				{Name: "Port", Kind: schema.KindPrimitive, ValueType: schema.ValueInt},
+			Kind:        ast.KindSlice,
+			ElementKind: ast.KindStruct,
+			Children: []ast.Node{
+				{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+				{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
 			},
 		},
 	}
 
-	s := schema.Schema{Nodes: nodes}
+	s := ast.Schema{Nodes: nodes}
 
 	values := map[string]any{
 		"Services": []map[string]any{
@@ -79,58 +83,60 @@ func TestSidebar_SliceLinks(t *testing.T) {
 			{"Name": "DB", "Port": 5432},
 		},
 	}
-	result := Sidebar(s, values)
+	result := Sidebar(s, values, path.Root())
 	html := renderToString(result)
 
-	if !strings.Contains(html, `href="#slice-Services"`) {
-		t.Errorf("expected slice container link in HTML, got:\n%s", html)
+	if !strings.Contains(html, `href="?focus=Services"`) {
+		t.Errorf("expected slice link in HTML, got:\n%s", html)
 	}
 
-	if !strings.Contains(html, `href="#slice-item-Services.0"`) {
-		t.Errorf("expected link to Services.0 in HTML, got:\n%s", html)
-	}
-
-	if !strings.Contains(html, `href="#slice-item-Services.1"`) {
-		t.Errorf("expected link to Services.1 in HTML, got:\n%s", html)
-	}
-	if !strings.Contains(html, "Item 0") || !strings.Contains(html, "Item 1") {
-		t.Errorf("expected Item 0 and Item 1 labels in HTML, got:\n%s", html)
+	if !strings.Contains(html, "Services") {
+		t.Errorf("expected Services label in HTML, got:\n%s", html)
 	}
 }
 
-func TestSidebar_CollapsibleItems(t *testing.T) {
-	nodes := []schema.Node{
+func TestSidebar_TreeNavigation(t *testing.T) {
+	nodes := []ast.Node{
 		{
 			Name: "Server",
-			Kind: schema.KindStruct,
-			Children: []schema.Node{
-				{Name: "Host", Kind: schema.KindPrimitive, ValueType: schema.ValueString},
+			Kind: ast.KindStruct,
+			Children: []ast.Node{
+				{Name: "Host", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
 			},
 		},
 		{
 			Name:        "Tags",
-			Kind:        schema.KindSlice,
-			ElementKind: schema.KindPrimitive,
-			ValueType:   schema.ValueString,
+			Kind:        ast.KindSlice,
+			ElementKind: ast.KindPrimitive,
+			ValueType:   ast.ValueString,
 		},
 	}
 
-	s := schema.Schema{Nodes: nodes}
+	s := ast.Schema{Nodes: nodes}
 	values := map[string]any{
 		"Server.Host": "localhost",
 		"Tags":        []string{"prod", "api"},
 	}
-	result := Sidebar(s, values)
+	result := Sidebar(s, values, path.Root())
 	html := renderToString(result)
-	if !strings.Contains(html, "nav__item--collapsible") {
-		t.Errorf("expected nav__item--collapsible class in HTML, got:\n%s", html)
+
+	tests := []struct {
+		name     string
+		expected string
+	}{
+		{"tree structure", `class="sidebar-tree"`},
+		{"tree node", `class="tree-node`},
+		{"server link", `href="?focus=Server"`},
+		{"tags link", `href="?focus=Tags"`},
+		{"host link", `href="?focus=Server.Host"`},
+		{"chevron present", `▼`},
 	}
 
-	if !strings.Contains(html, "nav__chevron") {
-		t.Errorf("expected nav__chevron in HTML, got:\n%s", html)
-	}
-
-	if !strings.Contains(html, `onclick="toggleNavItem(this)"`) {
-		t.Errorf("expected toggleNavItem onclick handler in HTML, got:\n%s", html)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !strings.Contains(html, tt.expected) {
+				t.Errorf("expected %q in HTML, got:\n%s", tt.expected, html)
+			}
+		})
 	}
 }

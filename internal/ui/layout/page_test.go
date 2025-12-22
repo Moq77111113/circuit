@@ -4,7 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/tags"
 	g "maragu.dev/gomponents"
 )
@@ -16,15 +17,15 @@ func renderToString(node g.Node) string {
 }
 
 func TestPage_Complete(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text", Help: "Server host"},
 			{Name: "Port", Type: "int", InputType: "number", Help: "Server port"},
 		}),
 	}
 
-	html := renderToString(Page(s, nil, "", true))
+	html := renderToString(Page(s, nil, "", true, path.Root()))
 
 	// Check HTML structure
 	if !strings.Contains(html, "<!doctype html>") && !strings.Contains(html, "<html") {
@@ -45,12 +46,12 @@ func TestPage_Complete(t *testing.T) {
 }
 
 func TestPage_CustomTitle(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name:  "Config",
-		Nodes: schema.FromTags([]tags.Field{}),
+		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "My Custom Settings", true))
+	html := renderToString(Page(s, nil, "My Custom Settings", true, path.Root()))
 
 	if !strings.Contains(html, "My Custom Settings") {
 		t.Error("expected custom title")
@@ -58,9 +59,9 @@ func TestPage_CustomTitle(t *testing.T) {
 }
 
 func TestPage_WithValues(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name: "Config",
-		Nodes: schema.FromTags([]tags.Field{
+		Nodes: ast.FromTags([]tags.Field{
 			{Name: "Host", Type: "string", InputType: "text"},
 		}),
 	}
@@ -69,7 +70,7 @@ func TestPage_WithValues(t *testing.T) {
 		"Host": "example.com",
 	}
 
-	html := renderToString(Page(s, values, "", true))
+	html := renderToString(Page(s, values, "", true, path.Root()))
 
 	if !strings.Contains(html, `value="example.com"`) {
 		t.Error("expected value in rendered page")
@@ -77,12 +78,12 @@ func TestPage_WithValues(t *testing.T) {
 }
 
 func TestPage_ContainsCSS(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name:  "Config",
-		Nodes: schema.FromTags([]tags.Field{}),
+		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", true))
+	html := renderToString(Page(s, nil, "", true, path.Root()))
 
 	// Check for key CSS classes
 	if !strings.Contains(html, ".app__container") {
@@ -97,12 +98,12 @@ func TestPage_ContainsCSS(t *testing.T) {
 }
 
 func TestPage_ContainsBranding(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name:  "Config",
-		Nodes: schema.FromTags([]tags.Field{}),
+		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", true))
+	html := renderToString(Page(s, nil, "", true, path.Root()))
 
 	if !strings.Contains(html, "Powered by") {
 		t.Error("expected 'Powered by' text")
@@ -119,12 +120,12 @@ func TestPage_ContainsBranding(t *testing.T) {
 }
 
 func TestPage_WithoutBranding(t *testing.T) {
-	s := schema.Schema{
+	s := ast.Schema{
 		Name:  "Config",
-		Nodes: schema.FromTags([]tags.Field{}),
+		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", false))
+	html := renderToString(Page(s, nil, "", false, path.Root()))
 
 	if strings.Contains(html, "Powered by") {
 		t.Error("did not expect 'Powered by' text")

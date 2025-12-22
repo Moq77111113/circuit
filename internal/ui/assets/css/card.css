@@ -1,0 +1,47 @@
+.struct-card {
+  display: block;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  padding: var(--s-md);
+  margin-bottom: var(--s-md);
+  background: var(--c-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.struct-card:hover {
+  border-color: var(--c-brand);
+  box-shadow: var(--shadow-sm);
+}
+
+.struct-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-xs);
+}
+
+.struct-card__name {
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-base);
+  color: var(--c-text-primary);
+}
+
+.struct-card__arrow {
+  color: var(--c-text-tertiary);
+  font-size: var(--fs-lg);
+  transition: transform 0.15s ease;
+}
+
+.struct-card:hover .struct-card__arrow {
+  transform: translateX(4px);
+  color: var(--c-brand);
+}
+
+.struct-card__preview {
+  font-size: var(--fs-sm);
+  color: var(--c-text-secondary);
+  line-height: 1.4;
+}

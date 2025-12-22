@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/moq77111113/circuit/internal/schema"
+	"github.com/moq77111113/circuit/internal/ast"
 )
 
 type ConvertConfig struct {
@@ -20,7 +20,7 @@ func TestExtractValues(t *testing.T) {
 		Debug: true,
 	}
 
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestExtractValues(t *testing.T) {
 
 func TestApplyForm_String(t *testing.T) {
 	cfg := ConvertConfig{}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestApplyForm_String(t *testing.T) {
 
 func TestApplyForm_Int(t *testing.T) {
 	cfg := ConvertConfig{}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestApplyForm_Int(t *testing.T) {
 
 func TestApplyForm_IntEmpty(t *testing.T) {
 	cfg := ConvertConfig{Port: 8080}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func TestApplyForm_IntEmpty(t *testing.T) {
 
 func TestApplyForm_IntInvalid(t *testing.T) {
 	cfg := ConvertConfig{}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,7 +116,7 @@ func TestApplyForm_IntInvalid(t *testing.T) {
 
 func TestApplyForm_Bool(t *testing.T) {
 	cfg := ConvertConfig{}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,7 +136,7 @@ func TestApplyForm_Bool(t *testing.T) {
 
 func TestApplyForm_BoolOff(t *testing.T) {
 	cfg := ConvertConfig{Debug: true}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -156,7 +156,7 @@ func TestApplyForm_BoolOff(t *testing.T) {
 
 func TestApplyForm_Multiple(t *testing.T) {
 	cfg := ConvertConfig{}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +193,7 @@ type ConfigWithSliceStruct struct {
 
 func TestApplyForm_SliceStruct(t *testing.T) {
 	cfg := ConfigWithSliceStruct{}
-	s, err := schema.Extract(&cfg)
+	s, err := ast.Extract(&cfg)
 	if err != nil {
 		t.Fatal(err)
 	}

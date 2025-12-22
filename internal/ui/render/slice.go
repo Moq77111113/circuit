@@ -2,63 +2,60 @@ package render
 
 import (
 	"fmt"
+	"strings"
 
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 
-	"github.com/moq77111113/circuit/internal/reflection"
-	"github.com/moq77111113/circuit/internal/schema"
-	"github.com/moq77111113/circuit/internal/ui/components/containers"
+	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
-// SliceRenderer renders slice fields
-type SliceRenderer struct {
-	dispatcher *Dispatcher
-}
-
-func (r *SliceRenderer) Render(node schema.Node, ctx Context) g.Node {
-	items := reflection.SliceValues(ctx.Value)
-
-	var itemNodes []g.Node
-	if len(items) == 0 {
-		itemNodes = append(itemNodes, r.renderEmptyState())
-	} else {
-		for i, itemValue := range items {
-			itemNodes = append(itemNodes, r.renderItem(node, i, itemValue, ctx))
-		}
+// parseItemPath extracts the field path and index from a full item path
+func parseItemPath(itemPath string) (field string, index string) {
+	lastDot := strings.LastIndex(itemPath, ".")
+	if lastDot == -1 {
+		return "", itemPath
 	}
-
-	itemNodes = append(itemNodes, r.renderAddButton(ctx.Path))
-
-	isCollapsed := ctx.Depth >= 2
-	header := containers.CollapsibleHeader(node.Name, len(items), isCollapsed, "")
-	body := containers.CollapsibleBody(itemNodes)
-	return containers.CollapsibleContainer(ctx.Depth, ctx.Path.String(), header, body)
+	return itemPath[:lastDot], itemPath[lastDot+1:]
 }
 
-func (r *SliceRenderer) renderEmptyState() g.Node {
-	return h.Div(
-		h.Class("slice__empty"),
+// renderAddButton creates an "Add" button for slices
+func renderAddButton(path path.Path) g.Node {
+	return h.Button(
+		h.Type("submit"),
+		h.Name("action"),
+		h.Value(fmt.Sprintf("add:%s", path.FieldPath())),
+		h.Class("btn btn--add"),
+		g.Text("Add"),
+	)
+}
+
+// renderEmptyState returns a message for empty slices
+func renderEmptyState() g.Node {
+	return h.P(
+		h.Class("empty-state"),
 		g.Text("No items"),
 	)
 }
 
-func (r *SliceRenderer) renderAddButton(path schema.Path) g.Node {
-	return h.Button(
-		h.Type("submit"),
-		h.Name("action"),
-		h.Value(fmt.Sprintf("add:%s", path.String())),
-		h.Class("slice__add-button"),
-		g.Text("Add Item"),
+// renderPrimitiveSliceItem renders a single primitive item in a slice
+func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Path) g.Node {
+	itemPath := path.String()
+	field, idx := parseItemPath(itemPath)
+	return h.Div(
+		h.Class("slice-item slice-item--primitive"),
+		h.Div(
+			h.Class("field"),
+			renderLabel(node, itemPath),
+			renderInput(node, itemPath, value),
+		),
+		h.Button(
+			h.Type("submit"),
+			h.Name("action"),
+			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
+			h.Class("btn btn--remove"),
+			g.Text("Remove"),
+		),
 	)
-}
-
-func (r *SliceRenderer) renderItem(node schema.Node, index int, value any, ctx Context) g.Node {
-	itemPath := ctx.Path.Index(index)
-
-	if node.ElementKind == schema.KindPrimitive {
-		return r.renderPrimitiveItem(node, index, value, itemPath)
-	}
-
-	return r.renderStructItem(node, index, value, itemPath, ctx.Depth)
 }
