@@ -1,9 +1,13 @@
 package walk
 
 import (
+	"errors"
+
 	"github.com/moq77111113/circuit/internal/ast/node"
 	"github.com/moq77111113/circuit/internal/ast/path"
 )
+
+var ErrSkipChildren = errors.New("skip children")
 
 // WalkConfig holds configuration for tree walking.
 type WalkConfig struct {
@@ -69,8 +73,11 @@ func (w *Walker) walkNode(n *node.Node, ctx *VisitContext) error {
 		return nil
 	}
 
-	// Visit current node (SINGLE SWITCH POINT)
-	if err := w.visit(n, ctx); err != nil {
+	err := w.visit(n, ctx)
+	if err != nil {
+		if errors.Is(err, ErrSkipChildren) {
+			return nil
+		}
 		return err
 	}
 

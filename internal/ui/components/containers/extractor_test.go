@@ -101,8 +101,13 @@ func TestExtract_ZeroValues(t *testing.T) {
 
 	got := Extract(node, value, 3)
 
-	if len(got.Fields) != 0 {
-		t.Errorf("expected 0 fields (all zero values), got %d", len(got.Fields))
+	if len(got.Fields) != 3 {
+		t.Errorf("expected 3 fields (including zero values), got %d", len(got.Fields))
+	}
+	for i, field := range got.Fields {
+		if field.Value != "" {
+			t.Errorf("field %d (%s) should have empty value, got %q", i, field.Name, field.Value)
+		}
 	}
 }
 
@@ -128,5 +133,78 @@ func TestFormat_Empty(t *testing.T) {
 
 	if got != "" {
 		t.Errorf("expected empty string, got %q", got)
+	}
+}
+
+func TestExtractFromMap(t *testing.T) {
+	children := []ast.Node{
+		{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+		{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
+	}
+
+	itemMap := map[string]any{"Name": "server", "Port": 8080}
+	summary := ExtractFromMap(children, itemMap, 2)
+
+	if len(summary.Fields) != 2 {
+		t.Errorf("expected 2 fields, got %d", len(summary.Fields))
+	}
+
+	if summary.Fields[0].Name != "Name" || summary.Fields[0].Value != "server" {
+		t.Errorf("expected Name: server, got %s: %s", summary.Fields[0].Name, summary.Fields[0].Value)
+	}
+
+	if summary.Fields[1].Name != "Port" || summary.Fields[1].Value != "8080" {
+		t.Errorf("expected Port: 8080, got %s: %s", summary.Fields[1].Name, summary.Fields[1].Value)
+	}
+}
+
+func TestExtractFromMap_EmptyValues(t *testing.T) {
+	children := []ast.Node{
+		{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+		{Name: "Port", Kind: ast.KindPrimitive, ValueType: ast.ValueInt},
+	}
+
+	itemMap := map[string]any{"Name": "", "Port": nil}
+	summary := ExtractFromMap(children, itemMap, 2)
+
+	// Should still include fields even with empty values
+	if len(summary.Fields) != 2 {
+		t.Errorf("expected 2 fields even with empty values, got %d", len(summary.Fields))
+	}
+
+	if summary.Fields[0].Name != "Name" || summary.Fields[0].Value != "" {
+		t.Errorf("expected Name: (empty), got %s: %s", summary.Fields[0].Name, summary.Fields[0].Value)
+	}
+
+	if summary.Fields[1].Name != "Port" || summary.Fields[1].Value != "" {
+		t.Errorf("expected Port: (empty), got %s: %s", summary.Fields[1].Name, summary.Fields[1].Value)
+	}
+}
+
+func TestExtractFromMap_MaxFields(t *testing.T) {
+	children := []ast.Node{
+		{Name: "Field1", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+		{Name: "Field2", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+		{Name: "Field3", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+	}
+
+	itemMap := map[string]any{"Field1": "A", "Field2": "B", "Field3": "C"}
+	summary := ExtractFromMap(children, itemMap, 2)
+
+	// Should respect maxFields limit
+	if len(summary.Fields) != 2 {
+		t.Errorf("expected max 2 fields, got %d", len(summary.Fields))
+	}
+}
+
+func TestExtractFromMap_NilMap(t *testing.T) {
+	children := []ast.Node{
+		{Name: "Name", Kind: ast.KindPrimitive, ValueType: ast.ValueString},
+	}
+
+	summary := ExtractFromMap(children, nil, 2)
+
+	if len(summary.Fields) != 0 {
+		t.Errorf("expected 0 fields for nil map, got %d", len(summary.Fields))
 	}
 }

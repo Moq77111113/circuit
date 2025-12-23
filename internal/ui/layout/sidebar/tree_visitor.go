@@ -15,6 +15,10 @@ type TreeVisitor struct {
 }
 
 func (v *TreeVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
+	if ctx.Depth > 0 {
+		return nil
+	}
+
 	state := ctx.State.(*TreeState)
 	isActive := ctx.Path.String() == v.currentFocus.String()
 
@@ -23,19 +27,28 @@ func (v *TreeVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) err
 }
 
 func (v *TreeVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) error {
+	// Only show root-level structs
+	if ctx.Depth > 0 {
+		return walk.ErrSkipChildren
+	}
+
 	state := ctx.State.(*TreeState)
 	isActive := ctx.Path.String() == v.currentFocus.String()
-	isExpanded := v.currentFocus.HasPrefix(ctx.Path) || ctx.Depth == 0
 
-	state.Append(renderTreeNode(node.Name, ctx.Path, isActive, isExpanded, true))
-	return nil
+	// Root structs are simple links (no expansion/chevron)
+	state.Append(renderTreeLeaf(node.Name, ctx.Path, isActive))
+	return walk.ErrSkipChildren
 }
 
 func (v *TreeVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error {
-	state := ctx.State.(*TreeState)
-	isExpanded := v.currentFocus.HasPrefix(ctx.Path) || ctx.Depth == 0
+	if ctx.Depth > 0 {
+		return nil
+	}
 
-	state.Append(renderTreeNode(node.Name, ctx.Path, false, isExpanded, true))
+	state := ctx.State.(*TreeState)
+	isActive := ctx.Path.String() == v.currentFocus.String()
+
+	state.Append(renderTreeLeaf(node.Name, ctx.Path, isActive))
 	return nil
 }
 
@@ -51,36 +64,6 @@ func renderTreeLeaf(name string, nodePath path.Path, isActive bool) g.Node {
 			h.Href("?focus="+nodePath.String()),
 			h.Class("tree-node__link"),
 			g.Text(name),
-		),
-	)
-}
-
-func renderTreeNode(name string, nodePath path.Path, isActive, isExpanded, hasChildren bool) g.Node {
-	class := "tree-node"
-	if isActive {
-		class += " tree-node--active"
-	}
-	if isExpanded {
-		class += " tree-node--expanded"
-	}
-
-	var icon string
-	if hasChildren {
-		if isExpanded {
-			icon = "▼ "
-		} else {
-			icon = "▶ "
-		}
-	} else {
-		icon = "• "
-	}
-
-	return h.Div(
-		h.Class(class),
-		h.A(
-			h.Href("?focus="+nodePath.String()),
-			h.Class("tree-node__link"),
-			g.Text(icon+name),
 		),
 	)
 }

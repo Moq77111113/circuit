@@ -8,6 +8,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
 func RenderStructCard(node ast.Node, nodePath path.Path, values map[string]any) g.Node {
@@ -16,14 +17,14 @@ func RenderStructCard(node ast.Node, nodePath path.Path, values map[string]any) 
 
 	return h.A(
 		h.Href(focusURL),
-		h.Class("struct-card"),
+		h.Class(styles.StructCard),
 		h.Div(
-			h.Class("struct-card__header"),
-			h.Span(h.Class("struct-card__name"), g.Text(node.Name)),
-			h.Span(h.Class("struct-card__arrow"), g.Text("→")),
+			h.Class(styles.StructCardHeader),
+			h.Span(h.Class(styles.StructCardName), g.Text(node.Name)),
+			h.Span(h.Class(styles.StructCardArrow+" "+styles.IconArrowRight)),
 		),
 		h.Div(
-			h.Class("struct-card__preview"),
+			h.Class(styles.StructCardPreview),
 			g.Text(preview),
 		),
 	)

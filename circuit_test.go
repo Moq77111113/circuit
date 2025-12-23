@@ -76,7 +76,7 @@ func TestUI_POST(t *testing.T) {
 	form := url.Values{}
 	form.Set("Host", "example.com")
 	form.Set("Port", "9000")
-	form.Set("TLS", "on")
+	form.Set("TLS", "true")
 
 	req := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")

@@ -26,7 +26,7 @@ func renderAddButton(path path.Path) g.Node {
 		h.Type("submit"),
 		h.Name("action"),
 		h.Value(fmt.Sprintf("add:%s", path.FieldPath())),
-		h.Class("btn btn--add"),
+		h.Class("button button--primary"),
 		g.Text("Add"),
 	)
 }
@@ -54,7 +54,7 @@ func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Pa
 			h.Type("submit"),
 			h.Name("action"),
 			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
-			h.Class("btn btn--remove"),
+			h.Class("button button--secondary"+" slice-item__remove-button"),
 			g.Text("Remove"),
 		),
 	)

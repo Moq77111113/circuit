@@ -37,7 +37,9 @@ func RenderTree(nodes []ast.Node, currentFocus path.Path, values map[string]any)
 		h.Class("sidebar-tree"),
 		h.Div(
 			h.Class("tree-root"),
-			g.Text("Config"),
+			h.A(h.Class("nav__link"), h.Href("/"),
+				g.Text("Config"),
+			),
 		),
 		state.Output(),
 	)

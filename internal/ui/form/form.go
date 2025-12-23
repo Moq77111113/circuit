@@ -9,6 +9,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ui/render"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
 func Form(s ast.Schema, values map[string]any, focus path.Path) g.Node {
@@ -18,13 +19,13 @@ func Form(s ast.Schema, values map[string]any, focus path.Path) g.Node {
 
 	return h.Form(
 		h.Method("post"),
-		h.Class("form"),
+		h.Class(styles.Form),
 		fields,
 		h.Div(
-			h.Class("form__actions"),
+			h.Class(styles.FormActions),
 			h.Button(
 				h.Type("submit"),
-				h.Class("button button--primary"),
+				h.Class(styles.Button+" "+styles.ButtonPrimary),
 				g.Text("Save Changes"),
 			),
 		),

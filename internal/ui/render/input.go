@@ -7,6 +7,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/tags"
 	"github.com/moq77111113/circuit/internal/ui/components/inputs"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
 // valueTypeToString converts ValueType enum to string
@@ -29,7 +30,7 @@ func valueTypeToString(vt ast.ValueType) string {
 func renderLabel(node *ast.Node, fieldName string) g.Node {
 	return h.Label(
 		h.For(fieldName),
-		h.Class("field__label"),
+		h.Class(styles.FieldLabel),
 		g.Text(node.Name),
 	)
 }
@@ -77,7 +78,7 @@ func renderHelp(node *ast.Node) g.Node {
 		return nil
 	}
 	return h.Span(
-		h.Class("field__help"),
+		h.Class(styles.FieldHelp),
 		g.Text(node.UI.Help),
 	)
 }

@@ -42,9 +42,6 @@ func Extract(node ast.Node, value any, maxFields int) Summary {
 		}
 
 		valueStr := extractFieldValue(child, fv)
-		if valueStr == "" {
-			continue
-		}
 		fields = append(fields, Field{Name: child.Name, Value: valueStr})
 	}
 
@@ -88,4 +85,47 @@ func Format(s Summary) string {
 		parts = append(parts, fmt.Sprintf("%s: %s", f.Name, f.Value))
 	}
 	return strings.Join(parts, " • ")
+}
+
+func ExtractFromMap(children []ast.Node, itemMap map[string]any, maxFields int) Summary {
+	if itemMap == nil || maxFields <= 0 {
+		return Summary{}
+	}
+
+	fields := []Field{}
+	for i := 0; i < len(children) && len(fields) < maxFields; i++ {
+		child := children[i]
+		if child.Kind != ast.KindPrimitive {
+			continue
+		}
+
+		value := itemMap[child.Name]
+		valueStr := formatValue(child.ValueType, value)
+
+		fields = append(fields, Field{
+			Name:  child.Name,
+			Value: valueStr,
+		})
+	}
+
+	return Summary{Fields: fields}
+}
+
+func formatValue(vt ast.ValueType, value any) string {
+	if value == nil {
+		return ""
+	}
+
+	switch vt {
+	case ast.ValueString:
+		return fmt.Sprintf("%v", value)
+	case ast.ValueInt:
+		return fmt.Sprintf("%d", value)
+	case ast.ValueBool:
+		return fmt.Sprintf("%t", value)
+	case ast.ValueFloat:
+		return fmt.Sprintf("%.2f", value)
+	default:
+		return ""
+	}
 }

@@ -1,0 +1,114 @@
+package styles
+
+const (
+	// Collapsible component
+	Collapsible          = "collapsible"
+	CollapsibleHeader    = "collapsible__header"
+	CollapsibleTitle     = "collapsible__title"
+	CollapsibleIcon      = "collapsible__icon"
+	CollapsibleCount     = "collapsible__count"
+	CollapsibleSummary   = "collapsible__summary"
+	CollapsibleBody      = "collapsible__body"
+	CollapsibleCollapsed = "collapsible--collapsed"
+	CollapsibleDepth0    = "collapsible--depth-0"
+	CollapsibleDepth1    = "collapsible--depth-1"
+	CollapsibleDepth2    = "collapsible--depth-2"
+	CollapsibleDepth3    = "collapsible--depth-3"
+	CollapsibleDepth4    = "collapsible--depth-4"
+
+	// Field component
+	Field           = "field"
+	FieldLabel      = "field__label"
+	FieldInput      = "field__input"
+	FieldHelp       = "field__help"
+	FieldRequired   = "field__label-required"
+	FieldLabelClick = "field__label--clickable"
+	FieldSelect     = "field__select"
+
+	// Button component
+	Button        = "button"
+	ButtonPrimary = "button--primary"
+
+	// Card component
+	Card        = "card"
+	CardHeader  = "card__header"
+	CardTitle   = "card__title"
+	CardBody    = "card__body"
+	CardIcon    = "card__icon"
+	CardName    = "card__name"
+	CardArrow   = "card__arrow"
+	CardPreview = "card__preview"
+
+	// Struct card (specific type of card)
+	StructCard        = "struct-card"
+	StructCardHeader  = "struct-card__header"
+	StructCardName    = "struct-card__name"
+	StructCardArrow   = "struct-card__arrow"
+	StructCardPreview = "struct-card__preview"
+
+	// Nav component
+	Nav                = "nav"
+	NavTitle           = "nav__title"
+	NavList            = "nav__list"
+	NavSublist         = "nav__sublist"
+	NavItem            = "nav__item"
+	NavItemCollapsible = "nav__item--collapsible"
+	NavItemNested      = "nav__item--nested"
+	NavLink            = "nav__link"
+	NavLinkField       = "nav__link--field"
+	NavLinkSection     = "nav__link--section"
+	NavLinkSlice       = "nav__link--slice"
+	NavLinkSliceItem   = "nav__link--slice-item"
+	NavChevron         = "nav__chevron"
+
+	// Icon modifiers
+	Icon             = "icon"
+	IconChevronDown  = "icon--chevron-down"
+	IconChevronRight = "icon--chevron-right"
+	IconArrowRight   = "icon--arrow-right"
+
+	// Slice components
+	SliceItem       = "slice__item"
+	SliceItemStruct = "slice__item--struct"
+	SliceItemHeader = "slice__item-header"
+	SliceItemBody   = "slice__item-body"
+	SliceItemTitle  = "slice__item-title"
+	SliceChevron    = "slice__chevron"
+
+	// Form
+	Form        = "form"
+	FormSection = "form__section"
+	FormActions = "form__actions"
+
+	// Layout
+	App          = "app"
+	AppSidebar   = "app__sidebar"
+	AppMain      = "app__main"
+	AppContainer = "app__container"
+
+	// Breadcrumb
+	Breadcrumb     = "breadcrumb"
+	BreadcrumbItem = "breadcrumb__item"
+	BreadcrumbLink = "breadcrumb__link"
+
+	// State modifiers
+	Collapsed = "collapsed"
+)
+
+// DepthClass returns the BEM depth modifier class for a given depth level.
+// Clamps depth to range [0, 4].
+func DepthClass(depth int) string {
+	if depth < 0 {
+		depth = 0
+	}
+	if depth > 4 {
+		depth = 4
+	}
+	return []string{
+		CollapsibleDepth0,
+		CollapsibleDepth1,
+		CollapsibleDepth2,
+		CollapsibleDepth3,
+		CollapsibleDepth4,
+	}[depth]
+}
