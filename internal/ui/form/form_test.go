@@ -82,8 +82,14 @@ func TestForm_Checkbox(t *testing.T) {
 
 	html := renderToString(Form(s, nil, path.Root()))
 
-	if !strings.Contains(html, `type="checkbox"`) {
-		t.Error("expected checkbox input type")
+	if !strings.Contains(html, `type="radio"`) {
+		t.Error("expected radio input type")
+	}
+	if !strings.Contains(html, `value="true"`) {
+		t.Error("expected true radio button")
+	}
+	if !strings.Contains(html, `value="false"`) {
+		t.Error("expected false radio button")
 	}
 	if !strings.Contains(html, `name="TLS"`) {
 		t.Error("expected name attribute")

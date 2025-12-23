@@ -122,7 +122,7 @@ func TestApplyForm_Bool(t *testing.T) {
 	}
 
 	form := url.Values{}
-	form.Set("Debug", "on")
+	form.Set("Debug", "true")
 
 	err = Apply(&cfg, s, form)
 	if err != nil {
@@ -142,7 +142,7 @@ func TestApplyForm_BoolOff(t *testing.T) {
 	}
 
 	form := url.Values{}
-	// Debug not set = checkbox unchecked
+	form.Set("Debug", "false")
 
 	err = Apply(&cfg, s, form)
 	if err != nil {
@@ -164,7 +164,7 @@ func TestApplyForm_Multiple(t *testing.T) {
 	form := url.Values{}
 	form.Set("Name", "app")
 	form.Set("Port", "3000")
-	form.Set("Debug", "on")
+	form.Set("Debug", "true")
 
 	err = Apply(&cfg, s, form)
 	if err != nil {
@@ -200,8 +200,9 @@ func TestApplyForm_SliceStruct(t *testing.T) {
 
 	form := url.Values{}
 	form.Set("Middlewares.0.Name", "Logger")
-	form.Set("Middlewares.0.Enabled", "on")
+	form.Set("Middlewares.0.Enabled", "true")
 	form.Set("Middlewares.1.Name", "Recovery")
+	form.Set("Middlewares.1.Enabled", "false")
 
 	err = Apply(&cfg, s, form)
 	if err != nil {

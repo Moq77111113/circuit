@@ -38,7 +38,7 @@ func applyInt(fv reflect.Value, value string) error {
 }
 
 func applyBool(fv reflect.Value, value string) error {
-	fv.SetBool(value == "on")
+	fv.SetBool(value == "true")
 	return nil
 }
 

@@ -55,6 +55,15 @@ func extractNodeValues(values map[string]any, node *ast.Node, fieldValue reflect
 				item = itemValue.Elem().Interface()
 			}
 			values[itemPath.String()] = item
+
+			for _, child := range node.Children {
+				childValue := itemValue.FieldByName(child.Name)
+				if !childValue.IsValid() {
+					continue
+				}
+				childPath := itemPath.Child(child.Name)
+				extractNodeValues(values, &child, childValue, childPath)
+			}
 		}
 	}
 }

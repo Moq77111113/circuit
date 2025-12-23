@@ -7,9 +7,36 @@ import (
 )
 
 func Checkbox(field tags.Field, value any) g.Node {
-	attrs := BaseAttrs(field)
-	if value != nil && value.(bool) {
-		attrs = append(attrs, h.Checked())
-	}
-	return h.Input(append(attrs, h.Type("checkbox"))...)
+	checked := value != nil && value.(bool)
+
+	return h.Div(
+		h.Class("toggle-switch"),
+		h.Input(
+			h.Type("radio"),
+			h.Name(field.Name),
+			h.Value("true"),
+			h.ID(field.Name+"_on"),
+			h.Class("toggle-switch__input"),
+			g.If(checked, h.Checked()),
+		),
+		h.Input(
+			h.Type("radio"),
+			h.Name(field.Name),
+			h.Value("false"),
+			h.ID(field.Name+"_off"),
+			h.Class("toggle-switch__input"),
+			g.If(!checked, h.Checked()),
+		),
+		h.Label(
+			h.For(field.Name+"_on"),
+			h.Class("toggle-switch__label toggle-switch__label--on"),
+			g.Text("On"),
+		),
+		h.Label(
+			h.For(field.Name+"_off"),
+			h.Class("toggle-switch__label toggle-switch__label--off"),
+			g.Text("Off"),
+		),
+		h.Div(h.Class("toggle-switch__slider")),
+	)
 }

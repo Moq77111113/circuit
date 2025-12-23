@@ -9,11 +9,9 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/walk"
 )
 
-// ApplyNodes updates a config struct from form data using FormVisitor.
 func ApplyNodes(cfg any, nodes []ast.Node, form url.Values) error {
 	tree := &ast.Tree{Nodes: nodes}
 	visitor := &FormVisitor{form: form}
-
 	rv := reflect.ValueOf(cfg).Elem()
 	state := NewFormState(rv)
 
@@ -54,7 +52,6 @@ func ApplyNodes(cfg any, nodes []ast.Node, form url.Values) error {
 	return nil
 }
 
-// visitStructChildren recursively visits all children of a struct node.
 func visitStructChildren(visitor *FormVisitor, parentCtx *walk.VisitContext, node *ast.Node, structValue reflect.Value) error {
 	for i := range node.Children {
 		child := &node.Children[i]

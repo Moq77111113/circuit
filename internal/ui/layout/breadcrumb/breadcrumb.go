@@ -39,7 +39,7 @@ func RenderBreadcrumb(currentPath path.Path, nodes []ast.Node) g.Node {
 
 func renderRootLink() g.Node {
 	return h.A(
-		h.Href("?focus="),
+		h.Href("/"),
 		h.Class("breadcrumb__link breadcrumb__link--root"),
 		g.Text("Config"),
 	)
