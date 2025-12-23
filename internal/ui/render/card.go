@@ -21,7 +21,7 @@ func RenderStructCard(node ast.Node, nodePath path.Path, values map[string]any) 
 		h.Div(
 			h.Class(styles.StructCardHeader),
 			h.Span(h.Class(styles.StructCardName), g.Text(node.Name)),
-			h.Span(h.Class(styles.StructCardArrow + " " + styles.IconArrowRight)),
+			h.Span(h.Class(styles.StructCardArrow+" "+styles.IconArrowRight)),
 		),
 		h.Div(
 			h.Class(styles.StructCardPreview),

@@ -4,6 +4,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin-right: var(--s-xs);
 }
 
 /* Chevron Down - Default collapsed state */
@@ -42,7 +43,10 @@
   transform: translateX(2px);
 }
 
-/* State modifiers */
 .collapsed .icon--chevron-down::before {
-  transform: rotate(-45deg); /* Points right when collapsed */
+  transform: rotate(-45deg);
+}
+
+.collapsible--collapsed .icon--chevron-down::before {
+  transform: rotate(-45deg);
 }

@@ -37,6 +37,16 @@
   flex: 1;
 }
 
+.collapsible__summary {
+  font-size: var(--fs-xs);
+  color: var(--c-text-tertiary);
+  margin-left: var(--s-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+}
+
 .collapsible__count {
   font-size: var(--fs-xs);
   color: var(--c-text-tertiary);

@@ -21,39 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	});
-
-	// Mobile sidebar toggle
-	const menuToggle = document.querySelector('.mobile-menu-toggle');
-	if (menuToggle) {
-		menuToggle.addEventListener('click', toggleSidebar);
-	}
-
-	// Close sidebar overlay
-	const overlay = document.querySelector('.mobile-sidebar-overlay');
-	if (overlay) {
-		overlay.addEventListener('click', closeSidebar);
-	}
 });
 
-// Sidebar helper functions
-function toggleSidebar() {
-	const sidebar = document.querySelector('.app__sidebar');
-	if (sidebar) {
-		sidebar.classList.toggle('is-open');
-	}
-}
-
-function closeSidebar() {
-	const sidebar = document.querySelector('.app__sidebar');
-	if (sidebar) {
-		sidebar.classList.remove('is-open');
-	}
-}
-
-// Export for inline usage (if needed during transition)
 window.toggleCollapse = function(element) {
 	const parent = element.closest('.collapsible, .slice, .container');
 	if (parent) {
 		parent.classList.toggle(parent.classList.contains('collapsible') ? 'collapsible--collapsed' : 'collapsed');
+	}
+};
+
+window.toggleNavItem = function(element) {
+	const navItem = element.closest('.nav__item--collapsible');
+	if (navItem) {
+		navItem.classList.toggle('collapsed');
 	}
 };

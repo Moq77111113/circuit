@@ -13,10 +13,11 @@ import (
 
 // RenderVisitor implements walk.Visitor for HTML rendering.
 type RenderVisitor struct {
-	values map[string]any // All configuration values indexed by path
+	values  map[string]any
+	options Options
 }
 
-// VisitPrimitive renders a primitive field (input + label + help).
+// VisitPrimitive renders a primitive field.
 func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
 	state := ctx.State.(*RenderState)
 	value := v.values[ctx.Path.String()]
@@ -37,7 +38,7 @@ func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) e
 func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) error {
 	state := ctx.State.(*RenderState)
 
-	if ctx.Depth == 0 {
+	if ctx.Depth == 0 && v.options.ShowCardsAtDepth0 {
 		card := RenderStructCard(*node, ctx.Path, v.values)
 		state.Append(card)
 	}
@@ -51,7 +52,7 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 	value := v.values[ctx.Path.String()]
 	items := reflection.SliceValues(value)
 
-	isCollapsed := ctx.Depth >= 2
+	isCollapsed := v.options.ShouldCollapse(ctx.Depth)
 
 	var itemNodes []g.Node
 	if len(items) == 0 {
@@ -68,13 +69,12 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 		}
 	}
 
-	// Add button at the end
 	itemNodes = append(itemNodes, renderAddButton(ctx.Path))
 
 	cfg := collapsible.Config{
 		ID:        "slice-" + ctx.Path.String(),
-		Title:     node.Name,
-		Depth:     ctx.Depth,
+		Title:     ast.DisplayName(node),
+		Depth:     v.options.ClampDepth(ctx.Depth),
 		Count:     len(items),
 		Collapsed: isCollapsed,
 	}

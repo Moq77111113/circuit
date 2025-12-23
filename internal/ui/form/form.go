@@ -25,7 +25,7 @@ func Form(s ast.Schema, values map[string]any, focus path.Path) g.Node {
 			h.Class(styles.FormActions),
 			h.Button(
 				h.Type("submit"),
-				h.Class(styles.Button + " " + styles.ButtonPrimary),
+				h.Class(styles.Button+" "+styles.ButtonPrimary),
 				g.Text("Save Changes"),
 			),
 		),

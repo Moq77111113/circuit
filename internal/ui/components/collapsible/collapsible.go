@@ -13,6 +13,7 @@ import (
 type Config struct {
 	ID        string
 	Title     string
+	Summary   string
 	Depth     int
 	Count     int
 	Collapsed bool
@@ -29,16 +30,22 @@ func Collapsible(cfg Config, children []g.Node) g.Node {
 	if cfg.ID != "" {
 		attrs = append(attrs, h.ID(cfg.ID))
 	}
-	attrs = append(attrs, Header(cfg.Title, cfg.Count), Body(children))
+	attrs = append(attrs, Header(cfg.Title, cfg.Count, cfg.Summary), Body(children))
 
 	return h.Div(attrs...)
 }
 
-// Header renders the collapsible header with title and optional count badge.
-func Header(title string, count int) g.Node {
+func Header(title string, count int, summary string) g.Node {
 	children := []g.Node{
 		h.Span(h.Class(styles.CollapsibleIcon + " " + styles.IconChevronDown)),
 		h.Span(h.Class(styles.CollapsibleTitle), g.Text(title)),
+	}
+
+	if summary != "" {
+		children = append(children, h.Span(
+			h.Class(styles.CollapsibleSummary),
+			g.Text(summary),
+		))
 	}
 
 	if count > 0 {

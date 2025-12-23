@@ -75,7 +75,7 @@ func TestCollapsibleCollapsed(t *testing.T) {
 }
 
 func TestHeader(t *testing.T) {
-	result := Header("My Title", 5)
+	result := Header("My Title", 5, "")
 	html := renderToString(result)
 
 	if !strings.Contains(html, styles.CollapsibleHeader) {
@@ -93,7 +93,7 @@ func TestHeader(t *testing.T) {
 }
 
 func TestHeaderNoCount(t *testing.T) {
-	result := Header("Title", 0)
+	result := Header("Title", 0, "")
 	html := renderToString(result)
 
 	if strings.Contains(html, "(0)") {
@@ -110,5 +110,48 @@ func TestBody(t *testing.T) {
 	}
 	if !strings.Contains(html, "content") {
 		t.Error("should contain child content")
+	}
+}
+
+func TestCollapsible_WithSummary(t *testing.T) {
+	cfg := Config{
+		Title:   "Item 0",
+		Summary: "Name: API • Port: 8080",
+		Depth:   0,
+	}
+	result := Collapsible(cfg, []g.Node{})
+	html := renderToString(result)
+
+	if !strings.Contains(html, styles.CollapsibleSummary) {
+		t.Error("should contain summary class")
+	}
+	if !strings.Contains(html, "Name: API • Port: 8080") {
+		t.Error("should contain summary text")
+	}
+}
+
+func TestCollapsible_WithoutSummary(t *testing.T) {
+	cfg := Config{
+		Title:   "Item 0",
+		Summary: "",
+		Depth:   0,
+	}
+	result := Collapsible(cfg, []g.Node{})
+	html := renderToString(result)
+
+	if strings.Contains(html, styles.CollapsibleSummary) {
+		t.Error("should NOT contain summary class when summary is empty")
+	}
+}
+
+func TestHeader_WithSummary(t *testing.T) {
+	result := Header("My Title", 5, "Name: Test • Port: 80")
+	html := renderToString(result)
+
+	if !strings.Contains(html, "Name: Test • Port: 80") {
+		t.Error("should contain summary text")
+	}
+	if !strings.Contains(html, styles.CollapsibleSummary) {
+		t.Error("should contain summary class")
 	}
 }

@@ -51,11 +51,11 @@ func TestRenderTree_WithStruct(t *testing.T) {
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Database") {
-		t.Error("tree should contain Database")
+		t.Error("tree should contain Database (root level)")
 	}
 
-	if !strings.Contains(result, "Host") {
-		t.Error("tree should contain Host (child of Database)")
+	if strings.Contains(result, "Host") {
+		t.Error("tree should NOT contain Host (nested child, only root-level shown)")
 	}
 }
 

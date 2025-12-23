@@ -1,6 +1,5 @@
 package styles
 
-
 const (
 	// Collapsible component
 	Collapsible          = "collapsible"
@@ -8,6 +7,7 @@ const (
 	CollapsibleTitle     = "collapsible__title"
 	CollapsibleIcon      = "collapsible__icon"
 	CollapsibleCount     = "collapsible__count"
+	CollapsibleSummary   = "collapsible__summary"
 	CollapsibleBody      = "collapsible__body"
 	CollapsibleCollapsed = "collapsible--collapsed"
 	CollapsibleDepth0    = "collapsible--depth-0"
@@ -17,13 +17,13 @@ const (
 	CollapsibleDepth4    = "collapsible--depth-4"
 
 	// Field component
-	Field            = "field"
-	FieldLabel       = "field__label"
-	FieldInput       = "field__input"
-	FieldHelp        = "field__help"
-	FieldRequired    = "field__label-required"
-	FieldLabelClick  = "field__label--clickable"
-	FieldSelect      = "field__select"
+	Field           = "field"
+	FieldLabel      = "field__label"
+	FieldInput      = "field__input"
+	FieldHelp       = "field__help"
+	FieldRequired   = "field__label-required"
+	FieldLabelClick = "field__label--clickable"
+	FieldSelect     = "field__select"
 
 	// Button component
 	Button        = "button"
@@ -47,19 +47,33 @@ const (
 	StructCardPreview = "struct-card__preview"
 
 	// Nav component
-	Nav        = "nav"
-	NavTitle   = "nav__title"
-	NavList    = "nav__list"
-	NavSublist = "nav__sublist"
-	NavItem    = "nav__item"
-	NavLink    = "nav__link"
-	NavChevron = "nav__chevron"
+	Nav                = "nav"
+	NavTitle           = "nav__title"
+	NavList            = "nav__list"
+	NavSublist         = "nav__sublist"
+	NavItem            = "nav__item"
+	NavItemCollapsible = "nav__item--collapsible"
+	NavItemNested      = "nav__item--nested"
+	NavLink            = "nav__link"
+	NavLinkField       = "nav__link--field"
+	NavLinkSection     = "nav__link--section"
+	NavLinkSlice       = "nav__link--slice"
+	NavLinkSliceItem   = "nav__link--slice-item"
+	NavChevron         = "nav__chevron"
 
 	// Icon modifiers
 	Icon             = "icon"
 	IconChevronDown  = "icon--chevron-down"
 	IconChevronRight = "icon--chevron-right"
 	IconArrowRight   = "icon--arrow-right"
+
+	// Slice components
+	SliceItem       = "slice__item"
+	SliceItemStruct = "slice__item--struct"
+	SliceItemHeader = "slice__item-header"
+	SliceItemBody   = "slice__item-body"
+	SliceItemTitle  = "slice__item-title"
+	SliceChevron    = "slice__chevron"
 
 	// Form
 	Form        = "form"

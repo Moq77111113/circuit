@@ -9,31 +9,39 @@ import (
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ast/walk"
+	"github.com/moq77111113/circuit/internal/ui/components/collapsible"
+	"github.com/moq77111113/circuit/internal/ui/components/containers"
 )
 
 // renderStructSliceItemWithFields renders a complete struct slice item with fields and remove button.
 func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, node *ast.Node, index int, itemPath path.Path) g.Node {
-	itemHeader := h.Div(
-		h.Class("slice-item__header"),
-		g.Textf("#%d", index),
-	)
 	itemFields := v.renderStructSliceFields(ctx, node, index)
 
+	itemValue := v.values[itemPath.String()]
+
+	summary := containers.Extract(*node, itemValue, 2)
+	summaryText := containers.Format(summary)
+
 	field, idx := parseItemPath(itemPath.String())
-	removeBtn := h.Button(
+	removeButton := h.Button(
 		h.Type("submit"),
 		h.Name("action"),
 		h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
-		h.Class("btn btn--remove"),
+		h.Class("button button--danger"),
 		g.Text("Remove"),
 	)
 
-	return h.Div(
-		h.Class("slice-item slice-item--struct"),
-		itemHeader,
-		g.Group(itemFields),
-		removeBtn,
-	)
+	body := append(itemFields, removeButton)
+
+	cfg := collapsible.Config{
+		ID:        fmt.Sprintf("slice-item-%s", itemPath.String()),
+		Title:     fmt.Sprintf("#%d", index),
+		Summary:   summaryText,
+		Depth:     v.options.ClampDepth(ctx.Depth + 1),
+		Collapsed: true,
+	}
+
+	return collapsible.Collapsible(cfg, body)
 }
 
 // renderStructSliceFields renders all fields for a struct item in a slice.

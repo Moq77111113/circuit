@@ -20,6 +20,7 @@
   /* Semantic colors */
   --c-danger: oklch(60% 0.15 20);
   --c-danger-hover: oklch(55% 0.18 20);
+  --c-danger-text: oklch(99% 0 0);
   --c-focus-ring: oklch(55% 0.2 260 / 0.2);
   --c-hover-bg: oklch(97% 0 0);
 

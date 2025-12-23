@@ -20,12 +20,22 @@
   gap: var(--s-sm);
   padding: var(--s-md);
   background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-sm);
+  border: 2px solid var(--c-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease;
+}
+
+.slice__item:hover {
+  border-color: var(--c-brand);
 }
 
 .slice__item--primitive {
   /* Primitive items keep the simple layout */
+}
+
+.slice-item__remove-button {
+  margin-top: var(--s-sm);
 }
 
 @media (min-width: 768px) {
@@ -47,10 +57,11 @@
   gap: var(--s-sm);
   padding: var(--s-sm) var(--s-md);
   background: var(--c-surface-alt);
-  border-bottom: 1px solid var(--c-border);
+  border-bottom: 2px solid var(--c-border);
   cursor: pointer;
   user-select: none;
   transition: background 0.15s ease;
+  font-weight: var(--fw-semibold);
 }
 
 .slice__item-header:hover {

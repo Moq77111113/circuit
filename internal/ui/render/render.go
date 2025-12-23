@@ -9,11 +9,20 @@ import (
 )
 
 // Render generates HTML for a tree of nodes with their values.
+// Uses default rendering options.
 func Render(nodes []ast.Node, values map[string]any, focus path.Path) g.Node {
+	return RenderWithOptions(nodes, values, focus, DefaultOptions())
+}
+
+// RenderWithOptions generates HTML for a tree of nodes with custom rendering options.
+func RenderWithOptions(nodes []ast.Node, values map[string]any, focus path.Path, opts Options) g.Node {
 	tree := &ast.Tree{Nodes: nodes}
 	state := NewRenderState()
 
-	visitor := &RenderVisitor{values: values}
+	visitor := &RenderVisitor{
+		values:  values,
+		options: opts,
+	}
 	walker := walk.NewWalker(visitor, walk.WithBasePath(focus))
 	_ = walker.Walk(tree, state)
 

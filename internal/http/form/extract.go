@@ -32,6 +32,7 @@ func extractNodeValues(values map[string]any, node *ast.Node, fieldValue reflect
 		val = fieldValue.Elem().Interface()
 	}
 	values[currentPath.String()] = val
+
 	if node.Kind == ast.KindStruct && len(node.Children) > 0 {
 		for _, child := range node.Children {
 			childValue := fieldValue.FieldByName(child.Name)
@@ -40,6 +41,20 @@ func extractNodeValues(values map[string]any, node *ast.Node, fieldValue reflect
 			}
 			childPath := currentPath.Child(child.Name)
 			extractNodeValues(values, &child, childValue, childPath)
+		}
+	}
+
+	if node.Kind == ast.KindSlice && node.ElementKind == ast.KindStruct {
+		sliceLen := fieldValue.Len()
+		for i := range sliceLen {
+			itemValue := fieldValue.Index(i)
+			itemPath := currentPath.Index(i)
+
+			item := itemValue.Interface()
+			if itemValue.Kind() == reflect.Pointer && !itemValue.IsNil() {
+				item = itemValue.Elem().Interface()
+			}
+			values[itemPath.String()] = item
 		}
 	}
 }

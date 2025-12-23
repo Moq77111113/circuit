@@ -8,7 +8,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
-func TestSidebar_NestedStructLinks(t *testing.T) {
+func TestSidebar_RootLevelOnly(t *testing.T) {
 	nodes := []ast.Node{
 		{
 			Name: "Server",
@@ -38,7 +38,7 @@ func TestSidebar_NestedStructLinks(t *testing.T) {
 	result := Sidebar(s, values, path.Root())
 	html := renderToString(result)
 
-	tests := []struct {
+	rootTests := []struct {
 		name     string
 		expected string
 	}{
@@ -46,17 +46,30 @@ func TestSidebar_NestedStructLinks(t *testing.T) {
 		{"root label", `Config`},
 		{"root struct link", `href="?focus=Server"`},
 		{"root field link", `href="?focus=Debug"`},
-		{"nested struct link", `href="?focus=Server.Database"`},
-		{"nested field in root struct", `href="?focus=Server.Host"`},
-		{"nested field in nested struct", `href="?focus=Server.Database.User"`},
-		{"nested field in nested struct 2", `href="?focus=Server.Database.Port"`},
 		{"tree node class", `class="tree-node`},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range rootTests {
 		t.Run(tt.name, func(t *testing.T) {
 			if !strings.Contains(html, tt.expected) {
 				t.Errorf("expected %q in HTML, got:\n%s", tt.expected, html)
+			}
+		})
+	}
+
+	nestedTests := []struct {
+		name       string
+		unexpected string
+	}{
+		{"no nested struct", `href="?focus=Server.Database"`},
+		{"no nested field in root", `href="?focus=Server.Host"`},
+		{"no nested field in nested struct", `href="?focus=Server.Database.User"`},
+	}
+
+	for _, tt := range nestedTests {
+		t.Run(tt.name, func(t *testing.T) {
+			if strings.Contains(html, tt.unexpected) {
+				t.Errorf("should NOT contain %q in HTML (only root-level shown), got:\n%s", tt.unexpected, html)
 			}
 		})
 	}
@@ -120,6 +133,7 @@ func TestSidebar_TreeNavigation(t *testing.T) {
 	result := Sidebar(s, values, path.Root())
 	html := renderToString(result)
 
+	// Only root-level elements should be present
 	tests := []struct {
 		name     string
 		expected string
@@ -128,8 +142,6 @@ func TestSidebar_TreeNavigation(t *testing.T) {
 		{"tree node", `class="tree-node`},
 		{"server link", `href="?focus=Server"`},
 		{"tags link", `href="?focus=Tags"`},
-		{"host link", `href="?focus=Server.Host"`},
-		{"chevron present", `▼`},
 	}
 
 	for _, tt := range tests {
@@ -138,5 +150,10 @@ func TestSidebar_TreeNavigation(t *testing.T) {
 				t.Errorf("expected %q in HTML, got:\n%s", tt.expected, html)
 			}
 		})
+	}
+
+	// Nested elements should NOT be present
+	if strings.Contains(html, `href="?focus=Server.Host"`) {
+		t.Errorf("should NOT contain nested Host link (only root-level shown)")
 	}
 }
