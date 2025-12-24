@@ -1,14 +1,17 @@
 package circuit
 
+import "github.com/moq77111113/circuit/internal/auth"
+
 // Option configures behavior passed to `From`.
 type Option func(*config)
 
 type config struct {
-	path       string
-	title      string
-	brand      bool
-	onChange   OnChange
-	autoReload bool
+	path          string
+	title         string
+	brand         bool
+	onChange      OnChange
+	autoReload    bool
+	authenticator auth.Authenticator
 }
 
 // WithPath sets the filesystem path to the YAML configuration file that the
@@ -48,5 +51,13 @@ func WithOnChange(fn OnChange) Option {
 func WithAutoReload(enable bool) Option {
 	return func(c *config) {
 		c.autoReload = enable
+	}
+}
+
+// WithAuth sets the authenticator for the Circuit UI.
+// If not provided, the UI is accessible without authentication.
+func WithAuth(a Authenticator) Option {
+	return func(c *config) {
+		c.authenticator = a
 	}
 }

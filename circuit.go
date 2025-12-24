@@ -50,7 +50,15 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
 
-	h := handler.New(s, cfg, conf.path, conf.title, conf.brand, loader)
+	h := handler.New(handler.Config{
+		Schema:        s,
+		Cfg:           cfg,
+		Path:          conf.path,
+		Title:         conf.title,
+		Brand:         conf.brand,
+		Loader:        loader,
+		Authenticator: conf.authenticator,
+	})
 
 	return h, nil
 }
