@@ -3,14 +3,14 @@ package handler
 import (
 	"os"
 
-	"github.com/moq77111113/circuit/internal/reload"
+	"github.com/moq77111113/circuit/internal/sync"
 	"github.com/moq77111113/circuit/internal/yaml"
 )
 
 func (h *Handler) writeConfig() error {
 	var data []byte
 	var err error
-	h.loader.WithLock(func() {
+	h.store.WithLock(func() {
 		data, err = yaml.Encode(h.cfg)
 	})
 
@@ -23,7 +23,7 @@ func (h *Handler) writeConfig() error {
 		return err
 	}
 
-	h.loader.EmitChange(reload.SourceFormSubmit)
+	h.store.EmitChange(sync.SourceFormSubmit)
 
 	return nil
 }

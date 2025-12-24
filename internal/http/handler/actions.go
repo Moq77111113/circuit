@@ -4,7 +4,7 @@ import "github.com/moq77111113/circuit/internal/http/form"
 
 func (h *Handler) handleSave(formData map[string][]string) error {
 	var err error
-	h.loader.WithLock(func() {
+	h.store.WithLock(func() {
 		err = form.Apply(h.cfg, h.schema, formData)
 	})
 
@@ -17,7 +17,7 @@ func (h *Handler) handleSave(formData map[string][]string) error {
 
 func (h *Handler) handleAdd(fieldName string) error {
 	var err error
-	h.loader.WithLock(func() {
+	h.store.WithLock(func() {
 		err = form.AddSliceItemNode(h.cfg, h.schema.Nodes, fieldName)
 	})
 
@@ -30,7 +30,7 @@ func (h *Handler) handleAdd(fieldName string) error {
 
 func (h *Handler) handleRemove(fieldName string, index int) error {
 	var err error
-	h.loader.WithLock(func() {
+	h.store.WithLock(func() {
 		err = form.RemoveSliceItemNode(h.cfg, h.schema.Nodes, fieldName, index)
 	})
 

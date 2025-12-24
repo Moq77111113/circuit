@@ -8,7 +8,7 @@ import (
 	"github.com/moq77111113/circuit/internal/auth"
 	"github.com/moq77111113/circuit/internal/http/action"
 	"github.com/moq77111113/circuit/internal/http/form"
-	"github.com/moq77111113/circuit/internal/reload"
+	"github.com/moq77111113/circuit/internal/sync"
 	"github.com/moq77111113/circuit/internal/ui/layout"
 )
 
@@ -19,7 +19,7 @@ type Handler struct {
 	path          string
 	title         string
 	brand         bool
-	loader        *reload.Loader
+	store         *sync.Store
 	authenticator auth.Authenticator
 }
 
@@ -30,7 +30,7 @@ type Config struct {
 	Path          string
 	Title         string
 	Brand         bool
-	Loader        *reload.Loader
+	Store         *sync.Store
 	Authenticator auth.Authenticator
 }
 
@@ -45,7 +45,7 @@ func New(c Config) *Handler {
 		path:          c.Path,
 		title:         c.Title,
 		brand:         c.Brand,
-		loader:        c.Loader,
+		store:         c.Store,
 		authenticator: c.Authenticator,
 	}
 }
@@ -70,7 +70,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	var values map[string]any
-	h.loader.WithLock(func() {
+	h.store.WithLock(func() {
 		values = form.ExtractValues(h.cfg, h.schema)
 	})
 

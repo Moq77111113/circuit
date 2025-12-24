@@ -7,7 +7,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/http/handler"
-	"github.com/moq77111113/circuit/internal/reload"
+	"github.com/moq77111113/circuit/internal/sync"
 )
 
 // From creates and returns an `http.Handler` that serves a small web UI for
@@ -45,7 +45,7 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		return nil, fmt.Errorf("extract schema: %w", err)
 	}
 
-	loader, err := reload.Load(conf.path, cfg, conf.onChange, conf.autoReload)
+	store, err := sync.Load(conf.path, cfg, conf.onChange, conf.autoReload)
 	if err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
@@ -56,7 +56,7 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		Path:          conf.path,
 		Title:         conf.title,
 		Brand:         conf.brand,
-		Loader:        loader,
+		Store:         store,
 		Authenticator: conf.authenticator,
 	})
 

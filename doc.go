@@ -18,6 +18,7 @@
 //	h, err := circuit.From(cfg,
 //	    circuit.WithPath("/etc/myapp/config.yaml"),
 //	    circuit.WithTitle("My App Config"),
+//	    circuit.WithAuth(circuit.NewBasicAuth("admin", "password")),
 //	    circuit.OnApply(func(){ log.Println("config reloaded") }),
 //	)
 //	if err != nil {

@@ -12,7 +12,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/auth"
-	"github.com/moq77111113/circuit/internal/reload"
+	"github.com/moq77111113/circuit/internal/sync"
 )
 
 type TestConfig struct {
@@ -36,11 +36,11 @@ func TestHandler_GET(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	h := New(Config{
 		Schema: s,
@@ -48,7 +48,7 @@ func TestHandler_GET(t *testing.T) {
 		Path:   path,
 		Title:  "Test",
 		Brand:  true,
-		Loader: loader,
+		Store:  manager,
 	})
 
 	req := httptest.NewRequest("GET", "/", nil)
@@ -84,11 +84,11 @@ func TestHandler_POST(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	h := New(Config{
 		Schema: s,
@@ -96,7 +96,7 @@ func TestHandler_POST(t *testing.T) {
 		Path:   path,
 		Title:  "Test",
 		Brand:  true,
-		Loader: loader,
+		Store:  manager,
 	})
 
 	form := url.Values{}
@@ -146,11 +146,11 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	h := New(Config{
 		Schema: s,
@@ -158,7 +158,7 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 		Path:   path,
 		Title:  "Test",
 		Brand:  true,
-		Loader: loader,
+		Store:  manager,
 	})
 
 	req := httptest.NewRequest("DELETE", "/", nil)
@@ -186,11 +186,11 @@ func TestHandler_GET_WithValidAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	authenticator := auth.Basic{
 		Username: "admin",
@@ -203,7 +203,7 @@ func TestHandler_GET_WithValidAuth(t *testing.T) {
 		Path:          path,
 		Title:         "Test",
 		Brand:         true,
-		Loader:        loader,
+		Store:         manager,
 		Authenticator: authenticator,
 	})
 
@@ -233,11 +233,11 @@ func TestHandler_GET_WithInvalidAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	authenticator := auth.Basic{
 		Username: "admin",
@@ -250,7 +250,7 @@ func TestHandler_GET_WithInvalidAuth(t *testing.T) {
 		Path:          path,
 		Title:         "Test",
 		Brand:         true,
-		Loader:        loader,
+		Store:         manager,
 		Authenticator: authenticator,
 	})
 
@@ -285,11 +285,11 @@ func TestHandler_POST_WithValidAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	authenticator := auth.Basic{
 		Username: "user",
@@ -302,7 +302,7 @@ func TestHandler_POST_WithValidAuth(t *testing.T) {
 		Path:          path,
 		Title:         "Test",
 		Brand:         true,
-		Loader:        loader,
+		Store:         manager,
 		Authenticator: authenticator,
 	})
 
@@ -336,11 +336,11 @@ func TestHandler_POST_WithInvalidAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	authenticator := auth.Basic{
 		Username: "user",
@@ -353,7 +353,7 @@ func TestHandler_POST_WithInvalidAuth(t *testing.T) {
 		Path:          path,
 		Title:         "Test",
 		Brand:         true,
-		Loader:        loader,
+		Store:         manager,
 		Authenticator: authenticator,
 	})
 
@@ -387,11 +387,11 @@ func TestHandler_NoAuthConfigured(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	h := New(Config{
 		Schema:        s,
@@ -399,7 +399,7 @@ func TestHandler_NoAuthConfigured(t *testing.T) {
 		Path:          path,
 		Title:         "Test",
 		Brand:         true,
-		Loader:        loader,
+		Store:         manager,
 		Authenticator: nil, // defaults to None
 	})
 
@@ -428,11 +428,11 @@ func TestHandler_ForwardAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	loader, err := reload.Load(path, &cfg, nil, true)
+	manager, err := sync.Load(path, &cfg, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	authenticator := auth.Forward{
 		SubjectHeader: "X-Forwarded-User",
@@ -444,7 +444,7 @@ func TestHandler_ForwardAuth(t *testing.T) {
 		Path:          path,
 		Title:         "Test",
 		Brand:         true,
-		Loader:        loader,
+		Store:         manager,
 		Authenticator: authenticator,
 	})
 

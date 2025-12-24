@@ -1,15 +1,15 @@
 package circuit
 
-import "github.com/moq77111113/circuit/internal/reload"
+import "github.com/moq77111113/circuit/internal/sync"
 
-type Source = reload.Source
+type Source = sync.Source
 
 const (
-	SourceFormSubmit = reload.SourceFormSubmit
-	SourceFileChange = reload.SourceFileChange
-	SourceManual     = reload.SourceManual
+	SourceFormSubmit = sync.SourceFormSubmit
+	SourceFileChange = sync.SourceFileChange
+	SourceManual     = sync.SourceManual
 )
 
-type ChangeEvent = reload.ChangeEvent
+type ChangeEvent = sync.ChangeEvent
 
-type OnChange = reload.OnChange
+type OnChange = sync.OnChange
