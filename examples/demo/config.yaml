@@ -1,0 +1,29 @@
+service:
+  name: demo
+  env: dev
+
+http:
+  public_message: "hello from circuit"
+  allowed_cidrs: []
+
+ops:
+  log_level: info
+  request_sample: 0.25
+  maintenance: false
+  maintenance_message: "maintenance in progress"
+
+limits:
+  max_body_bytes: 1048576
+  artificial_delay_ms: 0
+
+backends:
+  - name: primary
+    url: "https://example.com"
+    weight: 100
+    enabled: true
+
+flags:
+  - key: new-ui
+    enabled: false
+  - key: beta-endpoint
+    enabled: true
