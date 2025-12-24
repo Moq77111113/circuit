@@ -1,4 +1,4 @@
-package reload
+package sync
 
 import (
 	"os"
@@ -22,11 +22,11 @@ func TestLoad_InitialLoad(t *testing.T) {
 	}
 
 	var cfg Config
-	loader, err := Load(path, &cfg, func(ce ChangeEvent) {}, false)
+	manager, err := Load(path, &cfg, func(ce ChangeEvent) {}, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	if cfg.Port != 8080 {
 		t.Errorf("expected port 8080, got %d", cfg.Port)
@@ -49,16 +49,16 @@ func TestLoad_ReloadOnChange(t *testing.T) {
 	var cfg Config
 	var callbackCalled atomic.Bool
 
-	loader, err := Load(path, &cfg, func(ce ChangeEvent) {
+	manager, err := Load(path, &cfg, func(ce ChangeEvent) {
 		callbackCalled.Store(true)
 	}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	var port int
-	loader.WithLock(func() {
+	manager.WithLock(func() {
 		port = cfg.Port
 	})
 
@@ -78,7 +78,7 @@ func TestLoad_ReloadOnChange(t *testing.T) {
 	// Wait for reload
 	time.Sleep(300 * time.Millisecond)
 
-	loader.WithLock(func() {
+	manager.WithLock(func() {
 		port = cfg.Port
 	})
 
@@ -141,7 +141,7 @@ func TestLoad_Stop(t *testing.T) {
 	var cfg Config
 	var callbackCalled atomic.Bool
 
-	loader, err := Load(path, &cfg, func(ce ChangeEvent) {
+	manager, err := Load(path, &cfg, func(ce ChangeEvent) {
 		callbackCalled.Store(true)
 	}, true)
 	if err != nil {
@@ -149,7 +149,7 @@ func TestLoad_Stop(t *testing.T) {
 	}
 
 	// Stop immediately
-	loader.Stop()
+	manager.Stop()
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -162,7 +162,7 @@ func TestLoad_Stop(t *testing.T) {
 	time.Sleep(300 * time.Millisecond)
 
 	var port int
-	loader.WithLock(func() {
+	manager.WithLock(func() {
 		port = cfg.Port
 	})
 
@@ -192,13 +192,13 @@ func TestLoad_MultipleReloads(t *testing.T) {
 	var cfg Config
 	var count atomic.Int32
 
-	loader, err := Load(path, &cfg, func(ce ChangeEvent) {
+	manager, err := Load(path, &cfg, func(ce ChangeEvent) {
 		count.Add(1)
 	}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer loader.Stop()
+	defer manager.Stop()
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -211,7 +211,7 @@ func TestLoad_MultipleReloads(t *testing.T) {
 
 	var host string
 	var port int
-	loader.WithLock(func() {
+	manager.WithLock(func() {
 		host = cfg.Host
 		port = cfg.Port
 	})
@@ -227,7 +227,7 @@ func TestLoad_MultipleReloads(t *testing.T) {
 	}
 	time.Sleep(300 * time.Millisecond)
 
-	loader.WithLock(func() {
+	manager.WithLock(func() {
 		host = cfg.Host
 		port = cfg.Port
 	})

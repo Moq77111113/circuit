@@ -1,4 +1,4 @@
-package reload
+package sync
 
 import (
 	"fmt"
@@ -57,7 +57,7 @@ func (w *Watcher) run() {
 				w.callback()
 			}
 		case <-w.watcher.Errors:
-			// TODO: handle errors
+			// TODO: handle errors (will be fixed in Phase 4)
 		}
 	}
 }
