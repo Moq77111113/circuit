@@ -15,7 +15,10 @@ func TestBasic_PlaintextSuccess(t *testing.T) {
 		Password: "secret123",
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	req.SetBasicAuth("admin", "secret123")
 
 	id, err := auth.Authenticate(req)
@@ -31,7 +34,9 @@ func TestBasic_PlaintextSuccess(t *testing.T) {
 
 func TestBasic_Argon2Success(t *testing.T) {
 	salt := make([]byte, 16)
-	rand.Read(salt)
+	if _, err := rand.Read(salt); err != nil {
+		t.Fatal(err)
+	}
 	hash := argon2.IDKey([]byte("mypassword"), salt, 3, 64*1024, 4, 32)
 
 	encoded := "$argon2id$v=19$m=65536,t=3,p=4$" +
@@ -43,7 +48,10 @@ func TestBasic_Argon2Success(t *testing.T) {
 		Password: encoded,
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	req.SetBasicAuth("alice", "mypassword")
 
 	id, err := auth.Authenticate(req)
@@ -63,7 +71,10 @@ func TestBasic_MissingAuthHeader(t *testing.T) {
 		Password: "pass",
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	id, err := auth.Authenticate(req)
 
@@ -82,7 +93,10 @@ func TestBasic_WrongUsername(t *testing.T) {
 		Password: "correct",
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	req.SetBasicAuth("attacker", "correct")
 
 	id, err := auth.Authenticate(req)
@@ -107,7 +121,10 @@ func TestBasic_WrongPasswordPlaintext(t *testing.T) {
 		Password: "correctpassword",
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	req.SetBasicAuth("bob", "wrongpassword")
 
 	id, err := auth.Authenticate(req)
@@ -123,7 +140,9 @@ func TestBasic_WrongPasswordPlaintext(t *testing.T) {
 
 func TestBasic_WrongPasswordArgon2(t *testing.T) {
 	salt := make([]byte, 16)
-	rand.Read(salt)
+	if _, err := rand.Read(salt); err != nil {
+		t.Fatal(err)
+	}
 	hash := argon2.IDKey([]byte("correctpass"), salt, 3, 64*1024, 4, 32)
 
 	encoded := "$argon2id$v=19$m=65536,t=3,p=4$" +
@@ -135,7 +154,10 @@ func TestBasic_WrongPasswordArgon2(t *testing.T) {
 		Password: encoded,
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	req.SetBasicAuth("charlie", "wrongpass")
 
 	id, err := auth.Authenticate(req)
@@ -155,8 +177,11 @@ func TestBasic_MalformedBasicAuth(t *testing.T) {
 		Password: "pass",
 	}
 
-	req, _ := http.NewRequest("GET", "/", nil)
-	req.Header.Set("Authorization", "Bearer invalid-token") 
+	req, err := http.NewRequest("GET", "/", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer invalid-token")
 
 	id, err := auth.Authenticate(req)
 
@@ -180,18 +205,21 @@ func TestBasic_ConstantTimeComparison(t *testing.T) {
 		password string
 		wantErr  bool
 	}{
-		{"test", "password", false},      // exact match
-		{"test", "passwor", true},        // prefix wrong
-		{"test", "password2", true},      // suffix wrong
-		{"tes", "password", true},        // username prefix
-		{"test2", "password", true},      // username suffix
+		{"test", "password", false}, // exact match
+		{"test", "passwor", true},   // prefix wrong
+		{"test", "password2", true}, // suffix wrong
+		{"tes", "password", true},   // username prefix
+		{"test2", "password", true}, // username suffix
 	}
 
 	for _, tt := range tests {
-		req, _ := http.NewRequest("GET", "/", nil)
+		req, err := http.NewRequest("GET", "/", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 		req.SetBasicAuth(tt.username, tt.password)
 
-		_, err := auth.Authenticate(req)
+		_, err = auth.Authenticate(req)
 
 		if (err != nil) != tt.wantErr {
 			t.Errorf("username=%q password=%q: error=%v, wantErr=%v",

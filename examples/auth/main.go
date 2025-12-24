@@ -62,8 +62,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("Auth example running on :%s", 8080)
-	log.Printf("Try accessing: http://localhost:%s", 8080)
+	log.Printf("Auth example running on :%d", 8080)
+	log.Printf("Try accessing: http://localhost:%d", 8080)
 	switch *authMode {
 	case "basic":
 		log.Printf("  Login with: %s / %s", *username, maskPassword(*password))

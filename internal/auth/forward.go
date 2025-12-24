@@ -8,7 +8,7 @@ import (
 // Forward authenticates via headers set by a reverse proxy.
 type Forward struct {
 	SubjectHeader string
-	ClaimHeaders map[string]string
+	ClaimHeaders  map[string]string
 }
 
 // Authenticate validates the request via proxy headers.
