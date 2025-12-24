@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net"
 	"net/http"
@@ -360,5 +359,3 @@ func isRailway() bool {
 	}
 	return false
 }
-
-var errBadConfigPath = errors.New("bad config path")
