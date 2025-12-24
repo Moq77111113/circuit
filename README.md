@@ -3,48 +3,37 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/moq77111113/circuit)](https://goreportcard.com/report/github.com/moq77111113/circuit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Convert any Go config struct into a web dashboard in 30 seconds.**
+> **Circuit is a runtime control surface for Go processes: modify configuration, trigger actions, see changes live. No DB, no infra, no magic.**
 
-**circuit** transforms your configuration structs into production-ready admin interfaces. Zero JavaScript. Zero build step. Zero infrastructure.
+Stop SSH’ing into servers. Change config and trigger actions safely, in-process, from a simple web interface.
 
-Perfect for **microservices**, **IoT devices**, **internal tools**, **sidecars**, **agents**, and **CLI utilities** that need runtime configuration without the overhead.
+Circuit does not manage users, orchestrate multiple services, or act as a distributed system.
 
-## Why?
+## The Pitch
 
-Your Go services need runtime configuration. Traditional approaches mean:
-- **SSH access** - Security nightmare for operators
-- **Environment variables** - Requires restarts, no validation
-- **Config management tools** - Overkill for simple services
-- **Custom admin panels** - Weeks of React/Vue boilerplate
+You have a Go service running somewhere. You want to tweak a log level, flip a feature flag, or update a rate limit.
 
-**circuit** is different. Add one line:
+Usually, you have two bad options:
+1.  **The "YOLO" approach**: SSH in, `vim config.yaml`, `systemctl restart`. Hope it comes back up.
+2.  **The "Enterprise" approach**: Build a full admin API, a React frontend, set up auth, deploy a separate service... and now you have two problems.
 
-```go
-ui, _ := circuit.From(&cfg, circuit.WithPath("config.yaml"))
-```
+**Circuit is the third option.** It lives *inside* your binary. It reads your existing config struct. It serves a tiny, safe web UI to control it.
 
-You now have a production-grade web UI. Deploy to **Kubernetes sidecars**, **edge devices**, **Lambda functions**, **systemd services** - anywhere Go runs.
+It also lets you trigger safe, application-defined actions like restarting a worker or flushing caches.
 
-## Use Cases
+## Why Circuit?
 
-- **Microservices**: Feature flags, rate limits, circuit breakers without redeployment
-- **IoT/Edge**: Configure sensor thresholds, network settings, update intervals on field devices
-- **Internal Tools**: Database connection strings, API keys, integration endpoints
-- **Agents/Sidecars**: Monitoring configs, log levels, metric collectors
-- **CLIs**: Persistent settings, user preferences, default values
-- **Development**: Quick admin panels for prototypes and demos
+*   **In-Process**: No sidecars, no agents, no external databases. It's just a library.
+*   **Minimal**: Zero dependencies. No npm, no webpack, no build steps. Just Go.
+*   **Safe**: It validates input based on your struct types. No more typos crashing production.
+*   **Live**: Changes persist to disk and trigger callbacks instantly.
 
-## Features
+### Authentication
 
-- **30-second setup** - One function call, no configuration files
-- **Auto-generated forms** - Struct tags → beautiful UI
-- **Hot-reload** - File changes reflect instantly
-- **Zero dependencies** - Embedded CSS/JS, no npm, no webpack, no build step
-- **Minimal JavaScript** - Progressive enhancement, works without JS for core functionality
-- **Responsive design** - Mobile-first UI with slide-in drawer navigation
-- **Framework agnostic** - Works with stdlib, Echo, Gin, Fiber, Chi
-- **Production ready** - Use it in real industrial systems and cloud deployments
-- **Tiny footprint** - Perfect for constrained environments (IoT, edge, containers)
+Authentication is external. Circuit relies on the request identity to authorize config edits and actions. It supports:
+- **Forward Auth** (because you probably have one already)
+- **Basic Auth** (because sometimes simple is best)
+- **No Auth** (because you live on the edge)
 
 ## Install
 
@@ -52,156 +41,70 @@ You now have a production-grade web UI. Deploy to **Kubernetes sidecars**, **edg
 go get github.com/moq77111113/circuit
 ```
 
-## Usage
+## Quick Start
 
-### 1. Tag your config struct
+1.  **Define your config:**
+    ```go
+    type Config struct {
+        LogLevel string `yaml:"log_level" circuit:"type:select,options:debug|info|error"`
+        MaxConns int    `yaml:"max_conns" circuit:"type:number,min:1"`
+        FeatureX bool   `yaml:"feature_x" circuit:"type:checkbox"`
+    }
+    ```
 
-```go
-type Config struct {
-    Host string `yaml:"host" circuit:"type:text,help:Server hostname"`
-    Port int    `yaml:"port" circuit:"type:number,help:Server port,required"`
-    TLS  bool   `yaml:"tls" circuit:"type:checkbox,help:Enable TLS"`
-}
-```
+2.  **Serve it:**
+    ```go
+    func main() {
+        var cfg Config
+        
+        // Create the circuit
+        c, _ := circuit.From(&cfg,
+            circuit.WithPath("config.yaml"),
+            circuit.OnApply(func() {
+                // This runs when you hit "Save" in the UI
+                logger.SetLevel(cfg.LogLevel)
+                pool.Resize(cfg.MaxConns)
+            }),
+            circuit.Action("Restart worker", func() { 
+                return restartWorker() 
+            }),
+        )
 
-### 2. Create the UI
+        // Serve it on a private port
+        http.ListenAndServe(":9090", c)
+    }
+    ```
 
-```go
-var cfg Config
+3.  **Control it:**
+    Open `http://localhost:9090`. Tweak values. Hit Save. Watch your app adapt.
 
-ui, err := circuit.From(&cfg,
-    circuit.WithPath("config.yaml"),
-    circuit.WithTitle("My App Settings"),
-)
-if err != nil {
-    panic(err)
-}
+## Features
 
-http.ListenAndServe(":8080", ui)
-```
+- **Zero Setup**: One function call, no configuration files.
+- **Auto-Generated**: Struct tags → beautiful UI.
+- **Hot-Reload**: File changes reflect instantly in the UI.
+- **Actions Callbacks**: UI buttons linked to code.
+- **Validation**: Min/max/required constraints.
+- **Read-only Fields**: Prevent accidental changes.
+- **Apply Hook**: Rollback on error.
+- **Zero Dependencies**: Embedded CSS/JS. No build step.
+- **Framework Agnostic**: Works with stdlib, Echo, Gin, Fiber, Chi.
 
-### 3. Visit `http://localhost:8080`
+## Non-Goals
 
-Edit. Save. Done. The file updates, your app reloads (if you want).
+Circuit is strictly a single-process control surface. It explicitly avoids:
+- Multi-service orchestration
+- User management / DB
+- Distributed system logic
+- Arbitrary shell execution
 
-## Options
+## Roadmap (v0.1)
 
-```go
-circuit.From(&cfg,
-    circuit.WithPath("config.yaml"),        // Required: path to YAML file
-    circuit.WithTitle("Admin Panel"),       // Optional: page title
-    circuit.OnApply(func() {                // Optional: callback on save
-        log.Println("Config updated!")
-        // Reload services, reconnect clients, etc.
-    }),
-)
-```
+- Auth support
+- Validation + read-only fields
+- Apply hooks
+- Action buttons (in-process, safe)
 
-## Supported Types
-
-### Input Types
-- `text` - string input
-- `number` - int/float input
-- `checkbox` - boolean
-- `password` - hidden text
-- `select` - dropdown (define options in tag)
-- `range` - slider with min/max
-- `date`, `time` - date/time pickers
-- `radio` - radio buttons
-
-### Complex Types
-- **Slices** - Dynamic arrays with add/remove buttons (`[]string`, `[]int`, `[]float64`)
-- **Slice of structs** - Nested forms with multiple items (`[]MyStruct`)
-- **Nested structs** - Grouped sections for organization
-- **Pointers** - Automatically dereferenced for display
-
-## Real-World Examples
-
-### Microservice Feature Flags
-```go
-type Config struct {
-    EnableNewAPI    bool   `circuit:"type:checkbox,help:Enable v2 API endpoints"`
-    RateLimit       int    `circuit:"type:range,min:10,max:1000,help:Requests per minute"`
-    CacheTimeout    int    `circuit:"type:number,help:Cache TTL in seconds"`
-}
-```
-
-### IoT Device Configuration
-```go
-type SensorConfig struct {
-    SampleRate    int     `circuit:"type:range,min:100,max:10000,help:Sampling rate (ms)"`
-    Threshold     float64 `circuit:"type:number,help:Alert threshold"`
-    ServerURL     string  `circuit:"type:text,help:Data upload endpoint"`
-    EnableOffline bool    `circuit:"type:checkbox,help:Store data offline"`
-}
-```
-
-### Kubernetes Sidecar
-```go
-type SidecarConfig struct {
-    LogLevel      string `circuit:"type:select,options:debug=Debug;info=Info;error=Error"`
-    MetricsPort   int    `circuit:"type:number,help:Prometheus metrics port"`
-    HealthCheck   string `circuit:"type:text,help:Health check endpoint"`
-}
-```
-
-### Dynamic Configuration with Slices
-```go
-type Config struct {
-    AllowedIPs   []string `yaml:"allowed_ips" circuit:"type:text,help:Allowed IP addresses"`
-    BlockedPorts []int    `yaml:"blocked_ports" circuit:"type:number,help:Blocked ports"`
-    Rules        []Rule   `yaml:"rules"`
-}
-
-type Rule struct {
-    Name   string `yaml:"name" circuit:"type:text,help:Rule name"`
-    Active bool   `yaml:"active" circuit:"type:checkbox,help:Rule enabled"`
-}
-```
-
-More in [`examples/`](./examples): basic setup, nested structs, hot-reload patterns, slices, and complex forms.
-
-## Design Philosophy
-
-- **Minimal API**: `circuit.From()` - that's the entire public surface
-- **No magic**: Reflection for schema extraction, that's it. No code generation, no build steps
-- **Progressive enhancement**: Core functionality works without JavaScript, JS adds polish
-- **Production-first**: Battle-tested in industrial IoT deployments and cloud microservices
-- **Zero infrastructure**: No database, no message queue, no external dependencies
-- **Fail gracefully**: Invalid configs → validation errors, not panics
-
-## How It Works
-
-1. Parses your struct tags to build a schema
-2. Loads current values from YAML
-3. Renders a clean HTML form (via [gomponents](https://github.com/maragudk/gomponents))
-4. Watches the file for external changes
-5. Saves edits back to YAML when you submit
-6. Minimal JS for progressive enhancement (mobile menu, dynamic arrays)
-7. Works on desktop, tablet, and mobile with responsive design
-
-
-## Roadmap
-
-**Authentication & Security**
-- Basic auth middleware
-- JWT token support
-- Role-based field access
-
-**Advanced Features**
-- Multi-file configuration support
-- Config change audit log
-- Webhook notifications on updates
-- Advanced validation rules (regex, custom validators)
-- Read-only fields
-- Grouped/tabbed sections for large configs
-
-**Deployment**
-- Docker image with embedded UI
-- Kubernetes operator
-- Terraform provider integration
-
-PRs welcome. Keep the core simple.
 
 ## Contributing
 
