@@ -161,3 +161,113 @@ func TestUI_NonPointer(t *testing.T) {
 		t.Fatal("expected error for non-pointer config")
 	}
 }
+
+func TestUI_WithBasicAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	auth := NewBasicAuth("admin", "secret123")
+	handler, err := From(&cfg, WithPath(path), WithAuth(auth))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.SetBasicAuth("admin", "secret123")
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200 with valid auth, got %d", rec.Code)
+	}
+}
+
+func TestUI_WithBasicAuthUnauthorized(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	auth := NewBasicAuth("admin", "secret")
+	handler, err := From(&cfg, WithPath(path), WithAuth(auth))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest("GET", "/", nil)
+	// No auth header
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected status 401 without auth, got %d", rec.Code)
+	}
+}
+
+func TestUI_WithForwardAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	auth := NewForwardAuth("X-Forwarded-User", map[string]string{
+		"email": "X-Forwarded-Email",
+	})
+	handler, err := From(&cfg, WithPath(path), WithAuth(auth))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("X-Forwarded-User", "alice@example.com")
+	req.Header.Set("X-Forwarded-Email", "alice@example.com")
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200 with forward auth, got %d", rec.Code)
+	}
+}
+
+func TestUI_NoAuthConfigured(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handler, err := From(&cfg, WithPath(path))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest("GET", "/", nil)
+	// No auth headers
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200 when no auth configured, got %d", rec.Code)
+	}
+}

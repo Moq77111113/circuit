@@ -5,6 +5,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/auth"
 	"github.com/moq77111113/circuit/internal/http/action"
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/reload"
@@ -13,27 +14,50 @@ import (
 
 // Handler serves the config UI over HTTP.
 type Handler struct {
-	schema ast.Schema
-	cfg    any
-	path   string
-	title  string
-	brand  bool
-	loader *reload.Loader
+	schema        ast.Schema
+	cfg           any
+	path          string
+	title         string
+	brand         bool
+	loader        *reload.Loader
+	authenticator auth.Authenticator
+}
+
+// Config holds configuration for creating a Handler.
+type Config struct {
+	Schema        ast.Schema
+	Cfg           any
+	Path          string
+	Title         string
+	Brand         bool
+	Loader        *reload.Loader
+	Authenticator auth.Authenticator
 }
 
 // New creates a new HTTP handler for the config UI.
-func New(schema ast.Schema, cfg any, path, title string, brand bool, loader *reload.Loader) *Handler {
+func New(c Config) *Handler {
+	if c.Authenticator == nil {
+		c.Authenticator = auth.None{}
+	}
 	return &Handler{
-		schema: schema,
-		cfg:    cfg,
-		path:   path,
-		title:  title,
-		brand:  brand,
-		loader: loader,
+		schema:        c.Schema,
+		cfg:           c.Cfg,
+		path:          c.Path,
+		title:         c.Title,
+		brand:         c.Brand,
+		loader:        c.Loader,
+		authenticator: c.Authenticator,
 	}
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	_, err := h.authenticator.Authenticate(r)
+	if err != nil {
+		w.Header().Set("WWW-Authenticate", `Basic realm="Circuit"`)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	switch r.Method {
 	case http.MethodGet:
 		h.get(w, r)

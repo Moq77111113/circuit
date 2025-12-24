@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/auth"
 	"github.com/moq77111113/circuit/internal/reload"
 )
 
@@ -41,7 +42,14 @@ func TestHandler_GET(t *testing.T) {
 	}
 	defer loader.Stop()
 
-	h := New(s, &cfg, path, "Test", true, loader)
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Loader: loader,
+	})
 
 	req := httptest.NewRequest("GET", "/", nil)
 	rec := httptest.NewRecorder()
@@ -82,7 +90,14 @@ func TestHandler_POST(t *testing.T) {
 	}
 	defer loader.Stop()
 
-	h := New(s, &cfg, path, "Test", true, loader)
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Loader: loader,
+	})
 
 	form := url.Values{}
 	form.Set("Host", "example.com")
@@ -137,7 +152,14 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 	}
 	defer loader.Stop()
 
-	h := New(s, &cfg, path, "Test", true, loader)
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Loader: loader,
+	})
 
 	req := httptest.NewRequest("DELETE", "/", nil)
 	rec := httptest.NewRecorder()
@@ -146,5 +168,293 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("expected status 405, got %d", rec.Code)
+	}
+}
+
+func TestHandler_GET_WithValidAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{Host: "localhost", Port: 8080}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := reload.Load(path, &cfg, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer loader.Stop()
+
+	authenticator := auth.Basic{
+		Username: "admin",
+		Password: "secret",
+	}
+
+	h := New(Config{
+		Schema:        s,
+		Cfg:           &cfg,
+		Path:          path,
+		Title:         "Test",
+		Brand:         true,
+		Loader:        loader,
+		Authenticator: authenticator,
+	})
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.SetBasicAuth("admin", "secret")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestHandler_GET_WithInvalidAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := reload.Load(path, &cfg, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer loader.Stop()
+
+	authenticator := auth.Basic{
+		Username: "admin",
+		Password: "secret",
+	}
+
+	h := New(Config{
+		Schema:        s,
+		Cfg:           &cfg,
+		Path:          path,
+		Title:         "Test",
+		Brand:         true,
+		Loader:        loader,
+		Authenticator: authenticator,
+	})
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.SetBasicAuth("admin", "wrongpassword")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected status 401, got %d", rec.Code)
+	}
+
+	wwwAuth := rec.Header().Get("WWW-Authenticate")
+	if wwwAuth != `Basic realm="Circuit"` {
+		t.Errorf("expected WWW-Authenticate header, got: %q", wwwAuth)
+	}
+}
+
+func TestHandler_POST_WithValidAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{Host: "localhost", Port: 8080}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := reload.Load(path, &cfg, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer loader.Stop()
+
+	authenticator := auth.Basic{
+		Username: "user",
+		Password: "pass",
+	}
+
+	h := New(Config{
+		Schema:        s,
+		Cfg:           &cfg,
+		Path:          path,
+		Title:         "Test",
+		Brand:         true,
+		Loader:        loader,
+		Authenticator: authenticator,
+	})
+
+	form := url.Values{}
+	form.Set("Host", "example.com")
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.SetBasicAuth("user", "pass")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected status 303, got %d", rec.Code)
+	}
+}
+
+func TestHandler_POST_WithInvalidAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := reload.Load(path, &cfg, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer loader.Stop()
+
+	authenticator := auth.Basic{
+		Username: "user",
+		Password: "pass",
+	}
+
+	h := New(Config{
+		Schema:        s,
+		Cfg:           &cfg,
+		Path:          path,
+		Title:         "Test",
+		Brand:         true,
+		Loader:        loader,
+		Authenticator: authenticator,
+	})
+
+	form := url.Values{}
+	form.Set("Host", "hacked.com")
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.SetBasicAuth("attacker", "wrongpass")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected status 401, got %d", rec.Code)
+	}
+}
+
+func TestHandler_NoAuthConfigured(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := reload.Load(path, &cfg, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer loader.Stop()
+
+	h := New(Config{
+		Schema:        s,
+		Cfg:           &cfg,
+		Path:          path,
+		Title:         "Test",
+		Brand:         true,
+		Loader:        loader,
+		Authenticator: nil, // defaults to None
+	})
+
+	req := httptest.NewRequest("GET", "/", nil)
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200 when no auth configured, got %d", rec.Code)
+	}
+}
+
+func TestHandler_ForwardAuth(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loader, err := reload.Load(path, &cfg, nil, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer loader.Stop()
+
+	authenticator := auth.Forward{
+		SubjectHeader: "X-Forwarded-User",
+	}
+
+	h := New(Config{
+		Schema:        s,
+		Cfg:           &cfg,
+		Path:          path,
+		Title:         "Test",
+		Brand:         true,
+		Loader:        loader,
+		Authenticator: authenticator,
+	})
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("X-Forwarded-User", "alice@example.com")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
 	}
 }

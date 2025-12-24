@@ -14,26 +14,74 @@ Circuit does not manage users, orchestrate multiple services, or act as a distri
 You have a Go service running somewhere. You want to tweak a log level, flip a feature flag, or update a rate limit.
 
 Usually, you have two bad options:
+
 1.  **The "YOLO" approach**: SSH in, `vim config.yaml`, `systemctl restart`. Hope it comes back up.
 2.  **The "Enterprise" approach**: Build a full admin API, a React frontend, set up auth, deploy a separate service... and now you have two problems.
 
-**Circuit is the third option.** It lives *inside* your binary. It reads your existing config struct. It serves a tiny, safe web UI to control it.
+**Circuit is the third option.** It lives _inside_ your binary. It reads your existing config struct. It serves a tiny, safe web UI to control it.
 
 It also lets you trigger safe, application-defined actions like restarting a worker or flushing caches.
 
 ## Why Circuit?
 
-*   **In-Process**: No sidecars, no agents, no external databases. It's just a library.
-*   **Minimal**: Zero dependencies. No npm, no webpack, no build steps. Just Go.
-*   **Safe**: It validates input based on your struct types. No more typos crashing production.
-*   **Live**: Changes persist to disk and trigger callbacks instantly.
+- **In-Process**: No sidecars, no agents, no external databases. It's just a library.
+- **Minimal**: Zero dependencies. No npm, no webpack, no build steps. Just Go.
+- **Safe**: It validates input based on your struct types. No more typos crashing production.
+- **Live**: Changes persist to disk and trigger callbacks instantly.
 
-### Authentication
+## Authentication
 
-Authentication is external. Circuit relies on the request identity to authorize config edits and actions. It supports:
-- **Forward Auth** (because you probably have one already)
-- **Basic Auth** (because sometimes simple is best)
-- **No Auth** (because you live on the edge)
+Circuit protects your UI and actions with pluggable authentication. **Circuit never handles OAuth flows directly** - it validates requests.
+
+### Three Modes
+
+**1. No Auth (default)**
+
+```go
+ui, _ := circuit.From(&cfg, circuit.WithPath("config.yaml"))
+// No WithAuth() = open access
+```
+
+Use for: Local development, internal networks, when behind other auth layers.
+
+**2. Basic Auth (simple deployments)**
+
+```go
+ui, _ := circuit.From(&cfg,
+    circuit.WithPath("config.yaml"),
+    circuit.WithAuth(circuit.NewBasicAuth("admin", "$argon2id$v=19$m=65536,t=3,p=4$...")),
+)
+```
+
+**Passwords:** Plaintext or argon2id hash.
+
+**3. Forward Auth (when you already have a proxy)**
+
+```go
+auth := circuit.NewForwardAuth("X-Forwarded-User", map[string]string{
+    "email": "X-Forwarded-Email",
+})
+ui, _ := circuit.From(&cfg, circuit.WithAuth(auth))
+```
+
+Use for: **When you already have OAuth2 Proxy, Traefik ForwardAuth, or Cloudflare Access deployed.**
+
+Circuit reads headers set by your proxy. **The proxy handles OAuth redirects, not Circuit.**
+
+**Example setup with OAuth2 Proxy:**
+
+```yaml
+# oauth2-proxy.cfg
+upstreams = ["http://your-app:8080"]
+provider = "github"
+
+# Your app
+http.Handle("/admin", circuit.From(&cfg,
+    circuit.WithAuth(circuit.NewForwardAuth("X-Forwarded-User", nil)),
+))
+```
+
+The proxy intercepts requests, redirects to GitHub/Google, then forwards with headers.
 
 ## Install
 
@@ -44,6 +92,7 @@ go get github.com/moq77111113/circuit
 ## Quick Start
 
 1.  **Define your config:**
+
     ```go
     type Config struct {
         LogLevel string `yaml:"log_level" circuit:"type:select,options:debug|info|error"`
@@ -52,21 +101,20 @@ go get github.com/moq77111113/circuit
     }
     ```
 
-2.  **Serve it:**
+2.  **Serve it (with optional auth):**
+
     ```go
     func main() {
         var cfg Config
-        
+
         // Create the circuit
+        auth := circuit.NewBasicAuth("admin", "secret") // optional
         c, _ := circuit.From(&cfg,
             circuit.WithPath("config.yaml"),
-            circuit.OnApply(func() {
-                // This runs when you hit "Save" in the UI
+            circuit.WithAuth(auth), // remove for no auth
+            circuit.WithOnChange(func(e circuit.ChangeEvent) {
                 logger.SetLevel(cfg.LogLevel)
                 pool.Resize(cfg.MaxConns)
-            }),
-            circuit.Action("Restart worker", func() { 
-                return restartWorker() 
             }),
         )
 
@@ -93,23 +141,33 @@ go get github.com/moq77111113/circuit
 ## Non-Goals
 
 Circuit is strictly a single-process control surface. It explicitly avoids:
+
 - Multi-service orchestration
 - User management / DB
 - Distributed system logic
 - Arbitrary shell execution
 
-## Roadmap (v0.1)
+## Roadmap
 
-- Auth support
-- Validation + read-only fields
-- Apply hooks
-- Action buttons (in-process, safe)
-
+- ✅ Auth support (Basic, Forward)
+- ⏳ Validation + read-only fields
+- ⏳ Apply hooks with rollback
+- ⏳ Action buttons
 
 ## Contributing
 
 PRs welcome. Keep it simple. Write tests. No "service" or "manager" files.
 
+## Security
+
+**Always use HTTPS in production.** HTTP Basic Auth sends credentials in base64 (easily decoded).
+
+**Don't expose Circuit to the public internet without auth.** Use:
+
+- Basic Auth for simple deployments
+- Forward Auth behind OAuth2 Proxy/Traefik for production
+- Network isolation (VPN, internal networks)
+
 ## License
 
-MIT. Do whatever you want. Just don't blame me if you expose this to the internet without auth.
+MIT. Use responsibly.
