@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -109,8 +108,7 @@ func main() {
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = fmt.Fprintf(w, "Circuit demo running. Open /admin\n")
+		http.Redirect(w, r, "/admin", http.StatusFound)
 	})
 
 	mux.Handle("/api", withObservability(st, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -184,7 +182,6 @@ func shouldLogRequest(sample float64) bool {
 	if sample >= 1 {
 		return true
 	}
-	// Cheap deterministic sampler: time-based.
 	n := time.Now().UnixNano() % 1000
 	threshold := int64(sample * 1000)
 	return n < threshold
@@ -350,8 +347,6 @@ func nonEmpty(v string, fallback string) string {
 }
 
 func isRailway() bool {
-	// Railway doesn't guarantee a single env var name across all setups,
-	// so use a small set of common ones.
 	for _, k := range []string{
 		"RAILWAY_PROJECT_ID",
 		"RAILWAY_SERVICE_ID",
