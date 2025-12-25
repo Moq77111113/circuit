@@ -3,6 +3,10 @@ package handler
 import "github.com/moq77111113/circuit/internal/http/form"
 
 func (h *Handler) handleSave(formData map[string][]string) error {
+	if !h.store.AutoApply() {
+		return nil
+	}
+
 	var err error
 	h.store.WithLock(func() {
 		err = form.Apply(h.cfg, h.schema, formData)

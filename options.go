@@ -1,6 +1,12 @@
 package circuit
 
-import "github.com/moq77111113/circuit/internal/auth"
+import (
+	"github.com/moq77111113/circuit/internal/auth"
+	"github.com/moq77111113/circuit/internal/sync"
+)
+
+// SaveFunc is called to persist config changes.s
+type SaveFunc = sync.SaveFunc
 
 // Option configures behavior passed to `From`.
 type Option func(*config)
@@ -11,6 +17,9 @@ type config struct {
 	brand         bool
 	onChange      OnChange
 	autoReload    bool
+	autoApply     bool
+	autoSave      bool
+	saveFunc      SaveFunc
 	authenticator auth.Authenticator
 }
 
@@ -59,5 +68,29 @@ func WithAutoReload(enable bool) Option {
 func WithAuth(a Authenticator) Option {
 	return func(c *config) {
 		c.authenticator = a
+	}
+}
+
+// WithAutoApply controls whether POST automatically updates in-memory config.
+// If false: POST renders preview form with submitted values (doesn't modify memory).
+func WithAutoApply(enable bool) Option {
+	return func(c *config) {
+		c.autoApply = enable
+	}
+}
+
+// WithAutoSave controls whether changes trigger disk persistence.
+// If false: memory update happens, but no disk save. User must call Save() manually.
+func WithAutoSave(enable bool) Option {
+	return func(c *config) {
+		c.autoSave = enable
+	}
+}
+
+// WithSaveFunc allows custom persistence implementation.
+// Replaces default file writing with custom logic.
+func WithSaveFunc(fn SaveFunc) Option {
+	return func(c *config) {
+		c.saveFunc = fn
 	}
 }

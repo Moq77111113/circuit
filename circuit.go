@@ -2,7 +2,6 @@ package circuit
 
 import (
 	"fmt"
-	"net/http"
 	"reflect"
 
 	"github.com/moq77111113/circuit/internal/ast"
@@ -10,7 +9,7 @@ import (
 	"github.com/moq77111113/circuit/internal/sync"
 )
 
-// From creates and returns an `http.Handler` that serves a small web UI for
+// From creates and returns a Handler that serves a small web UI for
 // inspecting and editing a YAML-backed configuration value.
 //
 // From validates that `cfg` is a pointer to a struct (used to extract schema
@@ -19,11 +18,15 @@ import (
 // `WithPath`. If successful it starts a file watcher that reloads the
 // configuration on changes and returns a handler wired to that loader.
 //
+// The returned Handler implements http.Handler and exposes manual control methods:
+//   - Apply(formData) - manually apply form data (for preview mode)
+//   - Save() - manually save config to disk
+//
 // Common errors:
 //   - when `cfg` is not a pointer
 //   - when no path is provided (use `WithPath`)
 //   - when schema extraction, initial load, or watcher setup fails
-func From(cfg any, opts ...Option) (http.Handler, error) {
+func From(cfg any, opts ...Option) (*Handler, error) {
 	if reflect.TypeOf(cfg).Kind() != reflect.Pointer {
 		return nil, fmt.Errorf("config must be a pointer")
 	}
@@ -31,6 +34,8 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 	conf := &config{
 		brand:      true,
 		autoReload: true,
+		autoApply:  true,
+		autoSave:   true,
 	}
 	for _, opt := range opts {
 		opt(conf)
@@ -45,7 +50,17 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		return nil, fmt.Errorf("extract schema: %w", err)
 	}
 
-	store, err := sync.Load(conf.path, cfg, conf.onChange, conf.autoReload)
+	store, err := sync.Load(sync.Config{
+		Path:       conf.path,
+		Cfg:        cfg,
+		AutoReload: conf.autoReload,
+		Options: []sync.Option{
+			sync.WithOnChange(conf.onChange),
+			sync.WithAutoApply(conf.autoApply),
+			sync.WithAutoSave(conf.autoSave),
+			sync.WithSaveFunc(conf.saveFunc),
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
@@ -60,5 +75,5 @@ func From(cfg any, opts ...Option) (http.Handler, error) {
 		Authenticator: conf.authenticator,
 	})
 
-	return h, nil
+	return &Handler{h: h}, nil
 }
