@@ -9,9 +9,10 @@ import (
 type ActionType string
 
 const (
-	ActionSave   ActionType = "save"
-	ActionAdd    ActionType = "add"
-	ActionRemove ActionType = "remove"
+	ActionSave    ActionType = "save"
+	ActionAdd     ActionType = "add"
+	ActionRemove  ActionType = "remove"
+	ActionConfirm ActionType = "confirm"
 )
 
 type Action struct {
@@ -51,6 +52,9 @@ func Parse(form url.Values) Action {
 			Field: parts[1],
 			Index: index,
 		}
+
+	case "confirm":
+		return Action{Type: ActionConfirm}
 
 	default:
 		return Action{Type: ActionSave}

@@ -53,10 +53,11 @@ func main() {
 	// Start the "app" in background
 	go app.Run()
 
-	// Setup Circuit UI
+	// Setup Circuit UI with preview mode
 	handler, err := circuit.From(&app.config,
 		circuit.WithPath("config.yaml"),
-		circuit.WithTitle("Reload Example"),
+		circuit.WithTitle("Preview Mode Example"),
+		circuit.WithAutoApply(false),
 		circuit.WithOnChange(func(e circuit.ChangeEvent) {
 			app.UpdateConfig(app.config)
 		}),
@@ -65,7 +66,21 @@ func main() {
 		panic(err)
 	}
 
-	println("Reload example running on :8080")
+	fmt.Println("Preview Mode example running on :8080")
+	fmt.Println()
+	fmt.Println("Features:")
+	fmt.Println("  - Preview mode enabled (WithAutoApply(false))")
+	fmt.Println("  - Changes require confirmation before being applied")
+	fmt.Println("  - Watch the app output to see when config actually updates")
+	fmt.Println()
+	fmt.Println("Try:")
+	fmt.Println("  1. Edit a field and click Save")
+	fmt.Println("  2. You'll see a preview with Confirm/Cancel buttons")
+	fmt.Println("  3. Notice the app still uses the old config (check console output)")
+	fmt.Println("  4. Click Confirm to apply changes")
+	fmt.Println("  5. Now the app receives the updated config")
+	fmt.Println()
+
 	if err := http.ListenAndServe(":8080", handler); err != nil {
 		panic(err)
 	}

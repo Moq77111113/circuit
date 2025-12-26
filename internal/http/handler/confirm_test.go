@@ -13,8 +13,8 @@ import (
 	"github.com/moq77111113/circuit/internal/sync"
 )
 
-// TestHandler_PreviewMode_AutoApplyFalse verifies preview mode behavior.
-func TestHandler_PreviewMode_AutoApplyFalse(t *testing.T) {
+// TestHandler_Confirm verifies that action=confirm applies changes.
+func TestHandler_Confirm(t *testing.T) {
 	type Cfg struct {
 		Port int `circuit:"Port,number" yaml:"port"`
 	}
@@ -38,7 +38,7 @@ func TestHandler_PreviewMode_AutoApplyFalse(t *testing.T) {
 		Cfg:        &cfg,
 		AutoReload: false,
 		Options: []sync.Option{
-			sync.WithAutoApply(false),
+			sync.WithAutoApply(false), // Preview mode
 		},
 	})
 	if err != nil {
@@ -50,14 +50,15 @@ func TestHandler_PreviewMode_AutoApplyFalse(t *testing.T) {
 		Schema: s,
 		Cfg:    &cfg,
 		Path:   path,
-		Title:  "Test Preview",
+		Title:  "Test Confirm",
 		Brand:  true,
 		Store:  store,
 	})
 
+	// Submit with action=confirm
 	form := url.Values{}
 	form.Set("Port", "9000")
-	form.Set("action", "save")
+	form.Set("action", "confirm")
 
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -65,25 +66,18 @@ func TestHandler_PreviewMode_AutoApplyFalse(t *testing.T) {
 
 	h.ServeHTTP(w, req)
 
-	// Verify config in memory was NOT updated
+	// Verify config WAS updated (confirm applied changes)
 	var port int
 	store.WithLock(func() {
 		port = cfg.Port
 	})
 
-	if port != 8080 {
-		t.Errorf("config should NOT be updated in preview mode, expected 8080 got %d", port)
+	if port != 9000 {
+		t.Errorf("config should be updated after confirm, expected 9000 got %d", port)
 	}
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected status 200 OK for preview, got %d", w.Code)
-	}
-
-	body := w.Body.String()
-	if !strings.Contains(body, "9000") {
-		t.Error("preview should show submitted value 9000")
-	}
-	if !strings.Contains(body, "Confirm") || !strings.Contains(body, "Cancel") {
-		t.Error("preview should have Confirm and Cancel buttons")
+	// Verify redirect happened
+	if w.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect 303 after confirm, got %d", w.Code)
 	}
 }
