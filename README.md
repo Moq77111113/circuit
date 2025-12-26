@@ -126,6 +126,19 @@ go get github.com/moq77111113/circuit
 3.  **Control it:**
     Open `http://localhost:9090`. Tweak values. Hit Save. Watch your app adapt.
 
+## Options
+
+See [godoc](https://pkg.go.dev/github.com/moq77111113/circuit) for full API.
+
+**Control:**
+- `WithAutoApply(false)` - Preview mode: require confirmation before applying changes
+- `WithAutoSave(false)` - Manual save: call `ui.Save()` to persist
+- `WithAutoWatch(false)` - Disable file watching
+
+**Customization:**
+- `WithSaveFunc(fn)` - Custom persistence (database, S3, API, etc.)
+- `WithOnError(fn)` - Error callback for auto-reload/watch failures
+
 ## Features
 
 - **Zero Setup**: One function call, no configuration files.

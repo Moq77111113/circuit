@@ -16,6 +16,7 @@ type config struct {
 	title         string
 	brand         bool
 	onChange      OnChange
+	onError       func(error)
 	autoReload    bool
 	autoApply     bool
 	autoSave      bool
@@ -54,10 +55,16 @@ func WithOnChange(fn OnChange) Option {
 	}
 }
 
-// WithAutoReload controls whether file watching is enabled.
+func WithOnError(fn func(error)) Option {
+	return func(c *config) {
+		c.onError = fn
+	}
+}
+
+// WithAutoWatch controls whether file watching is enabled.
 // When true (default), changes to the YAML file trigger automatic reload.
 // When false, file watching is disabled and reloads must be manual.
-func WithAutoReload(enable bool) Option {
+func WithAutoWatch(enable bool) Option {
 	return func(c *config) {
 		c.autoReload = enable
 	}

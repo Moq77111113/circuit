@@ -23,7 +23,7 @@ func TestWatch_FileModified(t *testing.T) {
 		called.Store(true)
 	}
 
-	w, err := Watch(path, callback)
+	w, err := Watch(path, callback, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +60,7 @@ func TestWatch_Stop(t *testing.T) {
 		called.Store(true)
 	}
 
-	w, err := Watch(path, callback)
+	w, err := Watch(path, callback, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +87,7 @@ func TestWatch_FileNotFound(t *testing.T) {
 
 	callback := func() {}
 
-	_, err := Watch(path, callback)
+	_, err := Watch(path, callback, nil)
 	if err == nil {
 		t.Fatal("expected error when watching nonexistent file")
 	}
@@ -107,7 +107,7 @@ func TestWatch_MultipleChanges(t *testing.T) {
 		count.Add(1)
 	}
 
-	w, err := Watch(path, callback)
+	w, err := Watch(path, callback, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

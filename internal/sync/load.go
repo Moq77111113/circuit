@@ -41,7 +41,7 @@ func Load(c Config) (*Store, error) {
 	}
 
 	if c.AutoReload {
-		watcher, err := Watch(c.Path, s.reload)
+		watcher, err := Watch(c.Path, s.reload, s.onError)
 		if err != nil {
 			return nil, fmt.Errorf("watch config: %w", err)
 		}

@@ -30,3 +30,9 @@ func WithOnChange(fn OnChange) Option {
 		s.onChange = fn
 	}
 }
+
+func WithOnError(fn func(error)) Option {
+	return func(s *Store) {
+		s.onError = fn
+	}
+}

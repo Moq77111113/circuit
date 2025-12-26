@@ -56,6 +56,7 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		AutoReload: conf.autoReload,
 		Options: []sync.Option{
 			sync.WithOnChange(conf.onChange),
+			sync.WithOnError(conf.onError),
 			sync.WithAutoApply(conf.autoApply),
 			sync.WithAutoSave(conf.autoSave),
 			sync.WithSaveFunc(conf.saveFunc),

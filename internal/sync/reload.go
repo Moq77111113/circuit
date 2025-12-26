@@ -8,8 +8,6 @@ import (
 	"github.com/moq77111113/circuit/internal/yaml"
 )
 
-// reload is called by the watcher when the file changes.
-// It silently ignores errors (TODO: fix in Phase 4).
 func (s *Store) reload() {
 	if time.Since(s.lastFormSubmit) < s.debounceWindow {
 		return
@@ -17,6 +15,9 @@ func (s *Store) reload() {
 
 	data, err := os.ReadFile(s.path)
 	if err != nil {
+		if s.onError != nil {
+			s.onError(fmt.Errorf("%w: %w", ErrAutoReloadRead, err))
+		}
 		return
 	}
 
@@ -25,6 +26,9 @@ func (s *Store) reload() {
 	s.mu.Unlock()
 
 	if err != nil {
+		if s.onError != nil {
+			s.onError(fmt.Errorf("%w: %w", ErrAutoReloadParse, err))
+		}
 		return
 	}
 

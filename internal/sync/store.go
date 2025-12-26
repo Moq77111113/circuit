@@ -12,6 +12,7 @@ type Store struct {
 	path     string
 	cfg      any
 	onChange OnChange
+	onError  func(error)
 	watcher  *Watcher
 	mu       sync.RWMutex
 
