@@ -3,6 +3,7 @@ package sync
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/moq77111113/circuit/internal/yaml"
 )
@@ -28,10 +29,11 @@ func Load(c Config) (*Store, error) {
 	}
 
 	s := &Store{
-		path:      c.Path,
-		cfg:       c.Cfg,
-		autoApply: true,
-		autoSave:  true,
+		path:           c.Path,
+		cfg:            c.Cfg,
+		autoApply:      true,
+		autoSave:       true,
+		debounceWindow: 500 * time.Millisecond,
 	}
 
 	for _, opt := range c.Options {

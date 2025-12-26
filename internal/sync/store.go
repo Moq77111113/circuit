@@ -1,6 +1,9 @@
 package sync
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 // SaveFunc is called to persist config changes.
 // When not provided, the default YAML file write is used.
@@ -15,6 +18,9 @@ type Store struct {
 	autoApply bool
 	autoSave  bool
 	saveFunc  SaveFunc
+
+	lastFormSubmit time.Time
+	debounceWindow time.Duration
 }
 
 // Stop stops watching the config file.
@@ -49,4 +55,8 @@ func (s *Store) AutoApply() bool {
 // AutoSave returns whether changes automatically persist to disk.
 func (s *Store) AutoSave() bool {
 	return s.autoSave
+}
+
+func (s *Store) MarkFormSubmit() {
+	s.lastFormSubmit = time.Now()
 }

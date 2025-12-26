@@ -5,6 +5,8 @@ import (
 )
 
 func (h *Handler) writeConfig() error {
+	h.store.MarkFormSubmit()
+
 	if h.store.AutoSave() {
 		if err := h.store.Save(); err != nil {
 			return err

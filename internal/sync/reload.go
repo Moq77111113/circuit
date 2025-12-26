@@ -3,6 +3,7 @@ package sync
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/moq77111113/circuit/internal/yaml"
 )
@@ -10,6 +11,10 @@ import (
 // reload is called by the watcher when the file changes.
 // It silently ignores errors (TODO: fix in Phase 4).
 func (s *Store) reload() {
+	if time.Since(s.lastFormSubmit) < s.debounceWindow {
+		return
+	}
+
 	data, err := os.ReadFile(s.path)
 	if err != nil {
 		return
