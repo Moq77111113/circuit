@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 )
@@ -23,6 +24,7 @@ func TestOnError_AutoReloadParseFailure(t *testing.T) {
 
 	var cfg Cfg
 
+	var mu sync.Mutex
 	var receivedError error
 
 	store, err := Load(Config{
@@ -31,7 +33,9 @@ func TestOnError_AutoReloadParseFailure(t *testing.T) {
 		AutoReload: true,
 		Options: []Option{
 			WithOnError(func(err error) {
+				mu.Lock()
 				receivedError = err
+				mu.Unlock()
 			}),
 		},
 	})
@@ -50,12 +54,16 @@ func TestOnError_AutoReloadParseFailure(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Should have received parse error
-	if receivedError == nil {
+	mu.Lock()
+	capturedError := receivedError
+	mu.Unlock()
+
+	if capturedError == nil {
 		t.Error("expected error callback to be called for parse failure")
 	}
 
-	if !errors.Is(receivedError, ErrAutoReloadParse) {
-		t.Errorf("expected ErrAutoReloadParse, got %v", receivedError)
+	if !errors.Is(capturedError, ErrAutoReloadParse) {
+		t.Errorf("expected ErrAutoReloadParse, got %v", capturedError)
 	}
 }
 

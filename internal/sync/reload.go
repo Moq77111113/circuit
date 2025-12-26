@@ -9,7 +9,11 @@ import (
 )
 
 func (s *Store) reload() {
-	if time.Since(s.lastFormSubmit) < s.debounceWindow {
+	s.mu.RLock()
+	shouldDebounce := time.Since(s.lastFormSubmit) < s.debounceWindow
+	s.mu.RUnlock()
+
+	if shouldDebounce {
 		return
 	}
 

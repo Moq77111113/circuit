@@ -3,6 +3,7 @@ package sync
 import (
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 )
@@ -22,6 +23,7 @@ func TestDebounce_FormSubmitIgnored(t *testing.T) {
 
 	var cfg Cfg
 
+	var mu sync.Mutex
 	eventCount := 0
 	var lastSource Source
 
@@ -31,8 +33,10 @@ func TestDebounce_FormSubmitIgnored(t *testing.T) {
 		AutoReload: true,
 		Options: []Option{
 			WithOnChange(func(e ChangeEvent) {
+				mu.Lock()
 				eventCount++
 				lastSource = e.Source
+				mu.Unlock()
 			}),
 		},
 	})
@@ -58,8 +62,13 @@ func TestDebounce_FormSubmitIgnored(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// Should NOT receive SourceFileChange because of debounce
-	if eventCount > 0 {
-		t.Errorf("expected 0 events (debounced), got %d with source %v", eventCount, lastSource)
+	mu.Lock()
+	count := eventCount
+	source := lastSource
+	mu.Unlock()
+
+	if count > 0 {
+		t.Errorf("expected 0 events (debounced), got %d with source %v", count, source)
 	}
 }
 
@@ -78,6 +87,7 @@ func TestDebounce_ExternalChangeDetected(t *testing.T) {
 
 	var cfg Cfg
 
+	var mu sync.Mutex
 	eventCount := 0
 	var lastSource Source
 
@@ -87,8 +97,10 @@ func TestDebounce_ExternalChangeDetected(t *testing.T) {
 		AutoReload: true,
 		Options: []Option{
 			WithOnChange(func(e ChangeEvent) {
+				mu.Lock()
 				eventCount++
 				lastSource = e.Source
+				mu.Unlock()
 			}),
 		},
 	})
@@ -110,12 +122,17 @@ func TestDebounce_ExternalChangeDetected(t *testing.T) {
 	time.Sleep(200 * time.Millisecond)
 
 	// Should receive SourceFileChange
-	if eventCount != 1 {
-		t.Errorf("expected 1 event, got %d", eventCount)
+	mu.Lock()
+	count := eventCount
+	source := lastSource
+	mu.Unlock()
+
+	if count != 1 {
+		t.Errorf("expected 1 event, got %d", count)
 	}
 
-	if lastSource != SourceFileChange {
-		t.Errorf("expected SourceFileChange, got %v", lastSource)
+	if source != SourceFileChange {
+		t.Errorf("expected SourceFileChange, got %v", source)
 	}
 
 	var port int

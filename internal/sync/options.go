@@ -1,6 +1,5 @@
 package sync
 
-
 type Option func(*Store)
 
 // WithAutoApply controls whether POST automatically updates memory

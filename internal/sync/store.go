@@ -59,5 +59,7 @@ func (s *Store) AutoSave() bool {
 }
 
 func (s *Store) MarkFormSubmit() {
+	s.mu.Lock()
 	s.lastFormSubmit = time.Now()
+	s.mu.Unlock()
 }

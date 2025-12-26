@@ -39,7 +39,7 @@ func New(c Config) *Handler {
 		schema:        c.Schema,
 		cfg:           c.Cfg,
 		path:          c.Path,
-		title:          c.Title,
+		title:         c.Title,
 		brand:         c.Brand,
 		store:         c.Store,
 		authenticator: c.Authenticator,
