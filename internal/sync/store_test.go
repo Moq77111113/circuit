@@ -9,7 +9,7 @@ import (
 )
 
 func TestLoad_InitialLoad(t *testing.T) {
-	type Config struct {
+	type Cfg struct {
 		Port int `yaml:"port"`
 	}
 
@@ -21,8 +21,13 @@ func TestLoad_InitialLoad(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var cfg Config
-	manager, err := Load(path, &cfg, func(ce ChangeEvent) {}, false)
+	var cfg Cfg
+	manager, err := Load(Config{
+		Path:       path,
+		Cfg:        &cfg,
+		AutoReload: false,
+		Options:    []Option{WithOnChange(func(ce ChangeEvent) {})},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +39,7 @@ func TestLoad_InitialLoad(t *testing.T) {
 }
 
 func TestLoad_ReloadOnChange(t *testing.T) {
-	type Config struct {
+	type Cfg struct {
 		Port int `yaml:"port"`
 	}
 
@@ -46,12 +51,17 @@ func TestLoad_ReloadOnChange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var cfg Config
+	var cfg Cfg
 	var callbackCalled atomic.Bool
 
-	manager, err := Load(path, &cfg, func(ce ChangeEvent) {
-		callbackCalled.Store(true)
-	}, true)
+	manager, err := Load(Config{
+		Path:       path,
+		Cfg:        &cfg,
+		AutoReload: true,
+		Options: []Option{WithOnChange(func(ce ChangeEvent) {
+			callbackCalled.Store(true)
+		})},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,21 +102,26 @@ func TestLoad_ReloadOnChange(t *testing.T) {
 }
 
 func TestLoad_InvalidFile(t *testing.T) {
-	type Config struct {
+	type Cfg struct {
 		Port int `yaml:"port"`
 	}
 
 	path := "/nonexistent/config.yaml"
-	var cfg Config
+	var cfg Cfg
 
-	_, err := Load(path, &cfg, func(ce ChangeEvent) {}, false)
+	_, err := Load(Config{
+		Path:       path,
+		Cfg:        &cfg,
+		AutoReload: false,
+		Options:    []Option{WithOnChange(func(ce ChangeEvent) {})},
+	})
 	if err == nil {
 		t.Fatal("expected error for invalid file path")
 	}
 }
 
 func TestLoad_InvalidYAML(t *testing.T) {
-	type Config struct {
+	type Cfg struct {
 		Port int `yaml:"port"`
 	}
 
@@ -118,15 +133,20 @@ func TestLoad_InvalidYAML(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var cfg Config
-	_, err = Load(path, &cfg, func(ce ChangeEvent) {}, false)
+	var cfg Cfg
+	_, err = Load(Config{
+		Path:       path,
+		Cfg:        &cfg,
+		AutoReload: false,
+		Options:    []Option{WithOnChange(func(ce ChangeEvent) {})},
+	})
 	if err == nil {
 		t.Fatal("expected error for invalid YAML")
 	}
 }
 
 func TestLoad_Stop(t *testing.T) {
-	type Config struct {
+	type Cfg struct {
 		Port int `yaml:"port"`
 	}
 
@@ -138,12 +158,17 @@ func TestLoad_Stop(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var cfg Config
+	var cfg Cfg
 	var callbackCalled atomic.Bool
 
-	manager, err := Load(path, &cfg, func(ce ChangeEvent) {
-		callbackCalled.Store(true)
-	}, true)
+	manager, err := Load(Config{
+		Path:       path,
+		Cfg:        &cfg,
+		AutoReload: true,
+		Options: []Option{WithOnChange(func(ce ChangeEvent) {
+			callbackCalled.Store(true)
+		})},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +201,7 @@ func TestLoad_Stop(t *testing.T) {
 }
 
 func TestLoad_MultipleReloads(t *testing.T) {
-	type Config struct {
+	type Cfg struct {
 		Host string `yaml:"host"`
 		Port int    `yaml:"port"`
 	}
@@ -189,12 +214,17 @@ func TestLoad_MultipleReloads(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var cfg Config
+	var cfg Cfg
 	var count atomic.Int32
 
-	manager, err := Load(path, &cfg, func(ce ChangeEvent) {
-		count.Add(1)
-	}, true)
+	manager, err := Load(Config{
+		Path:       path,
+		Cfg:        &cfg,
+		AutoReload: true,
+		Options: []Option{WithOnChange(func(ce ChangeEvent) {
+			count.Add(1)
+		})},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

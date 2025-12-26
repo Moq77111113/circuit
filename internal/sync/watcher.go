@@ -11,10 +11,11 @@ type Watcher struct {
 	watcher  *fsnotify.Watcher
 	done     chan struct{}
 	callback func()
+	onError  func(error)
 }
 
 // Watch starts watching a file and calls the callback when it changes.
-func Watch(path string, callback func()) (*Watcher, error) {
+func Watch(path string, callback func(), onError func(error)) (*Watcher, error) {
 	fw, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, fmt.Errorf("create watcher: %w", err)
@@ -32,6 +33,7 @@ func Watch(path string, callback func()) (*Watcher, error) {
 		watcher:  fw,
 		done:     make(chan struct{}),
 		callback: callback,
+		onError:  onError,
 	}
 
 	go w.run()
@@ -56,8 +58,10 @@ func (w *Watcher) run() {
 			if event.Op&fsnotify.Write == fsnotify.Write {
 				w.callback()
 			}
-		case <-w.watcher.Errors:
-			// TODO: handle errors (will be fixed in Phase 4)
+		case err := <-w.watcher.Errors:
+			if err != nil && w.onError != nil {
+				w.onError(fmt.Errorf("%w: %w", ErrWatcher, err))
+			}
 		}
 	}
 }

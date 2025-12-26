@@ -1,16 +1,27 @@
 package sync
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
-// Store handles config loading, watching, and reloading.
-// It provides thread-safe access to the current configuration and
-// notifies listeners when the underlying config file changes.
+// SaveFunc is called to persist config changes.
+// When not provided, the default YAML file write is used.
+type SaveFunc func(cfg any, path string) error
 type Store struct {
 	path     string
 	cfg      any
 	onChange OnChange
+	onError  func(error)
 	watcher  *Watcher
 	mu       sync.RWMutex
+
+	autoApply bool
+	autoSave  bool
+	saveFunc  SaveFunc
+
+	lastFormSubmit time.Time
+	debounceWindow time.Duration
 }
 
 // Stop stops watching the config file.
@@ -35,4 +46,20 @@ func (s *Store) EmitChange(source Source) {
 			Path:   s.path,
 		})
 	}
+}
+
+// AutoApply returns whether POST automatically updates memory.
+func (s *Store) AutoApply() bool {
+	return s.autoApply
+}
+
+// AutoSave returns whether changes automatically persist to disk.
+func (s *Store) AutoSave() bool {
+	return s.autoSave
+}
+
+func (s *Store) MarkFormSubmit() {
+	s.mu.Lock()
+	s.lastFormSubmit = time.Now()
+	s.mu.Unlock()
 }
