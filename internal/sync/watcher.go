@@ -10,12 +10,12 @@ import (
 
 // Watcher monitors a file for changes.
 type Watcher struct {
-	watcher      *fsnotify.Watcher
-	done         chan struct{}
-	callback     func()
-	onError      func(error)
-	mu           sync.Mutex
-	lastEventAt  time.Time
+	watcher       *fsnotify.Watcher
+	done          chan struct{}
+	callback      func()
+	onError       func(error)
+	mu            sync.Mutex
+	lastEventAt   time.Time
 	eventThrottle time.Duration
 }
 
