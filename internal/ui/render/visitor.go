@@ -15,11 +15,11 @@ import (
 type RenderVisitor struct {
 	values  map[string]any
 	options Options
+	nodes   []g.Node
 }
 
 // VisitPrimitive renders a primitive field.
 func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
-	state := ctx.State.(*RenderState)
 	value := v.values[ctx.Path.String()]
 
 	field := h.Div(
@@ -30,17 +30,15 @@ func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) e
 		renderHelp(node),
 	)
 
-	state.Append(field)
+	v.nodes = append(v.nodes, field)
 	return nil
 }
 
 // VisitStruct renders a struct node.
 func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) error {
-	state := ctx.State.(*RenderState)
-
 	if ctx.Depth == 0 && v.options.ShowCardsAtDepth0 {
 		card := RenderStructCard(*node, ctx.Path, v.values)
-		state.Append(card)
+		v.nodes = append(v.nodes, card)
 	}
 
 	return nil
@@ -48,7 +46,6 @@ func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) erro
 
 // VisitSlice renders a slice with collapsible container.
 func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error {
-	state := ctx.State.(*RenderState)
 	value := v.values[ctx.Path.String()]
 	items := reflection.SliceValues(value)
 
@@ -80,6 +77,6 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 	}
 	container := collapsible.Collapsible(cfg, itemNodes)
 
-	state.Append(container)
+	v.nodes = append(v.nodes, container)
 	return nil
 }
