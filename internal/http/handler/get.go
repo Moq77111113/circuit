@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
-	var values map[string]any
+	var values path.ValuesByPath
 	h.store.WithLock(func() {
 		values = form.ExtractValues(h.cfg, h.schema)
 	})
