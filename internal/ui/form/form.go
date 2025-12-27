@@ -12,7 +12,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
-func Form(s ast.Schema, values map[string]any, focus path.Path) g.Node {
+func Form(s ast.Schema, values path.ValuesByPath, focus path.Path) g.Node {
 	filteredNodes := render.FilterByFocus(s.Nodes, focus)
 	basePath := computeBasePath(filteredNodes, focus)
 	fields := render.Render(filteredNodes, values, basePath)

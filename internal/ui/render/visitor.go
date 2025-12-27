@@ -5,6 +5,7 @@ import (
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/ast"
+	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ast/walk"
 	"github.com/moq77111113/circuit/internal/reflection"
 	"github.com/moq77111113/circuit/internal/ui/components/collapsible"
@@ -13,7 +14,7 @@ import (
 
 // RenderVisitor implements walk.Visitor for HTML rendering.
 type RenderVisitor struct {
-	values  map[string]any
+	values  path.ValuesByPath
 	options Options
 	nodes   []g.Node
 }

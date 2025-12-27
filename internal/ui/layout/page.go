@@ -12,7 +12,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ui/layout/breadcrumb"
 )
 
-func Page(s ast.Schema, values map[string]any, title string, brand bool, focus path.Path, topContent ...g.Node) g.Node {
+func Page(s ast.Schema, values path.ValuesByPath, title string, brand bool, focus path.Path, topContent ...g.Node) g.Node {
 	if title == "" {
 		title = s.Name + " Configuration"
 	}

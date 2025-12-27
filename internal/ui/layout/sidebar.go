@@ -9,7 +9,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ui/layout/sidebar"
 )
 
-func Sidebar(s ast.Schema, values map[string]any, focus path.Path) g.Node {
+func Sidebar(s ast.Schema, values path.ValuesByPath, focus path.Path) g.Node {
 	return h.Aside(
 		h.Class("app__sidebar"),
 		h.Div(
