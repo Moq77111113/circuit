@@ -2,16 +2,21 @@ package sync
 
 import (
 	"fmt"
+	"sync"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 )
 
 // Watcher monitors a file for changes.
 type Watcher struct {
-	watcher  *fsnotify.Watcher
-	done     chan struct{}
-	callback func()
-	onError  func(error)
+	watcher       *fsnotify.Watcher
+	done          chan struct{}
+	callback      func()
+	onError       func(error)
+	mu            sync.Mutex
+	lastEventAt   time.Time
+	eventThrottle time.Duration
 }
 
 // Watch starts watching a file and calls the callback when it changes.
@@ -30,10 +35,11 @@ func Watch(path string, callback func(), onError func(error)) (*Watcher, error) 
 	}
 
 	w := &Watcher{
-		watcher:  fw,
-		done:     make(chan struct{}),
-		callback: callback,
-		onError:  onError,
+		watcher:       fw,
+		done:          make(chan struct{}),
+		callback:      callback,
+		onError:       onError,
+		eventThrottle: 100 * time.Millisecond,
 	}
 
 	go w.run()
@@ -56,7 +62,16 @@ func (w *Watcher) run() {
 			return
 		case event := <-w.watcher.Events:
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				w.callback()
+				w.mu.Lock()
+				shouldTrigger := time.Since(w.lastEventAt) >= w.eventThrottle
+				if shouldTrigger {
+					w.lastEventAt = time.Now()
+				}
+				w.mu.Unlock()
+
+				if shouldTrigger {
+					w.callback()
+				}
 			}
 		case err := <-w.watcher.Errors:
 			if err != nil && w.onError != nil {
