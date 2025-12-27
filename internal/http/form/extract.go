@@ -9,8 +9,8 @@ import (
 
 // ExtractValues reads field values from a config struct.
 // Recursively extracts all nested values with full dotted paths.
-func ExtractValues(cfg any, s ast.Schema) path.ValuesByPath {
-	values := make(path.ValuesByPath)
+func ExtractValues(cfg any, s ast.Schema) ast.ValuesByPath {
+	values := make(ast.ValuesByPath)
 	rv := reflect.ValueOf(cfg).Elem()
 
 	for _, node := range s.Nodes {
@@ -26,7 +26,7 @@ func ExtractValues(cfg any, s ast.Schema) path.ValuesByPath {
 }
 
 // extractNodeValues recursively extracts values for a node and its children.
-func extractNodeValues(values path.ValuesByPath, node *ast.Node, fieldValue reflect.Value, currentPath path.Path) {
+func extractNodeValues(values ast.ValuesByPath, node *ast.Node, fieldValue reflect.Value, currentPath path.Path) {
 	val := fieldValue.Interface()
 	if fieldValue.Kind() == reflect.Pointer && !fieldValue.IsNil() {
 		val = fieldValue.Elem().Interface()

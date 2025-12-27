@@ -21,7 +21,7 @@ func (s *TreeState) Output() g.Node {
 	return g.Group(s.nodes)
 }
 
-func RenderTree(nodes []ast.Node, currentFocus path.Path, values path.ValuesByPath) g.Node {
+func RenderTree(nodes []ast.Node, currentFocus path.Path, values ast.ValuesByPath) g.Node {
 	tree := &ast.Tree{Nodes: nodes}
 	state := &TreeState{}
 
