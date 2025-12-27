@@ -3,12 +3,13 @@ package handler
 import (
 	"net/http"
 
+	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/ui/layout"
 )
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
-	var values path.ValuesByPath
+	var values ast.ValuesByPath
 	h.store.WithLock(func() {
 		values = form.ExtractValues(h.cfg, h.schema)
 	})

@@ -35,8 +35,6 @@ var (
 	ParseValueType = node.ParseValueType
 )
 
-type Path = path.Path
-
 var (
 	NewPath   = path.NewPath
 	ParsePath = path.ParsePath
@@ -55,3 +53,5 @@ var (
 	NewContext   = walk.NewContext
 	WithMaxDepth = walk.WithMaxDepth
 )
+
+type ValuesByPath = path.ValuesByPath

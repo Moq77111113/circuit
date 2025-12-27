@@ -11,7 +11,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
-func RenderStructCard(node ast.Node, nodePath path.Path, values path.ValuesByPath) g.Node {
+func RenderStructCard(node ast.Node, nodePath path.Path, values ast.ValuesByPath) g.Node {
 	focusURL := "?focus=" + nodePath.String()
 	preview := generatePreview(node, nodePath, values, 3)
 
@@ -30,7 +30,7 @@ func RenderStructCard(node ast.Node, nodePath path.Path, values path.ValuesByPat
 	)
 }
 
-func generatePreview(node ast.Node, nodePath path.Path, values path.ValuesByPath, maxFields int) string {
+func generatePreview(node ast.Node, nodePath path.Path, values ast.ValuesByPath, maxFields int) string {
 	if len(node.Children) == 0 {
 		return ""
 	}

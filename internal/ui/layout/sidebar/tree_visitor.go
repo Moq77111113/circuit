@@ -11,7 +11,7 @@ import (
 
 type TreeVisitor struct {
 	currentFocus path.Path
-	values       path.ValuesByPath
+	values       ast.ValuesByPath
 }
 
 func (v *TreeVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
