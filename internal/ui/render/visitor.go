@@ -22,12 +22,18 @@ type RenderVisitor struct {
 func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
 	value := v.values[ctx.Path.String()]
 
+	var errorMessage string
+	if v.options.Errors != nil {
+		errorMessage = v.options.Errors.Get(ctx.Path)
+	}
+
 	field := h.Div(
 		h.Class(styles.Field),
 		h.ID("field-"+ctx.Path.String()),
 		renderLabel(node, ctx.Path.String()),
 		renderInput(node, ctx.Path.String(), value),
 		renderHelp(node),
+		renderError(errorMessage),
 	)
 
 	v.nodes = append(v.nodes, field)
