@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/ui/layout"
 )
@@ -14,13 +13,7 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 		values = form.ExtractValues(h.cfg, h.schema)
 	})
 
-	focusParam := r.URL.Query().Get("focus")
-	var focusPath path.Path
-	if focusParam == "" {
-		focusPath = path.Root()
-	} else {
-		focusPath = path.ParsePath(focusParam)
-	}
+	focusPath := extractFocusPath(r)
 
 	page := layout.Page(h.schema, values, h.title, h.brand, focusPath)
 

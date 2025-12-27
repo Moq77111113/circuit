@@ -6,7 +6,6 @@ import (
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 
-	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/ui/layout"
 )
@@ -20,13 +19,7 @@ func (h *Handler) renderPreview(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	focusParam := r.URL.Query().Get("focus")
-	var focusPath path.Path
-	if focusParam == "" {
-		focusPath = path.Root()
-	} else {
-		focusPath = path.ParsePath(focusParam)
-	}
+	focusPath := extractFocusPath(r)
 
 	page := layout.Page(h.schema, values, h.title, h.brand, focusPath, previewBanner(r.Form))
 
