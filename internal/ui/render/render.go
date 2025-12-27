@@ -17,14 +17,14 @@ func Render(nodes []ast.Node, values map[string]any, focus path.Path) g.Node {
 // RenderWithOptions generates HTML for a tree of nodes with custom rendering options.
 func RenderWithOptions(nodes []ast.Node, values map[string]any, focus path.Path, opts Options) g.Node {
 	tree := &ast.Tree{Nodes: nodes}
-	state := NewRenderState()
 
 	visitor := &RenderVisitor{
 		values:  values,
 		options: opts,
+		nodes:   []g.Node{},
 	}
 	walker := walk.NewWalker(visitor, walk.WithBasePath(focus))
-	_ = walker.Walk(tree, state)
+	_ = walker.Walk(tree, nil)
 
-	return g.Group(state.Output())
+	return g.Group(visitor.nodes)
 }
