@@ -36,48 +36,17 @@ func (v *FormVisitor) applyStructSliceItems(ctx *walk.VisitContext, node *ast.No
 				continue
 			}
 
-			childPath := itemPath.Child(child.Name)
-
-			childState := &FormState{Current: childFieldValue}
 			childCtx := &walk.VisitContext{
 				Tree:   ctx.Tree,
-				State:  childState,
-				Path:   childPath,
+				State:  childFieldValue,
+				Path:   itemPath.Child(child.Name),
 				Depth:  ctx.Depth + 1,
 				Parent: node,
 				Index:  -1,
 			}
 
-			switch child.Kind {
-			case ast.KindPrimitive:
-				if err := v.VisitPrimitive(childCtx, &child); err != nil {
-					return err
-				}
-			case ast.KindStruct:
-				childState.Current = childFieldValue
-				for _, grandchild := range child.Children {
-					grandchildFieldValue := childFieldValue.FieldByName(grandchild.Name)
-					if !grandchildFieldValue.IsValid() || !grandchildFieldValue.CanSet() {
-						continue
-					}
-
-					grandchildPath := childPath.Child(grandchild.Name)
-					grandchildState := &FormState{Current: grandchildFieldValue}
-					grandchildCtx := &walk.VisitContext{
-						Tree:   ctx.Tree,
-						State:  grandchildState,
-						Path:   grandchildPath,
-						Depth:  ctx.Depth + 2,
-						Parent: &child,
-						Index:  -1,
-					}
-
-					if grandchild.Kind == ast.KindPrimitive {
-						if err := v.VisitPrimitive(grandchildCtx, &grandchild); err != nil {
-							return err
-						}
-					}
-				}
+			if err := v.dispatchNode(&child, childFieldValue, childCtx); err != nil {
+				return err
 			}
 		}
 	}
