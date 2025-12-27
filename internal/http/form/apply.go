@@ -13,7 +13,6 @@ func ApplyNodes(cfg any, nodes []ast.Node, form url.Values) error {
 	tree := &ast.Tree{Nodes: nodes}
 	visitor := &FormVisitor{form: form}
 	rv := reflect.ValueOf(cfg).Elem()
-	state := NewFormState(rv)
 
 	for i := range nodes {
 		node := &nodes[i]
@@ -23,65 +22,16 @@ func ApplyNodes(cfg any, nodes []ast.Node, form url.Values) error {
 			continue
 		}
 
-		state.Current = fieldValue
-
 		ctx := &walk.VisitContext{
 			Tree:   tree,
-			State:  state,
+			State:  fieldValue,
 			Path:   path.NewPath(node.Name),
 			Depth:  0,
 			Parent: nil,
 			Index:  -1,
 		}
 
-		var err error
-		switch node.Kind {
-		case ast.KindPrimitive:
-			err = visitor.VisitPrimitive(ctx, node)
-		case ast.KindStruct:
-			err = visitStructChildren(visitor, ctx, node, fieldValue)
-		case ast.KindSlice:
-			err = visitor.VisitSlice(ctx, node)
-		}
-
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func visitStructChildren(visitor *FormVisitor, parentCtx *walk.VisitContext, node *ast.Node, structValue reflect.Value) error {
-	for i := range node.Children {
-		child := &node.Children[i]
-		childFieldValue := structValue.FieldByName(child.Name)
-
-		if !childFieldValue.IsValid() || !childFieldValue.CanSet() {
-			continue
-		}
-
-		childState := &FormState{Current: childFieldValue}
-		childCtx := &walk.VisitContext{
-			Tree:   parentCtx.Tree,
-			State:  childState,
-			Path:   parentCtx.Path.Child(child.Name),
-			Depth:  parentCtx.Depth + 1,
-			Parent: node,
-			Index:  -1,
-		}
-
-		var err error
-		switch child.Kind {
-		case ast.KindPrimitive:
-			err = visitor.VisitPrimitive(childCtx, child)
-		case ast.KindStruct:
-			err = visitStructChildren(visitor, childCtx, child, childFieldValue)
-		case ast.KindSlice:
-			err = visitor.VisitSlice(childCtx, child)
-		}
-
-		if err != nil {
+		if err := visitor.dispatchNode(node, fieldValue, ctx); err != nil {
 			return err
 		}
 	}
