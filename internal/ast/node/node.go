@@ -8,6 +8,7 @@ type UIMetadata struct {
 	Help        string
 	Placeholder string
 	Required    bool
+	ReadOnly    bool
 	Min         string
 	Max         string
 	Step        string
