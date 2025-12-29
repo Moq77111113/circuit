@@ -16,7 +16,7 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 
 	focusPath := extractFocusPath(r)
 
-	page := layout.Page(h.schema, values, h.title, h.brand, focusPath)
+	page := layout.Page(h.schema, values, h.title, h.brand, focusPath, h.readOnly)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := page.Render(w); err != nil {

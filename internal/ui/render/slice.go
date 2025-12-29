@@ -20,8 +20,11 @@ func parseItemPath(itemPath string) (field string, index string) {
 	return itemPath[:lastDot], itemPath[lastDot+1:]
 }
 
-// renderAddButton creates an "Add" button for slices
-func renderAddButton(path path.Path) g.Node {
+// renderAddButton creates an "Add" button for slices (returns nil if readOnly)
+func renderAddButton(path path.Path, readOnly bool) g.Node {
+	if readOnly {
+		return nil
+	}
 	return h.Button(
 		h.Type("submit"),
 		h.Name("action"),
@@ -43,6 +46,18 @@ func renderEmptyState() g.Node {
 func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Path, opts Options) g.Node {
 	itemPath := path.String()
 	field, idx := parseItemPath(itemPath)
+
+	var removeBtn g.Node
+	if !opts.ReadOnly {
+		removeBtn = h.Button(
+			h.Type("submit"),
+			h.Name("action"),
+			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
+			h.Class("button button--secondary"+" slice-item__remove-button"),
+			g.Text("Remove"),
+		)
+	}
+
 	return h.Div(
 		h.Class("slice-item slice-item--primitive"),
 		h.Div(
@@ -50,12 +65,6 @@ func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Pa
 			renderLabel(node, itemPath),
 			renderInput(node, itemPath, value, opts),
 		),
-		h.Button(
-			h.Type("submit"),
-			h.Name("action"),
-			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
-			h.Class("button button--secondary"+" slice-item__remove-button"),
-			g.Text("Remove"),
-		),
+		removeBtn,
 	)
 }

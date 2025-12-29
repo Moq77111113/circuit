@@ -15,7 +15,7 @@ func (h *Handler) renderWithErrors(w http.ResponseWriter, r *http.Request, resul
 
 	focusPath := extractFocusPath(r)
 
-	page := layout.PageWithErrors(h.schema, mergedValues, h.title, h.brand, focusPath, result)
+	page := layout.PageWithErrors(h.schema, mergedValues, h.title, h.brand, focusPath, result, h.readOnly)
 
 	w.WriteHeader(http.StatusUnprocessableEntity)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

@@ -23,13 +23,13 @@ type pageConfig struct {
 	topContent []g.Node
 }
 
-func Page(s ast.Schema, values ast.ValuesByPath, title string, brand bool, focus path.Path, topContent ...g.Node) g.Node {
-	formNode := form.Form(s, values, focus)
+func Page(s ast.Schema, values ast.ValuesByPath, title string, brand bool, focus path.Path, readOnly bool, topContent ...g.Node) g.Node {
+	formNode := form.Form(s, values, focus, readOnly)
 	return renderPage(pageConfig{s, values, title, brand, focus, formNode, topContent})
 }
 
-func PageWithErrors(s ast.Schema, values ast.ValuesByPath, title string, brand bool, focus path.Path, errors *validation.ValidationResult) g.Node {
-	formNode := form.FormWithErrors(s, values, focus, errors)
+func PageWithErrors(s ast.Schema, values ast.ValuesByPath, title string, brand bool, focus path.Path, errors *validation.ValidationResult, readOnly bool) g.Node {
+	formNode := form.FormWithErrors(s, values, focus, errors, readOnly)
 	return renderPage(pageConfig{s, values, title, brand, focus, formNode, nil})
 }
 

@@ -72,7 +72,7 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 		}
 	}
 
-	itemNodes = append(itemNodes, renderAddButton(ctx.Path))
+	itemNodes = append(itemNodes, renderAddButton(ctx.Path, v.options.ReadOnly))
 
 	cfg := collapsible.Config{
 		ID:        "slice-" + ctx.Path.String(),

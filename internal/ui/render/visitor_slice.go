@@ -22,16 +22,20 @@ func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, 
 	summary := containers.Extract(*node, itemValue, 2)
 	summaryText := containers.Format(summary)
 
-	field, idx := parseItemPath(itemPath.String())
-	removeButton := h.Button(
-		h.Type("submit"),
-		h.Name("action"),
-		h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
-		h.Class("button button--danger"),
-		g.Text("Remove"),
-	)
+	var body []g.Node
+	body = append(body, itemFields...)
 
-	body := append(itemFields, removeButton)
+	if !v.options.ReadOnly {
+		field, idx := parseItemPath(itemPath.String())
+		removeButton := h.Button(
+			h.Type("submit"),
+			h.Name("action"),
+			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
+			h.Class("button button--danger"),
+			g.Text("Remove"),
+		)
+		body = append(body, removeButton)
+	}
 
 	cfg := collapsible.Config{
 		ID:        fmt.Sprintf("slice-item-%s", itemPath.String()),
