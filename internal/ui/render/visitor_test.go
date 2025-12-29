@@ -18,7 +18,6 @@ func renderToString(node g.Node) string {
 	return sb.String()
 }
 
-
 func testRender(nodes []ast.Node, values map[string]any, focus path.Path) g.Node {
 	schema := &ast.Schema{Nodes: nodes}
 	rc := NewRenderContext(schema, values)
