@@ -56,6 +56,13 @@ func (w *Walker) Walk(tree *node.Tree, state any) error {
 	return w.walkNodes(tree.Nodes, ctx)
 }
 
+// WalkWithContext traverses the tree with an additional immutable context.
+func (w *Walker) WalkWithContext(tree *node.Tree, state any, context any) error {
+	ctx := NewContext(tree, state, w.config.BasePath)
+	ctx.Context = context
+	return w.walkNodes(tree.Nodes, ctx)
+}
+
 func (w *Walker) walkNodes(nodes []node.Node, ctx *VisitContext) error {
 	for i := range nodes {
 		nodeCtx := *ctx
