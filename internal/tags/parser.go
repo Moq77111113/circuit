@@ -30,6 +30,11 @@ var tagHandlers = map[string]func(*Field, string){
 	},
 }
 
+var flagActions = map[string]func(*Field){
+	"required": func(f *Field) { f.Required = true },
+	"readonly": func(f *Field) { f.ReadOnly = true },
+}
+
 func parseTag(tag string, f *Field) {
 	parts := strings.Split(tag, ",")
 	for i, part := range parts {
@@ -49,8 +54,8 @@ func parseTag(tag string, f *Field) {
 			continue
 		}
 
-		if part == "required" {
-			f.Required = true
+		if handler, ok := flagActions[part]; ok {
+			handler(f)
 		} else if i == 0 {
 			f.InputType = InputType(part)
 		}

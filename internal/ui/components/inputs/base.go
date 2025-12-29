@@ -16,5 +16,8 @@ func BaseAttrs(field tags.Field) []g.Node {
 	if field.Required {
 		attrs = append(attrs, h.Required())
 	}
+	if field.ReadOnly {
+		attrs = append(attrs, h.Disabled())
+	}
 	return attrs
 }

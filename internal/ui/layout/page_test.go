@@ -25,7 +25,7 @@ func TestPage_Complete(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Page(s, nil, "", true, path.Root()))
+	html := renderToString(Page(s, nil, path.Root(), PageOptions{Brand: true}))
 
 	// Check HTML structure
 	if !strings.Contains(html, "<!doctype html>") && !strings.Contains(html, "<html") {
@@ -51,7 +51,7 @@ func TestPage_CustomTitle(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "My Custom Settings", true, path.Root()))
+	html := renderToString(Page(s, nil, path.Root(), PageOptions{Title: "My Custom Settings", Brand: true}))
 
 	if !strings.Contains(html, "My Custom Settings") {
 		t.Error("expected custom title")
@@ -70,7 +70,7 @@ func TestPage_WithValues(t *testing.T) {
 		"Host": "example.com",
 	}
 
-	html := renderToString(Page(s, values, "", true, path.Root()))
+	html := renderToString(Page(s, values, path.Root(), PageOptions{Brand: true}))
 
 	if !strings.Contains(html, `value="example.com"`) {
 		t.Error("expected value in rendered page")
@@ -83,7 +83,7 @@ func TestPage_ContainsCSS(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", true, path.Root()))
+	html := renderToString(Page(s, nil, path.Root(), PageOptions{Brand: true}))
 
 	// Check for key CSS classes
 	if !strings.Contains(html, ".app__container") {
@@ -103,7 +103,7 @@ func TestPage_ContainsBranding(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", true, path.Root()))
+	html := renderToString(Page(s, nil, path.Root(), PageOptions{Brand: true}))
 
 	if !strings.Contains(html, "Powered by") {
 		t.Error("expected 'Powered by' text")
@@ -125,7 +125,7 @@ func TestPage_WithoutBranding(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Page(s, nil, "", false, path.Root()))
+	html := renderToString(Page(s, nil, path.Root(), PageOptions{}))
 
 	if strings.Contains(html, "Powered by") {
 		t.Error("did not expect 'Powered by' text")

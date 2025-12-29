@@ -13,23 +13,31 @@ import (
 	"github.com/moq77111113/circuit/internal/validation"
 )
 
-func Form(s ast.Schema, values ast.ValuesByPath, focus path.Path) g.Node {
+func Form(s ast.Schema, values ast.ValuesByPath, focus path.Path, readOnly bool) g.Node {
 	filteredNodes := render.FilterByFocus(s.Nodes, focus)
 	basePath := computeBasePath(filteredNodes, focus)
-	fields := render.Render(filteredNodes, values, basePath)
 
-	return h.Form(
-		h.Method("post"),
-		h.Class(styles.Form),
-		fields,
-		h.Div(
+	opts := render.DefaultOptions()
+	opts.ReadOnly = readOnly
+	fields := render.RenderWithOptions(filteredNodes, values, basePath, opts)
+
+	var actions g.Node
+	if !readOnly {
+		actions = h.Div(
 			h.Class(styles.FormActions),
 			h.Button(
 				h.Type("submit"),
 				h.Class(styles.Button+" "+styles.ButtonPrimary),
 				g.Text("Save Changes"),
 			),
-		),
+		)
+	}
+
+	return h.Form(
+		h.Method("post"),
+		h.Class(styles.Form),
+		fields,
+		actions,
 	)
 }
 
@@ -58,26 +66,32 @@ func renderToString(node g.Node) string {
 }
 
 // FormWithErrors renders the form with validation errors.
-func FormWithErrors(s ast.Schema, values ast.ValuesByPath, focus path.Path, errors *validation.ValidationResult) g.Node {
+func FormWithErrors(s ast.Schema, values ast.ValuesByPath, focus path.Path, errors *validation.ValidationResult, readOnly bool) g.Node {
 	filteredNodes := render.FilterByFocus(s.Nodes, focus)
 	basePath := computeBasePath(filteredNodes, focus)
 
 	opts := render.DefaultOptions()
 	opts.Errors = errors
+	opts.ReadOnly = readOnly
 
 	fields := render.RenderWithOptions(filteredNodes, values, basePath, opts)
 
-	return h.Form(
-		h.Method("post"),
-		h.Class(styles.Form),
-		fields,
-		h.Div(
+	var actions g.Node
+	if !readOnly {
+		actions = h.Div(
 			h.Class(styles.FormActions),
 			h.Button(
 				h.Type("submit"),
 				h.Class(styles.Button+" "+styles.ButtonPrimary),
 				g.Text("Save Changes"),
 			),
-		),
+		)
+	}
+
+	return h.Form(
+		h.Method("post"),
+		h.Class(styles.Form),
+		fields,
+		actions,
 	)
 }

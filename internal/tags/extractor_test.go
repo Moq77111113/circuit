@@ -381,3 +381,36 @@ func TestExtract_SliceOfStructs(t *testing.T) {
 		t.Errorf("expected 2 nested fields, got %d", len(servers.Fields))
 	}
 }
+
+func TestExtract_ReadonlyField(t *testing.T) {
+	type Config struct {
+		Version string `circuit:"text,readonly,help:Application version"`
+		Host    string `circuit:"text,help:Server hostname"`
+	}
+
+	cfg := Config{}
+	fields, err := Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(fields) != 2 {
+		t.Fatalf("expected 2 fields, got %d", len(fields))
+	}
+
+	version := fields[0]
+	if version.Name != "Version" {
+		t.Errorf("expected name Version, got %s", version.Name)
+	}
+	if !version.ReadOnly {
+		t.Error("expected ReadOnly to be true")
+	}
+
+	host := fields[1]
+	if host.Name != "Host" {
+		t.Errorf("expected name Host, got %s", host.Name)
+	}
+	if host.ReadOnly {
+		t.Error("expected ReadOnly to be false")
+	}
+}

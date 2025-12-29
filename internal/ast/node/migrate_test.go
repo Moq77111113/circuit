@@ -233,28 +233,43 @@ func TestFromTags_PreservesMetadata(t *testing.T) {
 			Max:       "65535",
 			Step:      "1",
 		},
+		{
+			Name:      "Version",
+			Type:      "string",
+			InputType: tags.TypeText,
+			Help:      "App version",
+			ReadOnly:  true,
+		},
 	}
 
 	nodes := FromTags(fields)
 
-	if len(nodes) != 1 {
-		t.Fatalf("len(nodes) = %d, want 1", len(nodes))
+	if len(nodes) != 2 {
+		t.Fatalf("len(nodes) = %d, want 2", len(nodes))
 	}
 
-	node := nodes[0]
-	if node.UI.Help != "Server port" {
-		t.Errorf("node.UI.Help = %s, want 'Server port'", node.UI.Help)
+	port := nodes[0]
+	if port.UI.Help != "Server port" {
+		t.Errorf("port.UI.Help = %s, want 'Server port'", port.UI.Help)
 	}
-	if !node.UI.Required {
-		t.Error("node.UI.Required should be true")
+	if !port.UI.Required {
+		t.Error("port.UI.Required should be true")
 	}
-	if node.UI.Min != "1" {
-		t.Errorf("node.UI.Min = %s, want '1'", node.UI.Min)
+	if port.UI.Min != "1" {
+		t.Errorf("port.UI.Min = %s, want '1'", port.UI.Min)
 	}
-	if node.UI.Max != "65535" {
-		t.Errorf("node.UI.Max = %s, want '65535'", node.UI.Max)
+	if port.UI.Max != "65535" {
+		t.Errorf("port.UI.Max = %s, want '65535'", port.UI.Max)
 	}
-	if node.UI.Step != "1" {
-		t.Errorf("node.UI.Step = %s, want '1'", node.UI.Step)
+	if port.UI.Step != "1" {
+		t.Errorf("port.UI.Step = %s, want '1'", port.UI.Step)
+	}
+
+	version := nodes[1]
+	if version.UI.Help != "App version" {
+		t.Errorf("version.UI.Help = %s, want 'App version'", version.UI.Help)
+	}
+	if !version.UI.ReadOnly {
+		t.Error("version.UI.ReadOnly should be true")
 	}
 }

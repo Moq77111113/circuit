@@ -11,6 +11,7 @@ type Field struct {
 	InputType   InputType
 	Help        string
 	Required    bool
+	ReadOnly    bool
 	Min         string
 	Max         string
 	Step        string

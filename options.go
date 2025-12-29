@@ -15,6 +15,7 @@ type config struct {
 	path          string
 	title         string
 	brand         bool
+	readOnly      bool
 	onChange      OnChange
 	onError       func(error)
 	autoReload    bool
@@ -99,5 +100,13 @@ func WithAutoSave(enable bool) Option {
 func WithSaveFunc(fn SaveFunc) Option {
 	return func(c *config) {
 		c.saveFunc = fn
+	}
+}
+
+// WithReadOnly controls whether the UI is read-only.
+// When true, all inputs are disabled and Save/Add/Remove buttons are hidden.
+func WithReadOnly(enable bool) Option {
+	return func(c *config) {
+		c.readOnly = enable
 	}
 }

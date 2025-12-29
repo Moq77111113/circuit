@@ -19,6 +19,7 @@ func fromField(f tags.Field) Node {
 			InputType: f.InputType,
 			Help:      f.Help,
 			Required:  f.Required,
+			ReadOnly:  f.ReadOnly,
 			Min:       f.Min,
 			Max:       f.Max,
 			Step:      f.Step,

@@ -31,7 +31,7 @@ func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) e
 		h.Class(styles.Field),
 		h.ID("field-"+ctx.Path.String()),
 		renderLabel(node, ctx.Path.String()),
-		renderInput(node, ctx.Path.String(), value),
+		renderInput(node, ctx.Path.String(), value, v.options),
 		renderHelp(node),
 		renderError(errorMessage),
 	)
@@ -65,14 +65,14 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 			itemPath := ctx.Path.Index(i)
 
 			if node.ElementKind == ast.KindPrimitive {
-				itemNodes = append(itemNodes, renderPrimitiveSliceItem(node, i, itemValue, itemPath))
+				itemNodes = append(itemNodes, renderPrimitiveSliceItem(node, i, itemValue, itemPath, v.options))
 			} else {
 				itemNodes = append(itemNodes, v.renderStructSliceItemWithFields(ctx, node, i, itemPath))
 			}
 		}
 	}
 
-	itemNodes = append(itemNodes, renderAddButton(ctx.Path))
+	itemNodes = append(itemNodes, renderAddButton(ctx.Path, v.options.ReadOnly))
 
 	cfg := collapsible.Config{
 		ID:        "slice-" + ctx.Path.String(),
