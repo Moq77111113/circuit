@@ -21,7 +21,12 @@ func (h *Handler) renderPreview(w http.ResponseWriter, r *http.Request) {
 
 	focusPath := extractFocusPath(r)
 
-	page := layout.Page(h.schema, values, h.title, h.brand, focusPath, h.readOnly, previewBanner(r.Form))
+	page := layout.Page(h.schema, values, focusPath, layout.PageOptions{
+		Title:      h.title,
+		Brand:      h.brand,
+		ReadOnly:   h.readOnly,
+		TopContent: []g.Node{previewBanner(r.Form)},
+	})
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := page.Render(w); err != nil {

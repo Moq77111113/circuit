@@ -13,6 +13,13 @@ import (
 	"github.com/moq77111113/circuit/internal/validation"
 )
 
+type PageOptions struct {
+	Title      string
+	Brand      bool
+	ReadOnly   bool
+	TopContent []g.Node
+}
+
 type pageConfig struct {
 	schema     ast.Schema
 	values     ast.ValuesByPath
@@ -23,14 +30,14 @@ type pageConfig struct {
 	topContent []g.Node
 }
 
-func Page(s ast.Schema, values ast.ValuesByPath, title string, brand bool, focus path.Path, readOnly bool, topContent ...g.Node) g.Node {
-	formNode := form.Form(s, values, focus, readOnly)
-	return renderPage(pageConfig{s, values, title, brand, focus, formNode, topContent})
+func Page(s ast.Schema, values ast.ValuesByPath, focus path.Path, opts PageOptions) g.Node {
+	formNode := form.Form(s, values, focus, opts.ReadOnly)
+	return renderPage(pageConfig{s, values, opts.Title, opts.Brand, focus, formNode, opts.TopContent})
 }
 
-func PageWithErrors(s ast.Schema, values ast.ValuesByPath, title string, brand bool, focus path.Path, errors *validation.ValidationResult, readOnly bool) g.Node {
-	formNode := form.FormWithErrors(s, values, focus, errors, readOnly)
-	return renderPage(pageConfig{s, values, title, brand, focus, formNode, nil})
+func PageWithErrors(s ast.Schema, values ast.ValuesByPath, focus path.Path, errors *validation.ValidationResult, opts PageOptions) g.Node {
+	formNode := form.FormWithErrors(s, values, focus, errors, opts.ReadOnly)
+	return renderPage(pageConfig{s, values, opts.Title, opts.Brand, focus, formNode, nil})
 }
 
 func renderPage(cfg pageConfig) g.Node {
