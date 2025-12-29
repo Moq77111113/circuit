@@ -72,6 +72,7 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		Path:          conf.path,
 		Title:         conf.title,
 		Brand:         conf.brand,
+		ReadOnly:      conf.readOnly,
 		Store:         store,
 		Authenticator: conf.authenticator,
 	})

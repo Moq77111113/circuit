@@ -15,6 +15,7 @@ type Handler struct {
 	path          string
 	title         string
 	brand         bool
+	readOnly      bool
 	store         *sync.Store
 	authenticator auth.Authenticator
 }
@@ -26,6 +27,7 @@ type Config struct {
 	Path          string
 	Title         string
 	Brand         bool
+	ReadOnly      bool
 	Store         *sync.Store
 	Authenticator auth.Authenticator
 }
@@ -41,6 +43,7 @@ func New(c Config) *Handler {
 		path:          c.Path,
 		title:         c.Title,
 		brand:         c.Brand,
+		readOnly:      c.ReadOnly,
 		store:         c.Store,
 		authenticator: c.Authenticator,
 	}
