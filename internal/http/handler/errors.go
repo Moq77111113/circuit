@@ -5,6 +5,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/ui/layout"
+	"github.com/moq77111113/circuit/internal/ui/render"
 	"github.com/moq77111113/circuit/internal/validation"
 )
 
@@ -15,11 +16,16 @@ func (h *Handler) renderWithErrors(w http.ResponseWriter, r *http.Request, resul
 
 	focusPath := extractFocusPath(r)
 
-	page := layout.PageWithErrors(h.schema, mergedValues, focusPath, result, layout.PageOptions{
-		Title:    h.title,
-		Brand:    h.brand,
-		ReadOnly: h.readOnly,
-	})
+	rc := render.NewRenderContext(&h.schema, mergedValues)
+	rc.Focus = focusPath
+	rc.ReadOnly = h.readOnly
+	rc.Errors = result
+
+	pc := layout.NewPageContext(rc)
+	pc.Title = h.title
+	pc.Brand = h.brand
+
+	page := layout.Page(pc)
 
 	w.WriteHeader(http.StatusUnprocessableEntity)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
