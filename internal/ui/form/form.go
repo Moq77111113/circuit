@@ -10,6 +10,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ui/render"
 	"github.com/moq77111113/circuit/internal/ui/styles"
+	"github.com/moq77111113/circuit/internal/validation"
 )
 
 func Form(s ast.Schema, values ast.ValuesByPath, focus path.Path) g.Node {
@@ -54,4 +55,29 @@ func renderToString(node g.Node) string {
 	var sb strings.Builder
 	_ = node.Render(&sb)
 	return sb.String()
+}
+
+// FormWithErrors renders the form with validation errors.
+func FormWithErrors(s ast.Schema, values ast.ValuesByPath, focus path.Path, errors *validation.ValidationResult) g.Node {
+	filteredNodes := render.FilterByFocus(s.Nodes, focus)
+	basePath := computeBasePath(filteredNodes, focus)
+
+	opts := render.DefaultOptions()
+	opts.Errors = errors
+
+	fields := render.RenderWithOptions(filteredNodes, values, basePath, opts)
+
+	return h.Form(
+		h.Method("post"),
+		h.Class(styles.Form),
+		fields,
+		h.Div(
+			h.Class(styles.FormActions),
+			h.Button(
+				h.Type("submit"),
+				h.Class(styles.Button+" "+styles.ButtonPrimary),
+				g.Text("Save Changes"),
+			),
+		),
+	)
 }
