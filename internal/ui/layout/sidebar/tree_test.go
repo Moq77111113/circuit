@@ -8,6 +8,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
 func renderToString(node g.Node) string {
@@ -16,13 +17,20 @@ func renderToString(node g.Node) string {
 	return sb.String()
 }
 
+func testRenderTree(nodes []ast.Node, focus path.Path, values map[string]any) g.Node {
+	s := ast.Schema{Nodes: nodes}
+	rc := render.NewRenderContext(&s, values)
+	rc.Focus = focus
+	return RenderTree(rc)
+}
+
 func TestRenderTree_Simple(t *testing.T) {
 	nodes := []ast.Node{
 		{Name: "AppName", Kind: ast.KindPrimitive},
 		{Name: "Port", Kind: ast.KindPrimitive},
 	}
 
-	html := RenderTree(nodes, path.Root(), nil)
+	html := testRenderTree(nodes, path.Root(), nil)
 	result := renderToString(html)
 
 	if !strings.Contains(result, "AppName") {
@@ -47,7 +55,7 @@ func TestRenderTree_WithStruct(t *testing.T) {
 		},
 	}
 
-	html := RenderTree(nodes, path.Root(), nil)
+	html := testRenderTree(nodes, path.Root(), nil)
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Database") {
@@ -71,7 +79,7 @@ func TestRenderTree_WithFocus(t *testing.T) {
 	}
 
 	focusPath := path.Root().Child("Database")
-	html := RenderTree(nodes, focusPath, nil)
+	html := testRenderTree(nodes, focusPath, nil)
 	result := renderToString(html)
 
 	if !strings.Contains(result, "tree-node--active") {
@@ -95,7 +103,7 @@ func TestRenderTree_WithSlice(t *testing.T) {
 		},
 	}
 
-	html := RenderTree(nodes, path.Root(), values)
+	html := testRenderTree(nodes, path.Root(), values)
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Services") {

@@ -4,10 +4,21 @@ import (
 	"strings"
 	"testing"
 
+	g "maragu.dev/gomponents"
+
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/tags"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
+
+// testForm is a helper for tests
+func testForm(s ast.Schema, values map[string]any, focus path.Path, readOnly bool) g.Node {
+	rc := render.NewRenderContext(&s, values)
+	rc.Focus = focus
+	rc.ReadOnly = readOnly
+	return Form(rc)
+}
 
 func TestForm_TextInput(t *testing.T) {
 	s := ast.Schema{
@@ -23,7 +34,7 @@ func TestForm_TextInput(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil, path.Root(), false))
+	html := renderToString(testForm(s, nil, path.Root(), false))
 
 	if !strings.Contains(html, `type="text"`) {
 		t.Error("expected text input type")
@@ -50,7 +61,7 @@ func TestForm_NumberInput(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil, path.Root(), false))
+	html := renderToString(testForm(s, nil, path.Root(), false))
 
 	if !strings.Contains(html, `type="number"`) {
 		t.Error("expected number input type")
@@ -80,7 +91,7 @@ func TestForm_Checkbox(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil, path.Root(), false))
+	html := renderToString(testForm(s, nil, path.Root(), false))
 
 	if !strings.Contains(html, `type="radio"`) {
 		t.Error("expected radio input type")
@@ -109,7 +120,7 @@ func TestForm_MultipleFields(t *testing.T) {
 		}),
 	}
 
-	html := renderToString(Form(s, nil, path.Root(), false))
+	html := renderToString(testForm(s, nil, path.Root(), false))
 
 	if !strings.Contains(html, `name="Host"`) {
 		t.Error("expected Host field")
@@ -136,7 +147,7 @@ func TestForm_WithValues(t *testing.T) {
 		"Port": 8080,
 	}
 
-	html := renderToString(Form(s, values, path.Root(), false))
+	html := renderToString(testForm(s, values, path.Root(), false))
 
 	if !strings.Contains(html, `value="localhost"`) {
 		t.Error("expected Host value")
@@ -152,7 +163,7 @@ func TestForm_EmptySchema(t *testing.T) {
 		Nodes: ast.FromTags([]tags.Field{}),
 	}
 
-	html := renderToString(Form(s, nil, path.Root(), false))
+	html := renderToString(testForm(s, nil, path.Root(), false))
 
 	if !strings.Contains(html, "<form") {
 		t.Error("expected form element even for empty schema")
