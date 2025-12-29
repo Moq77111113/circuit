@@ -15,9 +15,10 @@ import (
 
 // renderStructSliceItemWithFields renders a complete struct slice item with fields and remove button.
 func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, node *ast.Node, index int, itemPath path.Path) g.Node {
+	rc := ctx.Context.(*RenderContext)
 	itemFields := v.renderStructSliceFields(ctx, node, index)
 
-	itemValue := v.values[itemPath.String()]
+	itemValue := rc.Values[itemPath.String()]
 
 	summary := containers.Extract(*node, itemValue, 2)
 	summaryText := containers.Format(summary)
@@ -25,7 +26,7 @@ func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, 
 	var body []g.Node
 	body = append(body, itemFields...)
 
-	if !v.options.ReadOnly {
+	if !rc.ReadOnly {
 		field, idx := parseItemPath(itemPath.String())
 		removeButton := h.Button(
 			h.Type("submit"),
@@ -41,7 +42,7 @@ func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, 
 		ID:        fmt.Sprintf("slice-item-%s", itemPath.String()),
 		Title:     fmt.Sprintf("#%d", index),
 		Summary:   summaryText,
-		Depth:     v.options.ClampDepth(ctx.Depth + 1),
+		Depth:     rc.ClampDepth(ctx.Depth + 1),
 		Collapsed: true,
 	}
 
@@ -51,11 +52,12 @@ func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, 
 // renderStructSliceFields renders all fields for a struct item in a slice.
 func (v *RenderVisitor) renderStructSliceFields(ctx *walk.VisitContext, node *ast.Node, index int) []g.Node {
 	itemPath := ctx.Path.Index(index)
-	return v.renderFields(node.Children, itemPath)
+	return v.renderFields(ctx, node.Children, itemPath)
 }
 
 // renderFields recursively renders fields (primitives and nested structs).
-func (v *RenderVisitor) renderFields(children []ast.Node, basePath path.Path) []g.Node {
+func (v *RenderVisitor) renderFields(ctx *walk.VisitContext, children []ast.Node, basePath path.Path) []g.Node {
+	rc := ctx.Context.(*RenderContext)
 	var fieldNodes []g.Node
 
 	for i := range children {
@@ -64,18 +66,18 @@ func (v *RenderVisitor) renderFields(children []ast.Node, basePath path.Path) []
 
 		switch child.Kind {
 		case ast.KindPrimitive:
-			value := v.values[childPath.String()]
+			value := rc.Values[childPath.String()]
 			field := h.Div(
 				h.Class("field"),
 				h.ID("field-"+childPath.String()),
 				renderLabel(child, childPath.String()),
-				renderInput(child, childPath.String(), value, v.options),
+				renderInput(child, childPath.String(), value, rc),
 				renderHelp(child),
 			)
 			fieldNodes = append(fieldNodes, field)
 
 		case ast.KindStruct:
-			nestedFields := v.renderFields(child.Children, childPath)
+			nestedFields := v.renderFields(ctx, child.Children, childPath)
 			fieldNodes = append(fieldNodes, nestedFields...)
 		}
 	}

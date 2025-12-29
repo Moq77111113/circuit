@@ -20,14 +20,14 @@ func renderLabel(node *ast.Node, fieldName string) g.Node {
 }
 
 // renderInput creates an input element based on the node's InputType
-func renderInput(node *ast.Node, fieldName string, value any, opts Options) g.Node {
+func renderInput(node *ast.Node, fieldName string, value any, rc *RenderContext) g.Node {
 	field := tags.Field{
 		Name:      fieldName,
 		Type:      valueTypeToString(node.ValueType),
 		InputType: node.UI.InputType,
 		Help:      node.UI.Help,
 		Required:  node.UI.Required,
-		ReadOnly:  node.UI.ReadOnly || opts.ReadOnly,
+		ReadOnly:  node.UI.ReadOnly || rc.ReadOnly,
 		Min:       node.UI.Min,
 		Max:       node.UI.Max,
 		Step:      node.UI.Step,

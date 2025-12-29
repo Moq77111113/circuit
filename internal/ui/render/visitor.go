@@ -13,25 +13,24 @@ import (
 
 // RenderVisitor implements walk.Visitor for HTML rendering.
 type RenderVisitor struct {
-	values  ast.ValuesByPath
-	options Options
-	nodes   []g.Node
+	nodes []g.Node
 }
 
 // VisitPrimitive renders a primitive field.
 func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
-	value := v.values[ctx.Path.String()]
+	rc := ctx.Context.(*RenderContext)
+	value := rc.Values[ctx.Path.String()]
 
 	var errorMessage string
-	if v.options.Errors != nil {
-		errorMessage = v.options.Errors.Get(ctx.Path)
+	if rc.Errors != nil {
+		errorMessage = rc.Errors.Get(ctx.Path)
 	}
 
 	field := h.Div(
 		h.Class(styles.Field),
 		h.ID("field-"+ctx.Path.String()),
 		renderLabel(node, ctx.Path.String()),
-		renderInput(node, ctx.Path.String(), value, v.options),
+		renderInput(node, ctx.Path.String(), value, rc),
 		renderHelp(node),
 		renderError(errorMessage),
 	)
@@ -42,8 +41,9 @@ func (v *RenderVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) e
 
 // VisitStruct renders a struct node.
 func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) error {
-	if ctx.Depth == 0 && v.options.ShowCardsAtDepth0 {
-		card := RenderStructCard(*node, ctx.Path, v.values)
+	rc := ctx.Context.(*RenderContext)
+	if ctx.Depth == 0 && rc.ShowCardsAtDepth0 {
+		card := RenderStructCard(*node, ctx.Path, rc.Values)
 		v.nodes = append(v.nodes, card)
 	}
 
@@ -52,10 +52,11 @@ func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) erro
 
 // VisitSlice renders a slice with collapsible container.
 func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error {
-	value := v.values[ctx.Path.String()]
+	rc := ctx.Context.(*RenderContext)
+	value := rc.Values[ctx.Path.String()]
 	items := reflection.SliceValues(value)
 
-	isCollapsed := v.options.ShouldCollapse(ctx.Depth)
+	isCollapsed := rc.ShouldCollapse(ctx.Depth)
 
 	var itemNodes []g.Node
 	if len(items) == 0 {
@@ -65,19 +66,19 @@ func (v *RenderVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error
 			itemPath := ctx.Path.Index(i)
 
 			if node.ElementKind == ast.KindPrimitive {
-				itemNodes = append(itemNodes, renderPrimitiveSliceItem(node, i, itemValue, itemPath, v.options))
+				itemNodes = append(itemNodes, renderPrimitiveSliceItem(node, i, itemValue, itemPath, rc))
 			} else {
 				itemNodes = append(itemNodes, v.renderStructSliceItemWithFields(ctx, node, i, itemPath))
 			}
 		}
 	}
 
-	itemNodes = append(itemNodes, renderAddButton(ctx.Path, v.options.ReadOnly))
+	itemNodes = append(itemNodes, renderAddButton(ctx.Path, rc.ReadOnly))
 
 	cfg := collapsible.Config{
 		ID:        "slice-" + ctx.Path.String(),
 		Title:     ast.DisplayName(node),
-		Depth:     v.options.ClampDepth(ctx.Depth),
+		Depth:     rc.ClampDepth(ctx.Depth),
 		Count:     len(items),
 		Collapsed: isCollapsed,
 	}

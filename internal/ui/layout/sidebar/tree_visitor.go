@@ -7,20 +7,19 @@ import (
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ast/walk"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
-type TreeVisitor struct {
-	currentFocus path.Path
-	values       ast.ValuesByPath
-}
+type TreeVisitor struct{}
 
 func (v *TreeVisitor) VisitPrimitive(ctx *walk.VisitContext, node *ast.Node) error {
 	if ctx.Depth > 0 {
 		return nil
 	}
 
+	rc := ctx.Context.(*render.RenderContext)
 	state := ctx.State.(*TreeState)
-	isActive := ctx.Path.String() == v.currentFocus.String()
+	isActive := ctx.Path.String() == rc.Focus.String()
 
 	state.Append(renderTreeLeaf(node.Name, ctx.Path, isActive))
 	return nil
@@ -32,8 +31,9 @@ func (v *TreeVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) error 
 		return walk.ErrSkipChildren
 	}
 
+	rc := ctx.Context.(*render.RenderContext)
 	state := ctx.State.(*TreeState)
-	isActive := ctx.Path.String() == v.currentFocus.String()
+	isActive := ctx.Path.String() == rc.Focus.String()
 
 	// Root structs are simple links (no expansion/chevron)
 	state.Append(renderTreeLeaf(node.Name, ctx.Path, isActive))
@@ -45,8 +45,9 @@ func (v *TreeVisitor) VisitSlice(ctx *walk.VisitContext, node *ast.Node) error {
 		return nil
 	}
 
+	rc := ctx.Context.(*render.RenderContext)
 	state := ctx.State.(*TreeState)
-	isActive := ctx.Path.String() == v.currentFocus.String()
+	isActive := ctx.Path.String() == rc.Focus.String()
 
 	state.Append(renderTreeLeaf(node.Name, ctx.Path, isActive))
 	return nil

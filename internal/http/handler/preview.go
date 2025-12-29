@@ -8,6 +8,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/http/form"
 	"github.com/moq77111113/circuit/internal/ui/layout"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
 func (h *Handler) renderPreview(w http.ResponseWriter, r *http.Request) {
@@ -21,12 +22,18 @@ func (h *Handler) renderPreview(w http.ResponseWriter, r *http.Request) {
 
 	focusPath := extractFocusPath(r)
 
-	page := layout.Page(h.schema, values, focusPath, layout.PageOptions{
-		Title:      h.title,
-		Brand:      h.brand,
-		ReadOnly:   h.readOnly,
-		TopContent: []g.Node{previewBanner(r.Form)},
-	})
+	// Create RenderContext
+	rc := render.NewRenderContext(&h.schema, values)
+	rc.Focus = focusPath
+	rc.ReadOnly = h.readOnly
+
+	// Create PageContext with preview banner
+	pc := layout.NewPageContext(rc)
+	pc.Title = h.title
+	pc.Brand = h.brand
+	pc.TopContent = []g.Node{previewBanner(r.Form)}
+
+	page := layout.Page(pc)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := page.Render(w); err != nil {

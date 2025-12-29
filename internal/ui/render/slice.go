@@ -43,12 +43,12 @@ func renderEmptyState() g.Node {
 }
 
 // renderPrimitiveSliceItem renders a single primitive item in a slice
-func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Path, opts Options) g.Node {
+func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Path, rc *RenderContext) g.Node {
 	itemPath := path.String()
 	field, idx := parseItemPath(itemPath)
 
 	var removeBtn g.Node
-	if !opts.ReadOnly {
+	if !rc.ReadOnly {
 		removeBtn = h.Button(
 			h.Type("submit"),
 			h.Name("action"),
@@ -63,7 +63,7 @@ func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Pa
 		h.Div(
 			h.Class("field"),
 			renderLabel(node, itemPath),
-			renderInput(node, itemPath, value, opts),
+			renderInput(node, itemPath, value, rc),
 		),
 		removeBtn,
 	)

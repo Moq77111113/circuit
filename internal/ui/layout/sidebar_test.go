@@ -6,7 +6,15 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/ui/render"
+	g "maragu.dev/gomponents"
 )
+
+func testSidebar(s ast.Schema, values map[string]any, focus path.Path) g.Node {
+	rc := render.NewRenderContext(&s, values)
+	rc.Focus = focus
+	return Sidebar(rc)
+}
 
 func TestSidebar_RootLevelOnly(t *testing.T) {
 	nodes := []ast.Node{
@@ -35,7 +43,7 @@ func TestSidebar_RootLevelOnly(t *testing.T) {
 		"Server.Database.Port": 5432,
 		"Debug":                true,
 	}
-	result := Sidebar(s, values, path.Root())
+	result := testSidebar(s, values, path.Root())
 	html := renderToString(result)
 
 	rootTests := []struct {
@@ -96,7 +104,7 @@ func TestSidebar_SliceLinks(t *testing.T) {
 			{"Name": "DB", "Port": 5432},
 		},
 	}
-	result := Sidebar(s, values, path.Root())
+	result := testSidebar(s, values, path.Root())
 	html := renderToString(result)
 
 	if !strings.Contains(html, `href="?focus=Services"`) {
@@ -130,7 +138,7 @@ func TestSidebar_TreeNavigation(t *testing.T) {
 		"Server.Host": "localhost",
 		"Tags":        []string{"prod", "api"},
 	}
-	result := Sidebar(s, values, path.Root())
+	result := testSidebar(s, values, path.Root())
 	html := renderToString(result)
 
 	// Only root-level elements should be present

@@ -20,7 +20,8 @@ type VisitContext struct {
 	Parent *node.Node
 	Index  int // -1 if not in slice
 
-	State any // Visitor-specific state
+	State   any // Visitor-specific state
+	Context any // Immutable context data (e.g. RenderContext)
 }
 
 // NewContext creates a new visit context with an optional base path.
