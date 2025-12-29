@@ -8,27 +8,43 @@ import (
 	h "maragu.dev/gomponents/html"
 )
 
+func appendFieldAttrs(attrs []g.Node, field tags.Field) []g.Node {
+	if field.Required {
+		attrs = append(attrs, h.Required())
+	}
+	if field.ReadOnly {
+		attrs = append(attrs, h.Disabled())
+	}
+	return attrs
+}
+
 func Checkbox(field tags.Field, value any) g.Node {
 	checked := value != nil && value.(bool)
 
+	onAttrs := []g.Node{
+		h.Type("radio"),
+		h.Name(field.Name),
+		h.Value("true"),
+		h.ID(field.Name + "_on"),
+		h.Class("toggle-switch__input"),
+		g.If(checked, h.Checked()),
+	}
+	offAttrs := []g.Node{
+		h.Type("radio"),
+		h.Name(field.Name),
+		h.Value("false"),
+		h.ID(field.Name + "_off"),
+		h.Class("toggle-switch__input"),
+		g.If(!checked, h.Checked()),
+	}
+
+	onAttrs = appendFieldAttrs(onAttrs, field)
+	offAttrs = appendFieldAttrs(offAttrs, field)
+
 	return h.Div(
 		h.Class("toggle-switch"),
-		h.Input(
-			h.Type("radio"),
-			h.Name(field.Name),
-			h.Value("true"),
-			h.ID(field.Name+"_on"),
-			h.Class("toggle-switch__input"),
-			g.If(checked, h.Checked()),
-		),
-		h.Input(
-			h.Type("radio"),
-			h.Name(field.Name),
-			h.Value("false"),
-			h.ID(field.Name+"_off"),
-			h.Class("toggle-switch__input"),
-			g.If(!checked, h.Checked()),
-		),
+		h.Input(onAttrs...),
+		h.Input(offAttrs...),
 		h.Label(
 			h.For(field.Name+"_on"),
 			h.Class("toggle-switch__label toggle-switch__label--on"),
@@ -55,9 +71,7 @@ func Radio(field tags.Field, value any) g.Node {
 			h.ID(field.Name + "_" + opt.Value),
 		}
 
-		if field.Required {
-			attrs = append(attrs, h.Required())
-		}
+		attrs = appendFieldAttrs(attrs, field)
 
 		if value != nil && currentVal == opt.Value {
 			attrs = append(attrs, h.Checked())
@@ -102,9 +116,7 @@ func Select(field tags.Field, value any) g.Node {
 		h.Class("field__select"),
 	}
 
-	if field.Required {
-		attrs = append(attrs, h.Required())
-	}
+	attrs = appendFieldAttrs(attrs, field)
 
 	return h.Select(
 		g.Group(attrs),
