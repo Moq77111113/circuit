@@ -27,7 +27,7 @@ type Config struct {
 
 type ServiceConfig struct {
 	Name string `yaml:"name" circuit:"type:text,help:Service name shown in responses,required"`
-	Env  string `yaml:"env" circuit:"type:select,options:dev=Development;staging=Staging;prod=Production,help:Environment label"`
+	Env  string `yaml:"env" circuit:"type:select,readonly,options:dev=Development;staging=Staging;prod=Production,help:Environment label"`
 }
 
 type HTTPConfig struct {
