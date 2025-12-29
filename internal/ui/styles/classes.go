@@ -21,6 +21,7 @@ const (
 	FieldLabel      = "field__label"
 	FieldInput      = "field__input"
 	FieldHelp       = "field__help"
+	FieldError      = "field__error"
 	FieldRequired   = "field__label-required"
 	FieldLabelClick = "field__label--clickable"
 	FieldSelect     = "field__select"

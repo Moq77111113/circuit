@@ -10,22 +10,6 @@ import (
 	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
-// valueTypeToString converts ValueType enum to string
-func valueTypeToString(vt ast.ValueType) string {
-	switch vt {
-	case ast.ValueString:
-		return "string"
-	case ast.ValueInt:
-		return "int"
-	case ast.ValueBool:
-		return "bool"
-	case ast.ValueFloat:
-		return "float"
-	default:
-		return "string"
-	}
-}
-
 // renderLabel creates a label element for a field
 func renderLabel(node *ast.Node, fieldName string) g.Node {
 	return h.Label(
@@ -80,5 +64,16 @@ func renderHelp(node *ast.Node) g.Node {
 	return h.Span(
 		h.Class(styles.FieldHelp),
 		g.Text(node.UI.Help),
+	)
+}
+
+// renderError creates an error message element if message is provided
+func renderError(message string) g.Node {
+	if message == "" {
+		return nil
+	}
+	return h.Span(
+		h.Class(styles.FieldError),
+		g.Text(message),
 	)
 }

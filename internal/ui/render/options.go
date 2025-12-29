@@ -1,6 +1,9 @@
 package render
 
-import "github.com/moq77111113/circuit/internal/ui/styles"
+import (
+	"github.com/moq77111113/circuit/internal/ui/styles"
+	"github.com/moq77111113/circuit/internal/validation"
+)
 
 // Options configures rendering behavior for the UI.
 type Options struct {
@@ -18,6 +21,10 @@ type Options struct {
 	// Depths beyond this value are clamped to MaxDepth.
 	// Default: 4
 	MaxDepth int
+
+	// Errors holds validation errors to display inline with fields.
+	// If nil, no validation errors are shown.
+	Errors *validation.ValidationResult
 }
 
 // DefaultOptions returns sensible defaults for rendering.

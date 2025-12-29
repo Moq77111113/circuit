@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/moq77111113/circuit/internal/http/action"
+	"github.com/moq77111113/circuit/internal/validation"
 )
 
 func (h *Handler) post(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +31,12 @@ func (h *Handler) post(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, h.path+"?focus="+act.Field, http.StatusSeeOther)
 
 	case action.ActionConfirm:
+		result := validation.Validate(h.schema, r.Form)
+		if !result.Valid {
+			h.renderWithErrors(w, r, result)
+			return
+		}
+
 		if err := h.Apply(r.Form); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -41,6 +48,12 @@ func (h *Handler) post(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, h.path, http.StatusSeeOther)
 
 	case action.ActionSave:
+		result := validation.Validate(h.schema, r.Form)
+		if !result.Valid {
+			h.renderWithErrors(w, r, result)
+			return
+		}
+
 		preview, err := h.handleSave(r.Form)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
