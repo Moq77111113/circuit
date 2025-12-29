@@ -25,6 +25,11 @@ type Options struct {
 	// Errors holds validation errors to display inline with fields.
 	// If nil, no validation errors are shown.
 	Errors *validation.ValidationResult
+
+	// ReadOnly controls whether inputs are rendered as disabled.
+	// When true, all inputs are disabled (readonly mode).
+	// Default: false
+	ReadOnly bool
 }
 
 // DefaultOptions returns sensible defaults for rendering.

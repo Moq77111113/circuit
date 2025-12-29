@@ -65,7 +65,7 @@ func (v *RenderVisitor) renderFields(children []ast.Node, basePath path.Path) []
 				h.Class("field"),
 				h.ID("field-"+childPath.String()),
 				renderLabel(child, childPath.String()),
-				renderInput(child, childPath.String(), value),
+				renderInput(child, childPath.String(), value, v.options),
 				renderHelp(child),
 			)
 			fieldNodes = append(fieldNodes, field)
