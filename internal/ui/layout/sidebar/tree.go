@@ -5,8 +5,8 @@ import (
 	h "maragu.dev/gomponents/html"
 
 	"github.com/moq77111113/circuit/internal/ast"
-	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ast/walk"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
 type TreeState struct {
@@ -21,17 +21,15 @@ func (s *TreeState) Output() g.Node {
 	return g.Group(s.nodes)
 }
 
-func RenderTree(nodes []ast.Node, currentFocus path.Path, values ast.ValuesByPath) g.Node {
-	tree := &ast.Tree{Nodes: nodes}
+// RenderTree renders a sidebar navigation tree using a RenderContext.
+func RenderTree(rc *render.RenderContext) g.Node {
+	tree := &ast.Tree{Nodes: rc.Schema.Nodes}
 	state := &TreeState{}
 
-	visitor := &TreeVisitor{
-		currentFocus: currentFocus,
-		values:       values,
-	}
+	visitor := &TreeVisitor{}
 
 	walker := walk.NewWalker(visitor)
-	_ = walker.Walk(tree, state)
+	_ = walker.WalkWithContext(tree, state, rc)
 
 	return h.Div(
 		h.Class("sidebar-tree"),

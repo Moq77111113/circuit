@@ -4,18 +4,18 @@ import (
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 
-	"github.com/moq77111113/circuit/internal/ast"
-	"github.com/moq77111113/circuit/internal/ast/path"
 	"github.com/moq77111113/circuit/internal/ui/layout/sidebar"
+	"github.com/moq77111113/circuit/internal/ui/render"
 )
 
-func Sidebar(s ast.Schema, values ast.ValuesByPath, focus path.Path) g.Node {
+// Sidebar renders the sidebar navigation using a RenderContext.
+func Sidebar(rc *render.RenderContext) g.Node {
 	return h.Aside(
 		h.Class("app__sidebar"),
 		h.Div(
 			h.Class("nav"),
 			h.H3(h.Class("nav__title"), g.Text("On this page")),
-			sidebar.RenderTree(s.Nodes, focus, values),
+			sidebar.RenderTree(rc),
 		),
 	)
 }
