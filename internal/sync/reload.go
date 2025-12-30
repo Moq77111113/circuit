@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/moq77111113/circuit/internal/yaml"
+	"github.com/moq77111113/circuit/internal/codec"
 )
 
 func (s *Store) reload() {
@@ -25,8 +25,16 @@ func (s *Store) reload() {
 		return
 	}
 
+	cdc, err := codec.Detect(s.path)
+	if err != nil {
+		if s.onError != nil {
+			s.onError(fmt.Errorf("%w: %w", ErrAutoReloadParse, err))
+		}
+		return
+	}
+
 	s.mu.Lock()
-	err = yaml.Parse(data, s.cfg)
+	err = cdc.Parse(data, s.cfg)
 	s.mu.Unlock()
 
 	if err != nil {
@@ -51,8 +59,13 @@ func (s *Store) Reload() error {
 		return fmt.Errorf("read config: %w", err)
 	}
 
+	cdc, err := codec.Detect(s.path)
+	if err != nil {
+		return fmt.Errorf("detect format: %w", err)
+	}
+
 	s.mu.Lock()
-	err = yaml.Parse(data, s.cfg)
+	err = cdc.Parse(data, s.cfg)
 	s.mu.Unlock()
 
 	if err != nil {

@@ -6,8 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Encode marshals a struct into YAML format.
-// src can be a pointer or a value.
+// Encode encodes the given source structure into YAML format
 func Encode(src any) ([]byte, error) {
 	data, err := yaml.Marshal(src)
 	if err != nil {
