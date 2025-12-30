@@ -29,7 +29,16 @@ func Page(pc *PageContext) g.Node {
 			h.H1(h.Class("header__title"), g.Text(title)),
 			h.P(h.Class("header__description"), g.Text("Configure your application settings below.")),
 		),
-		formNode,
+	}
+
+	if pc.ErrorMessage != "" {
+		mainContent = append(mainContent, renderErrorBanner(pc.ErrorMessage))
+	}
+
+	mainContent = append(mainContent, formNode)
+
+	if !pc.ReadOnly && len(pc.Actions) > 0 {
+		mainContent = append(mainContent, renderActions(pc.Actions))
 	}
 
 	if pc.Brand {
