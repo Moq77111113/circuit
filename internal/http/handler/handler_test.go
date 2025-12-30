@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -10,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/moq77111113/circuit/internal/actions"
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/auth"
 	"github.com/moq77111113/circuit/internal/sync"
@@ -456,5 +459,193 @@ func TestHandler_ForwardAuth(t *testing.T) {
 
 	if rec.Code != http.StatusOK {
 		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestHandler_ExecuteAction_Integration(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := sync.Load(sync.Config{Path: path, Cfg: &cfg, AutoReload: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Stop()
+
+	executed := false
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Store:  store,
+		Actions: []actions.Def{
+			{
+				Name:  "test-action",
+				Label: "Test Action",
+				Run: func(ctx context.Context) error {
+					executed = true
+					return nil
+				},
+			},
+		},
+	})
+
+	form := url.Values{}
+	form.Set("action", "execute:test-action")
+	req := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if !executed {
+		t.Fatal("expected action to be executed")
+	}
+
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect status %d, got %d", http.StatusSeeOther, rec.Code)
+	}
+
+	location := rec.Header().Get("Location")
+	if location != "/" {
+		t.Errorf("expected redirect to /, got %s", location)
+	}
+}
+
+func TestHandler_ExecuteAction_ErrorDisplay(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := sync.Load(sync.Config{Path: path, Cfg: &cfg, AutoReload: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Stop()
+
+	expectedErr := errors.New("action execution failed")
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Store:  store,
+		Actions: []actions.Def{
+			{
+				Name:  "failing-action",
+				Label: "Failing Action",
+				Run: func(ctx context.Context) error {
+					return expectedErr
+				},
+			},
+		},
+	})
+
+	form := url.Values{}
+	form.Set("action", "execute:failing-action")
+	postReq := httptest.NewRequest("POST", "/", strings.NewReader(form.Encode()))
+	postReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	postRec := httptest.NewRecorder()
+
+	h.ServeHTTP(postRec, postReq)
+
+	if postRec.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect status %d, got %d", http.StatusSeeOther, postRec.Code)
+	}
+
+	location := postRec.Header().Get("Location")
+	if !strings.Contains(location, "?error=") {
+		t.Fatalf("expected redirect with error param, got %s", location)
+	}
+
+	getReq := httptest.NewRequest("GET", location, nil)
+	getRec := httptest.NewRecorder()
+
+	h.ServeHTTP(getRec, getReq)
+
+	body := getRec.Body.String()
+	if !strings.Contains(body, "Error:") {
+		t.Error("expected error banner in response body")
+	}
+	if !strings.Contains(body, expectedErr.Error()) {
+		t.Errorf("expected error message %q in response body", expectedErr.Error())
+	}
+}
+
+func TestHandler_ActionsNotShownInReadOnly(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := sync.Load(sync.Config{Path: path, Cfg: &cfg, AutoReload: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Stop()
+
+	h := New(Config{
+		Schema:   s,
+		Cfg:      &cfg,
+		Path:     path,
+		Title:    "Test",
+		Brand:    true,
+		ReadOnly: true,
+		Store:    store,
+		Actions: []actions.Def{
+			{
+				Name:  "test-action",
+				Label: "Test Action",
+				Run: func(ctx context.Context) error {
+					return nil
+				},
+			},
+		},
+	})
+
+	req := httptest.NewRequest("GET", "/", nil)
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	body := rec.Body.String()
+	if strings.Contains(body, `<div class="actions-section">`) {
+		t.Error("expected actions section HTML to be absent in read-only mode")
+	}
+	if strings.Contains(body, "Test Action") {
+		t.Error("expected action button to be absent in read-only mode")
 	}
 }
