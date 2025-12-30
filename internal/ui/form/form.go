@@ -20,7 +20,7 @@ func Form(rc *render.RenderContext) g.Node {
 	formRC := *rc
 	formRC.Focus = basePath
 
-	fields := render.Render(&formRC)
+	fields := render.Render(filteredNodes, &formRC)
 
 	var actions g.Node
 	if !rc.ReadOnly {

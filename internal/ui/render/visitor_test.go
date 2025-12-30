@@ -22,7 +22,8 @@ func testRender(nodes []ast.Node, values map[string]any, focus path.Path) g.Node
 	schema := &ast.Schema{Nodes: nodes}
 	rc := NewRenderContext(schema, values)
 	rc.Focus = focus
-	return Render(rc)
+	filteredNodes := FilterByFocus(nodes, focus)
+	return Render(filteredNodes, rc)
 }
 
 func TestRenderVisitor_Primitive(t *testing.T) {
@@ -100,20 +101,25 @@ func TestRenderVisitor_Struct(t *testing.T) {
 		"Database.Port": 5432,
 	}
 
-	html := renderToString(testRender(nodes, values, path.Root()))
+	// At root focus, should render card (not individual fields)
+	htmlRoot := renderToString(testRender(nodes, values, path.Root()))
+	if !strings.Contains(htmlRoot, `href="?focus=Database"`) {
+		t.Error("expected Database card with link at root focus")
+	}
 
-	// Check nested paths
-	if !strings.Contains(html, `name="Database.Host"`) {
-		t.Error("expected nested field path Database.Host")
+	// When focused on Database, should render individual fields
+	htmlFocused := renderToString(testRender(nodes, values, path.ParsePath("Database")))
+	if !strings.Contains(htmlFocused, `name="Database.Host"`) {
+		t.Error("expected nested field path Database.Host when focused")
 	}
-	if !strings.Contains(html, `name="Database.Port"`) {
-		t.Error("expected nested field path Database.Port")
+	if !strings.Contains(htmlFocused, `name="Database.Port"`) {
+		t.Error("expected nested field path Database.Port when focused")
 	}
-	if !strings.Contains(html, `value="localhost"`) {
-		t.Error("expected Host value")
+	if !strings.Contains(htmlFocused, `value="localhost"`) {
+		t.Error("expected Host value when focused")
 	}
-	if !strings.Contains(html, `value="5432"`) {
-		t.Error("expected Port value")
+	if !strings.Contains(htmlFocused, `value="5432"`) {
+		t.Error("expected Port value when focused")
 	}
 }
 
@@ -245,14 +251,19 @@ func TestRenderVisitor_NestedStruct(t *testing.T) {
 		"Server.Database.Host": "localhost",
 	}
 
-	html := renderToString(testRender(nodes, values, path.Root()))
-
-	// Check deeply nested path
-	if !strings.Contains(html, `name="Server.Database.Host"`) {
-		t.Error("expected deeply nested path Server.Database.Host")
+	// At root focus, should render Server card only
+	htmlRoot := renderToString(testRender(nodes, values, path.Root()))
+	if !strings.Contains(htmlRoot, `href="?focus=Server"`) {
+		t.Error("expected Server card with link at root focus")
 	}
-	if !strings.Contains(html, `value="localhost"`) {
-		t.Error("expected value localhost")
+
+	// When focused on Server.Database, should render Host field
+	htmlFocused := renderToString(testRender(nodes, values, path.ParsePath("Server.Database")))
+	if !strings.Contains(htmlFocused, `name="Server.Database.Host"`) {
+		t.Error("expected deeply nested path Server.Database.Host when focused")
+	}
+	if !strings.Contains(htmlFocused, `value="localhost"`) {
+		t.Error("expected value localhost when focused")
 	}
 }
 
