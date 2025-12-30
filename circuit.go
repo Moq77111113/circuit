@@ -1,13 +1,45 @@
 package circuit
 
 import (
+	"context"
 	"fmt"
 	"reflect"
+	"time"
 
+	"github.com/moq77111113/circuit/internal/actions"
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/http/handler"
 	"github.com/moq77111113/circuit/internal/sync"
 )
+
+// Action defines an executable user action.
+type Action struct {
+	Name        string
+	Label       string
+	Description string
+	Run         func(context.Context) error
+
+	timeout             time.Duration
+	requireConfirmation bool
+}
+
+// Describe sets the action description.
+func (a Action) Describe(desc string) Action {
+	a.Description = desc
+	return a
+}
+
+// Confirm enables confirmation dialog before execution.
+func (a Action) Confirm() Action {
+	a.requireConfirmation = true
+	return a
+}
+
+// Timeout sets custom execution timeout (default: 30s).
+func (a Action) Timeout(d time.Duration) Action {
+	a.timeout = d
+	return a
+}
 
 // From creates and returns a Handler that serves a small web UI for
 // inspecting and editing a YAML-backed configuration value.
@@ -66,6 +98,18 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
 
+	internalActions := make([]actions.Def, len(conf.actions))
+	for i, a := range conf.actions {
+		internalActions[i] = actions.Def{
+			Name:                a.Name,
+			Label:               a.Label,
+			Description:         a.Description,
+			Run:                 a.Run,
+			Timeout:             a.timeout,
+			RequireConfirmation: a.requireConfirmation,
+		}
+	}
+
 	h := handler.New(handler.Config{
 		Schema:        s,
 		Cfg:           cfg,
@@ -75,6 +119,7 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		ReadOnly:      conf.readOnly,
 		Store:         store,
 		Authenticator: conf.authenticator,
+		Actions:       internalActions,
 	})
 
 	return &Handler{h: h}, nil
