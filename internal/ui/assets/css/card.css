@@ -12,8 +12,9 @@
 }
 
 .struct-card:hover {
-  border-color: var(--c-brand);
+  border-color: var(--c-accent);
   box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
 }
 
 .struct-card__header {
@@ -30,14 +31,14 @@
 }
 
 .struct-card__arrow {
-  color: var(--c-text-tertiary);
+  color: var(--c-text-secondary);
   font-size: var(--fs-lg);
   transition: transform 0.15s ease;
 }
 
 .struct-card:hover .struct-card__arrow {
   transform: translateX(4px);
-  color: var(--c-brand);
+  color: var(--c-accent);
 }
 
 .struct-card__preview {

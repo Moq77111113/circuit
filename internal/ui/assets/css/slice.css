@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--s-sm);
-  padding: var(--s-md);
+  padding: var(--s-lg);
   background: var(--c-surface);
   border: 2px solid var(--c-border);
   border-radius: var(--r-md);
@@ -27,7 +27,7 @@
 }
 
 .slice__item:hover {
-  border-color: var(--c-brand);
+  border-color: var(--c-accent);
 }
 
 .slice__item--primitive {

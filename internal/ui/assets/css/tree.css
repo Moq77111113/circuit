@@ -17,7 +17,7 @@
   display: block;
   padding: var(--s-xs) var(--s-sm);
   border-radius: var(--r-sm);
-  color: var(--c-text-secondary);
+  color: var(--c-text-tertiary);
   text-decoration: none;
   transition: all 0.15s ease;
 }
@@ -28,7 +28,7 @@
 }
 
 .tree-node--active .tree-node__link {
-  background: var(--c-brand);
+  background: var(--c-accent);
   color: var(--c-brand-text);
   font-weight: var(--fw-medium);
 }

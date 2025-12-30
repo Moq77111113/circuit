@@ -28,7 +28,6 @@
 .collapsible__icon {
   color: var(--c-text-secondary);
   font-size: var(--fs-sm);
-  transition: transform 0.2s ease;
 }
 
 .collapsible__title {
@@ -39,7 +38,7 @@
 
 .collapsible__summary {
   font-size: var(--fs-xs);
-  color: var(--c-text-tertiary);
+  color: var(--c-text-secondary);
   margin-left: var(--s-sm);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -49,7 +48,7 @@
 
 .collapsible__count {
   font-size: var(--fs-xs);
-  color: var(--c-text-tertiary);
+  color: var(--c-text-secondary);
   margin-left: auto;
 }
 

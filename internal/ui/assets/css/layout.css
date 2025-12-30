@@ -10,8 +10,8 @@
 .app__sidebar {
   display: flex;
   width: 280px;
-  background: var(--c-surface-alt);
-  border-right: 1px solid var(--c-border);
+  background: oklch(16% 0.02 245);
+  border-right: 1px solid oklch(25% 0.03 245);
   flex-direction: column;
   padding: var(--s-md);
   overflow-y: auto;
@@ -179,7 +179,7 @@
   border-top: 1px solid var(--c-border);
   text-align: center;
   font-size: var(--fs-sm);
-  color: var(--c-text-tertiary);
+  color: var(--c-text-secondary);
 }
 
 .footer__link {

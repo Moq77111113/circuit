@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/moq77111113/circuit/internal/tags"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 )
@@ -67,10 +68,10 @@ func Range(field tags.Field, value any) g.Node {
 	attrs = append(attrs, g.Attr("oninput", "this.nextElementSibling.nextElementSibling.value = this.value"))
 
 	return h.Div(
-		h.Class("range-wrapper"),
-		h.Span(h.Class("range-min"), g.Text(field.Min)),
+		h.Class(styles.RangeWrapper),
+		h.Span(h.Class(styles.RangeMin), g.Text(field.Min)),
 		h.Input(append(attrs, h.Type("range"))...),
-		h.Span(h.Class("range-max"), g.Text(field.Max)),
-		g.El("output", h.Class("range-value"), g.Text(fmt.Sprintf("%v", value))),
+		h.Span(h.Class(styles.RangeMax), g.Text(field.Max)),
+		g.El("output", h.Class(styles.RangeValue), g.Text(fmt.Sprintf("%v", value))),
 	)
 }

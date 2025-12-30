@@ -40,3 +40,29 @@ func TestConstants(t *testing.T) {
 		t.Error("Button constant is empty")
 	}
 }
+
+func TestMerge(t *testing.T) {
+	tests := []struct {
+		name   string
+		inputs []string
+		want   string
+	}{
+		{"empty", []string{}, ""},
+		{"single", []string{"button"}, "button"},
+		{"two classes", []string{"button", "button--primary"}, "button button--primary"},
+		{"three classes", []string{"button", "button--primary", "button--large"}, "button button--primary button--large"},
+		{"with empty strings", []string{"button", "", "button--primary"}, "button button--primary"},
+		{"all empty", []string{"", "", ""}, ""},
+		{"empty at start", []string{"", "button", "button--primary"}, "button button--primary"},
+		{"empty at end", []string{"button", "button--primary", ""}, "button button--primary"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Merge(tt.inputs...)
+			if got != tt.want {
+				t.Errorf("Merge(%v) = %q, want %q", tt.inputs, got, tt.want)
+			}
+		})
+	}
+}

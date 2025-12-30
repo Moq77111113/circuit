@@ -1,9 +1,9 @@
-/* Sidebar Components */
+/* Sidebar Components (dark theme) */
 .nav__title {
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--c-text-tertiary);
+  color: oklch(78% 0.02 245);
   font-weight: var(--fw-bold);
   margin-bottom: var(--s-md);
 }
@@ -25,7 +25,7 @@
   padding-bottom: var(--s-xs);
   margin-top: var(--s-xs);
   margin-bottom: var(--s-xs);
-  border-left: 2px solid var(--c-border);
+  border-left: 2px solid oklch(45% 0.04 245);
   margin-left: var(--s-sm);
 }
 
@@ -37,7 +37,7 @@
   display: block;
   padding: var(--s-xs) var(--s-sm);
   border-radius: var(--r-sm);
-  color: var(--c-text-secondary);
+  color: var(--c-text-tertiary);
   text-decoration: none;
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
@@ -49,15 +49,14 @@
   color: var(--c-text-primary);
 }
 
-
 .nav__link:hover {
-  background: var(--c-bg);
-  color: var(--c-text-primary);
+  background: oklch(22% 0.025 245);
+  color: oklch(100% 0 0);
 }
 
 .nav__link--active {
-  background: var(--c-bg);
-  color: var(--c-text-primary);
+  background: var(--c-brand);
+  color: var(--c-brand-text);
   box-shadow: var(--shadow-sm);
   font-weight: var(--fw-bold);
 }
@@ -100,16 +99,16 @@
 }
 
 .nav__link--slice {
-  color: var(--c-text-primary);
+  color: oklch(98% 0.01 245);
   font-weight: var(--fw-semibold);
 }
 
 .nav__link--slice-item {
-  color: var(--c-text-secondary);
+  color: oklch(92% 0.015 245);
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   padding: var(--s-sm) var(--s-md);
-  border-left: 3px solid var(--c-border);
+  border-left: 3px solid oklch(45% 0.04 245);
   margin-left: var(--s-xs);
   margin-bottom: var(--s-2xs);
   padding-left: var(--s-sm);
@@ -119,13 +118,13 @@
 }
 
 .nav__link--slice-item:hover {
-  background: var(--c-bg-subtle);
-  color: var(--c-text-primary);
+  background: oklch(22% 0.025 245);
+  color: oklch(100% 0 0);
   border-left-color: var(--c-brand);
 }
 
 .nav__link--slice-item:active,
 .nav__link--slice-item--active {
   border-left-color: var(--c-brand);
-  background: var(--c-bg);
+  background: oklch(22% 0.025 245);
 }
