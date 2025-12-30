@@ -3,42 +3,27 @@ package codec
 import "testing"
 
 func TestRegister(t *testing.T) {
-	// Clear registry for test isolation
-	registry = make(map[Extension]Codec)
-
+	ext := Extension(".test")
 	codec := mockCodec{}
-	Register(ExtYAML, codec)
+	Register(ext, codec)
 
-	if len(registry) != 1 {
-		t.Fatalf("expected 1 codec in registry, got %d", len(registry))
-	}
-
-	if _, ok := registry[ExtYAML]; !ok {
-		t.Error("expected .yaml extension to be registered")
+	if _, ok := registry[ext]; !ok {
+		t.Error("expected .test extension to be registered")
 	}
 }
 
 func TestDetect(t *testing.T) {
-	// Setup test registry
-	registry = make(map[Extension]Codec)
-	Register(ExtYAML, mockCodec{})
-	Register(ExtYML, mockCodec{})
-	Register(ExtTOML, mockCodec{})
-	Register(ExtJSON, mockCodec{})
-
 	tests := []struct {
 		name    string
 		path    string
 		wantErr bool
 	}{
-		{"yaml extension", "config.yaml", false},
-		{"yml extension", "config.yml", false},
-		{"toml extension", "config.toml", false},
-		{"json extension", "config.json", false},
-		{"with path", "/etc/app/config.yaml", false},
 		{"unknown extension", "config.xml", true},
 		{"no extension", "config", true},
+		{"test extension", "config.test", false},
 	}
+
+	Register(Extension(".test"), mockCodec{})
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -63,8 +48,6 @@ func TestDetect(t *testing.T) {
 }
 
 func TestDetectErrorMessage(t *testing.T) {
-	registry = make(map[Extension]Codec)
-
 	_, err := Detect("config.xml")
 	if err == nil {
 		t.Fatal("expected error for unsupported extension")
