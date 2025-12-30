@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/moq77111113/circuit/internal/yaml"
+	"github.com/moq77111113/circuit/internal/codec"
 )
 
 // Save manually persists the current config to disk.
 func (s *Store) Save() error {
+	cdc, err := codec.Detect(s.path)
+	if err != nil {
+		return fmt.Errorf("detect format: %w", err)
+	}
+
 	var data []byte
-	var err error
 
 	s.mu.RLock()
-	data, err = yaml.Encode(s.cfg)
+	data, err = cdc.Encode(s.cfg)
 	s.mu.RUnlock()
 
 	if err != nil {

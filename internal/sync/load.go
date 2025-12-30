@@ -5,7 +5,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/moq77111113/circuit/internal/yaml"
+	"github.com/moq77111113/circuit/internal/codec"
+	_ "github.com/moq77111113/circuit/internal/codec/json"
+	_ "github.com/moq77111113/circuit/internal/codec/toml"
+	_ "github.com/moq77111113/circuit/internal/codec/yaml"
 )
 
 // Config holds configuration for creating a Store.
@@ -23,7 +26,12 @@ func Load(c Config) (*Store, error) {
 		return nil, fmt.Errorf("read config: %w", err)
 	}
 
-	err = yaml.Parse(data, c.Cfg)
+	cdc, err := codec.Detect(c.Path)
+	if err != nil {
+		return nil, fmt.Errorf("detect format: %w", err)
+	}
+
+	err = cdc.Parse(data, c.Cfg)
 	if err != nil {
 		return nil, fmt.Errorf("parse config: %w", err)
 	}

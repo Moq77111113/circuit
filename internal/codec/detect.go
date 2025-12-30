@@ -7,15 +7,12 @@ import (
 
 var registry = make(map[Extension]Codec)
 
-// Register associates a file extension with a codec implementation.
-// This is typically called from codec package init() functions.
+// Register registers a Codec implementation for the given file extension
 func Register(ext Extension, codec Codec) {
 	registry[ext] = codec
 }
 
-// Detect returns the appropriate codec for the given file path
-// based on its extension. Returns an error if the extension is
-// not supported.
+// Detect returns the Codec implementation for the given file path
 func Detect(path string) (Codec, error) {
 	ext := filepath.Ext(path)
 	codec, ok := registry[Extension(ext)]
