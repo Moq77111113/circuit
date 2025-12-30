@@ -27,8 +27,12 @@ const (
 	FieldSelect     = "field__select"
 
 	// Button component
-	Button        = "button"
-	ButtonPrimary = "button--primary"
+	Button          = "button"
+	ButtonPrimary   = "button--primary"
+	ButtonSecondary = "button--secondary"
+	ButtonDanger    = "button--danger"
+	ButtonAdd       = "button--add"
+	ButtonRemove    = "button--remove"
 
 	// Card component
 	Card        = "card"
@@ -69,12 +73,15 @@ const (
 	IconArrowRight   = "icon--arrow-right"
 
 	// Slice components
-	SliceItem       = "slice__item"
-	SliceItemStruct = "slice__item--struct"
-	SliceItemHeader = "slice__item-header"
-	SliceItemBody   = "slice__item-body"
-	SliceItemTitle  = "slice__item-title"
-	SliceChevron    = "slice__chevron"
+	SliceItem             = "slice__item"
+	SliceItemPrimitive    = "slice__item--primitive"
+	SliceItemStruct       = "slice__item--struct"
+	SliceItemHeader       = "slice__item-header"
+	SliceItemBody         = "slice__item-body"
+	SliceItemTitle        = "slice__item-title"
+	SliceItemRemoveButton = "slice-item__remove-button"
+	SliceChevron          = "slice__chevron"
+	SliceAddButton        = "slice__add-button"
 
 	// Form
 	Form        = "form"
@@ -88,12 +95,51 @@ const (
 	AppContainer = "app__container"
 
 	// Breadcrumb
-	Breadcrumb     = "breadcrumb"
-	BreadcrumbItem = "breadcrumb__item"
-	BreadcrumbLink = "breadcrumb__link"
+	Breadcrumb          = "breadcrumb"
+	BreadcrumbItem      = "breadcrumb__item"
+	BreadcrumbLink      = "breadcrumb__link"
+	BreadcrumbLinkRoot  = "breadcrumb__link--root"
+	BreadcrumbSeparator = "breadcrumb__separator"
+	BreadcrumbIndex     = "breadcrumb__index"
 
-	// State modifiers
-	Collapsed = "collapsed"
+	// Header
+	Header            = "header"
+	HeaderTitle       = "header__title"
+	HeaderDescription = "header__description"
+
+	// Footer
+	Footer     = "footer"
+	FooterLink = "footer__link"
+
+	// Mobile
+	MobileMenuToggle = "mobile-menu-toggle"
+	MobileOverlay    = "mobile-overlay"
+
+	// Input components
+	RangeWrapper = "range-wrapper"
+	RangeMin     = "range-min"
+	RangeMax     = "range-max"
+	RangeValue   = "range-value"
+
+	RadioGroup  = "radio-group"
+	RadioOption = "radio-option"
+
+	ToggleSwitch         = "toggle-switch"
+	ToggleSwitchInput    = "toggle-switch__input"
+	ToggleSwitchLabel    = "toggle-switch__label"
+	ToggleSwitchLabelOn  = "toggle-switch__label--on"
+	ToggleSwitchLabelOff = "toggle-switch__label--off"
+	ToggleSwitchSlider   = "toggle-switch__slider"
+
+	// Sidebar tree
+	SidebarTree  = "sidebar-tree"
+	TreeRoot     = "tree-root"
+	TreeNode     = "tree-node"
+	TreeNodeLink = "tree-node__link"
+
+	// State and misc
+	EmptyState = "empty-state"
+	Collapsed  = "collapsed"
 )
 
 // DepthClass returns the BEM depth modifier class for a given depth level.
@@ -112,4 +158,45 @@ func DepthClass(depth int) string {
 		CollapsibleDepth3,
 		CollapsibleDepth4,
 	}[depth]
+}
+
+// Merge combines multiple CSS class names into a single space-separated string.
+// Empty strings are ignored.
+func Merge(classes ...string) string {
+	if len(classes) == 0 {
+		return ""
+	}
+	if len(classes) == 1 {
+		return classes[0]
+	}
+
+	// Pre-calculate total length to avoid multiple allocations
+	totalLen := 0
+	nonEmpty := 0
+	for _, c := range classes {
+		if c != "" {
+			totalLen += len(c)
+			nonEmpty++
+		}
+	}
+	if nonEmpty == 0 {
+		return ""
+	}
+
+	// Add space separators
+	totalLen += nonEmpty - 1
+
+	// Build string efficiently
+	result := make([]byte, 0, totalLen)
+	first := true
+	for _, c := range classes {
+		if c != "" {
+			if !first {
+				result = append(result, ' ')
+			}
+			result = append(result, c...)
+			first = false
+		}
+	}
+	return string(result)
 }

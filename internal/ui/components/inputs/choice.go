@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/moq77111113/circuit/internal/tags"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 )
@@ -26,7 +27,7 @@ func Checkbox(field tags.Field, value any) g.Node {
 		h.Name(field.Name),
 		h.Value("true"),
 		h.ID(field.Name + "_on"),
-		h.Class("toggle-switch__input"),
+		h.Class(styles.ToggleSwitchInput),
 		g.If(checked, h.Checked()),
 	}
 	offAttrs := []g.Node{
@@ -34,7 +35,7 @@ func Checkbox(field tags.Field, value any) g.Node {
 		h.Name(field.Name),
 		h.Value("false"),
 		h.ID(field.Name + "_off"),
-		h.Class("toggle-switch__input"),
+		h.Class(styles.ToggleSwitchInput),
 		g.If(!checked, h.Checked()),
 	}
 
@@ -42,20 +43,20 @@ func Checkbox(field tags.Field, value any) g.Node {
 	offAttrs = appendFieldAttrs(offAttrs, field)
 
 	return h.Div(
-		h.Class("toggle-switch"),
+		h.Class(styles.ToggleSwitch),
 		h.Input(onAttrs...),
 		h.Input(offAttrs...),
 		h.Label(
 			h.For(field.Name+"_on"),
-			h.Class("toggle-switch__label toggle-switch__label--on"),
+			h.Class(styles.Merge(styles.ToggleSwitchLabel, styles.ToggleSwitchLabelOn)),
 			g.Text("On"),
 		),
 		h.Label(
 			h.For(field.Name+"_off"),
-			h.Class("toggle-switch__label toggle-switch__label--off"),
+			h.Class(styles.Merge(styles.ToggleSwitchLabel, styles.ToggleSwitchLabelOff)),
 			g.Text("Off"),
 		),
-		h.Div(h.Class("toggle-switch__slider")),
+		h.Div(h.Class(styles.ToggleSwitchSlider)),
 	)
 }
 
@@ -78,7 +79,7 @@ func Radio(field tags.Field, value any) g.Node {
 		}
 
 		options = append(options, h.Div(
-			h.Class("radio-option"),
+			h.Class(styles.RadioOption),
 			h.Input(attrs...),
 			h.Label(
 				h.For(field.Name+"_"+opt.Value),
@@ -88,7 +89,7 @@ func Radio(field tags.Field, value any) g.Node {
 	}
 
 	return h.Div(
-		h.Class("radio-group"),
+		h.Class(styles.RadioGroup),
 		g.Group(options),
 	)
 }
@@ -113,7 +114,7 @@ func Select(field tags.Field, value any) g.Node {
 	attrs := []g.Node{
 		h.Name(field.Name),
 		h.ID(field.Name),
-		h.Class("field__select"),
+		h.Class(styles.FieldSelect),
 	}
 
 	attrs = appendFieldAttrs(attrs, field)

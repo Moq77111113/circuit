@@ -11,6 +11,7 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/walk"
 	"github.com/moq77111113/circuit/internal/ui/components/collapsible"
 	"github.com/moq77111113/circuit/internal/ui/components/containers"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
 // renderStructSliceItemWithFields renders a complete struct slice item with fields and remove button.
@@ -32,7 +33,7 @@ func (v *RenderVisitor) renderStructSliceItemWithFields(ctx *walk.VisitContext, 
 			h.Type("submit"),
 			h.Name("action"),
 			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
-			h.Class("button button--danger"),
+			h.Class(styles.Merge(styles.Button, styles.ButtonDanger, styles.ButtonRemove)),
 			g.Text("Remove"),
 		)
 		body = append(body, removeButton)
@@ -68,7 +69,7 @@ func (v *RenderVisitor) renderFields(ctx *walk.VisitContext, children []ast.Node
 		case ast.KindPrimitive:
 			value := rc.Values[childPath.String()]
 			field := h.Div(
-				h.Class("field"),
+				h.Class(styles.Field),
 				h.ID("field-"+childPath.String()),
 				renderLabel(child, childPath.String()),
 				renderInput(child, childPath.String(), value, rc),

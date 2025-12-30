@@ -9,6 +9,7 @@ import (
 
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/ast/path"
+	"github.com/moq77111113/circuit/internal/ui/styles"
 )
 
 // parseItemPath extracts the field path and index from a full item path
@@ -29,7 +30,7 @@ func renderAddButton(path path.Path, readOnly bool) g.Node {
 		h.Type("submit"),
 		h.Name("action"),
 		h.Value(fmt.Sprintf("add:%s", path.FieldPath())),
-		h.Class("button button--primary"),
+		h.Class(styles.Merge(styles.Button, styles.ButtonPrimary, styles.ButtonAdd)),
 		g.Text("Add"),
 	)
 }
@@ -37,7 +38,7 @@ func renderAddButton(path path.Path, readOnly bool) g.Node {
 // renderEmptyState returns a message for empty slices
 func renderEmptyState() g.Node {
 	return h.P(
-		h.Class("empty-state"),
+		h.Class(styles.EmptyState),
 		g.Text("No items"),
 	)
 }
@@ -53,15 +54,15 @@ func renderPrimitiveSliceItem(node *ast.Node, index int, value any, path path.Pa
 			h.Type("submit"),
 			h.Name("action"),
 			h.Value(fmt.Sprintf("remove:%s:%s", field, idx)),
-			h.Class("button button--secondary"+" slice-item__remove-button"),
+			h.Class(styles.Merge(styles.Button, styles.ButtonSecondary, styles.ButtonRemove, styles.SliceItemRemoveButton)),
 			g.Text("Remove"),
 		)
 	}
 
 	return h.Div(
-		h.Class("slice-item slice-item--primitive"),
+		h.Class(styles.Merge(styles.SliceItem, styles.SliceItemPrimitive)),
 		h.Div(
-			h.Class("field"),
+			h.Class(styles.Field),
 			renderLabel(node, itemPath),
 			renderInput(node, itemPath, value, rc),
 		),
