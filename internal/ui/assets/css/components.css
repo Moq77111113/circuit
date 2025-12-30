@@ -207,7 +207,7 @@ input[type="range"] {
 
 .field__help {
   font-size: var(--fs-xs);
-  color: var(--c-text-tertiary);
+  color: var(--c-text-secondary);
   margin-top: var(--s-xs);
 }
 
