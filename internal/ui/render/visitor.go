@@ -45,6 +45,7 @@ func (v *RenderVisitor) VisitStruct(ctx *walk.VisitContext, node *ast.Node) erro
 	if ctx.Depth == 0 && rc.ShowCardsAtDepth0 {
 		card := RenderStructCard(*node, ctx.Path, rc.Values)
 		v.nodes = append(v.nodes, card)
+		return walk.ErrSkipChildren
 	}
 
 	return nil

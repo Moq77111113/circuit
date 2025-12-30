@@ -7,9 +7,9 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/walk"
 )
 
-// Render generates HTML using a RenderContext.
-func Render(rc *RenderContext) g.Node {
-	tree := &ast.Tree{Nodes: rc.Schema.Nodes}
+// Render generates HTML using a RenderContext and filtered nodes.
+func Render(nodes []ast.Node, rc *RenderContext) g.Node {
+	tree := &ast.Tree{Nodes: nodes}
 
 	visitor := &RenderVisitor{
 		nodes: []g.Node{},
