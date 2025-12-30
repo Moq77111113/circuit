@@ -16,6 +16,9 @@ func (h *Handler) post(w http.ResponseWriter, r *http.Request) {
 	act := action.Parse(r.Form)
 
 	switch act.Type {
+	case action.ActionExecute:
+		h.executeAction(w, r, act.Field)
+
 	case action.ActionAdd:
 		if err := h.handleAdd(act.Field); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
