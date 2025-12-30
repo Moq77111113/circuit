@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net"
@@ -89,6 +90,33 @@ func main() {
 			st.cfg.Store(cfg)
 			log.Printf("circuit: config changed (source=%s path=%s)", sourceName(e.Source), e.Path)
 		}),
+		circuit.WithActions(
+			circuit.Action{
+				Name:  "toggle-maintenance",
+				Label: "Toggle Maintenance",
+				Run: func(ctx context.Context) error {
+					cfg.Ops.Maintenance = !cfg.Ops.Maintenance
+					st.cfg.Store(cfg)
+					status := "disabled"
+					if cfg.Ops.Maintenance {
+						status = "enabled"
+					}
+					log.Printf("action: maintenance mode %s", status)
+					return nil
+				},
+			}.Describe("Enable or disable maintenance mode").Confirm(),
+
+			circuit.Action{
+				Name:  "reset-metrics",
+				Label: "Reset Metrics",
+				Run: func(ctx context.Context) error {
+					st.requests.Store(0)
+					st.uptimeStart = time.Now()
+					log.Printf("action: metrics reset (requests=0, uptime restarted)")
+					return nil
+				},
+			}.Describe("Reset request counter and uptime"),
+		),
 	)
 	if err != nil {
 		log.Fatal(err)
