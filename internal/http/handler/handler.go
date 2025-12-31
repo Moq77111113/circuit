@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/moq77111113/circuit/internal/actions"
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/auth"
 	"github.com/moq77111113/circuit/internal/sync"
@@ -18,6 +19,7 @@ type Handler struct {
 	readOnly      bool
 	store         *sync.Store
 	authenticator auth.Authenticator
+	actions       []actions.Def
 }
 
 // Config holds configuration for creating a Handler.
@@ -30,6 +32,7 @@ type Config struct {
 	ReadOnly      bool
 	Store         *sync.Store
 	Authenticator auth.Authenticator
+	Actions       []actions.Def
 }
 
 // New creates a new HTTP handler for the config UI.
@@ -46,6 +49,7 @@ func New(c Config) *Handler {
 		readOnly:      c.ReadOnly,
 		store:         c.Store,
 		authenticator: c.Authenticator,
+		actions:       c.Actions,
 	}
 }
 

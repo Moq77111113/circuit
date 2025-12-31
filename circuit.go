@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/moq77111113/circuit/internal/actions"
 	"github.com/moq77111113/circuit/internal/ast"
 	"github.com/moq77111113/circuit/internal/http/handler"
 	"github.com/moq77111113/circuit/internal/sync"
@@ -66,6 +67,18 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		return nil, fmt.Errorf("load config: %w", err)
 	}
 
+	internalActions := make([]actions.Def, len(conf.actions))
+	for i, a := range conf.actions {
+		internalActions[i] = actions.Def{
+			Name:                a.Name,
+			Label:               a.Label,
+			Description:         a.Description,
+			Run:                 a.Run,
+			Timeout:             a.timeout,
+			RequireConfirmation: a.requireConfirmation,
+		}
+	}
+
 	h := handler.New(handler.Config{
 		Schema:        s,
 		Cfg:           cfg,
@@ -75,6 +88,7 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		ReadOnly:      conf.readOnly,
 		Store:         store,
 		Authenticator: conf.authenticator,
+		Actions:       internalActions,
 	})
 
 	return &Handler{h: h}, nil

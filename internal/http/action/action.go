@@ -13,6 +13,7 @@ const (
 	ActionAdd     ActionType = "add"
 	ActionRemove  ActionType = "remove"
 	ActionConfirm ActionType = "confirm"
+	ActionExecute ActionType = "execute"
 )
 
 type Action struct {
@@ -51,6 +52,15 @@ func Parse(form url.Values) Action {
 			Type:  ActionRemove,
 			Field: parts[1],
 			Index: index,
+		}
+
+	case "execute":
+		if len(parts) < 2 || parts[1] == "" {
+			return Action{Type: ActionSave}
+		}
+		return Action{
+			Type:  ActionExecute,
+			Field: parts[1],
 		}
 
 	case "confirm":

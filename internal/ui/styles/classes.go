@@ -137,6 +137,19 @@ const (
 	TreeNode     = "tree-node"
 	TreeNodeLink = "tree-node__link"
 
+	// Actions dropdown
+	ActionsDropdown      = "actions-dropdown"
+	ActionsButton        = "actions-button"
+	ActionsIcon          = "actions-icon"
+	ActionsMenu          = "actions-menu"
+	ActionsMenuItem      = "actions-menu__item"
+	ActionsMenuItemForm  = "actions-menu__item-form"
+	ActionsMenuItemLabel = "actions-menu__item-label"
+	ActionsMenuItemDesc  = "actions-menu__item-desc"
+
+	// Error banner
+	ErrorBanner = "error-banner"
+
 	// State and misc
 	EmptyState = "empty-state"
 	Collapsed  = "collapsed"

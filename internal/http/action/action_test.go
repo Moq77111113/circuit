@@ -98,3 +98,42 @@ func TestParseAction_Malformed(t *testing.T) {
 		})
 	}
 }
+
+func TestParseAction_Execute(t *testing.T) {
+	form := url.Values{
+		"action": {"execute:restart"},
+	}
+
+	action := Parse(form)
+
+	if action.Type != ActionExecute {
+		t.Errorf("expected action type %s, got %s", ActionExecute, action.Type)
+	}
+	if action.Field != "restart" {
+		t.Errorf("expected field restart, got %s", action.Field)
+	}
+}
+
+func TestParseAction_ExecuteEmpty(t *testing.T) {
+	form := url.Values{
+		"action": {"execute:"},
+	}
+
+	action := Parse(form)
+
+	if action.Type != ActionSave {
+		t.Errorf("expected fallback to save action, got %s", action.Type)
+	}
+}
+
+func TestParseAction_ExecuteInvalid(t *testing.T) {
+	form := url.Values{
+		"action": {"execute"},
+	}
+
+	action := Parse(form)
+
+	if action.Type != ActionSave {
+		t.Errorf("expected fallback to save action, got %s", action.Type)
+	}
+}

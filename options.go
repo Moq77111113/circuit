@@ -23,6 +23,7 @@ type config struct {
 	autoSave      bool
 	saveFunc      SaveFunc
 	authenticator auth.Authenticator
+	actions       []Action
 }
 
 // WithPath sets the filesystem path to the YAML configuration file that the
@@ -108,5 +109,13 @@ func WithSaveFunc(fn SaveFunc) Option {
 func WithReadOnly(enable bool) Option {
 	return func(c *config) {
 		c.readOnly = enable
+	}
+}
+
+// WithActions registers executable actions in the UI.
+// Actions are displayed in the Actions section and can be triggered by operators.
+func WithActions(actions ...Action) Option {
+	return func(c *config) {
+		c.actions = actions
 	}
 }
