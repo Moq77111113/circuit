@@ -53,7 +53,7 @@ func main() {
 					log.Println("ACTION: Service restarted successfully")
 					return nil
 				},
-			}.Describe("Restart the application service (requires confirmation)").Confirm().Timeout(30 * time.Second),
+			}.Describe("Restart the application service (requires confirmation)").Confirm().Timeout(30*time.Second),
 
 			circuit.Action{
 				Name:  "reload",
@@ -64,7 +64,7 @@ func main() {
 					log.Printf("ACTION: Configuration reloaded (Host=%s, Port=%d)", cfg.Server.Host, cfg.Server.Port)
 					return nil
 				},
-			}.Describe("Hot reload configuration without downtime").Timeout(10 * time.Second),
+			}.Describe("Hot reload configuration without downtime").Timeout(10*time.Second),
 
 			circuit.Action{
 				Name:  "health-check",
@@ -81,7 +81,7 @@ func main() {
 					log.Printf("ACTION: Health check passed (Server listening on %s:%d)", cfg.Server.Host, cfg.Server.Port)
 					return nil
 				},
-			}.Describe("Verify service health and connectivity").Timeout(5 * time.Second),
+			}.Describe("Verify service health and connectivity").Timeout(5*time.Second),
 
 			circuit.Action{
 				Name:  "clear-cache",
@@ -96,7 +96,7 @@ func main() {
 					log.Println("ACTION: Cache cleared successfully")
 					return nil
 				},
-			}.Describe("Clear all cached data").Timeout(15 * time.Second),
+			}.Describe("Clear all cached data").Timeout(15*time.Second),
 
 			circuit.Action{
 				Name:  "fail-example",
