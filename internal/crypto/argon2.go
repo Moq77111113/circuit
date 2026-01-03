@@ -1,4 +1,4 @@
-package auth
+package crypto
 
 import (
 	"crypto/subtle"
@@ -9,13 +9,13 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// isArgon2 checks if a password string is in argon2 PHC format.
-func isArgon2(s string) bool {
+// IsArgon2 checks if a password string is in argon2 PHC format.
+func IsArgon2(s string) bool {
 	return strings.HasPrefix(s, "$argon2id$") || strings.HasPrefix(s, "$argon2i$")
 }
 
-// verifyArgon2 verifies a password against an argon2 PHC encoded hash.
-func verifyArgon2(encoded, password string) bool {
+// VerifyArgon2 verifies a password against an argon2 PHC encoded hash.
+func VerifyArgon2(encoded, password string) bool {
 	parts := strings.Split(encoded, "$")
 	if len(parts) != 6 {
 		return false

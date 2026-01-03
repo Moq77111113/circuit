@@ -31,57 +31,28 @@ It also lets you trigger safe, application-defined actions like restarting a wor
 
 ## Authentication
 
-Circuit protects your UI and actions with pluggable authentication. **Circuit never handles OAuth flows directly** - it validates requests.
+Circuit supports three auth modes via `WithAuth()`. No auth by default.
 
-### Three Modes
-
-**1. No Auth (default)**
-
+**No Auth** - Omit `WithAuth()` for local dev or when behind external auth:
 ```go
 ui, _ := circuit.From(&cfg, circuit.WithPath("config.yaml"))
-// No WithAuth() = open access
 ```
 
-Use for: Local development, internal networks, when behind other auth layers.
-
-**2. Basic Auth (simple deployments)**
-
+**Basic Auth** - Simple username/password (plaintext or argon2id hash):
 ```go
 ui, _ := circuit.From(&cfg,
-    circuit.WithPath("config.yaml"),
-    circuit.WithAuth(circuit.NewBasicAuth("admin", "$argon2id$v=19$m=65536,t=3,p=4$...")),
+    circuit.WithAuth(circuit.NewBasicAuth("admin", "secret")),
 )
 ```
 
-**Passwords:** Plaintext or argon2id hash.
-
-**3. Forward Auth (when you already have a proxy)**
-
+**Forward Auth** - Reads headers from OAuth2 Proxy, Traefik, Cloudflare Access:
 ```go
-auth := circuit.NewForwardAuth("X-Forwarded-User", map[string]string{
-    "email": "X-Forwarded-Email",
-})
-ui, _ := circuit.From(&cfg, circuit.WithAuth(auth))
-```
-
-Use for: **When you already have OAuth2 Proxy, Traefik ForwardAuth, or Cloudflare Access deployed.**
-
-Circuit reads headers set by your proxy. **The proxy handles OAuth redirects, not Circuit.**
-
-**Example setup with OAuth2 Proxy:**
-
-```yaml
-# oauth2-proxy.cfg
-upstreams = ["http://your-app:8080"]
-provider = "github"
-
-# Your app
-http.Handle("/admin", circuit.From(&cfg,
+ui, _ := circuit.From(&cfg,
     circuit.WithAuth(circuit.NewForwardAuth("X-Forwarded-User", nil)),
-))
+)
 ```
 
-The proxy intercepts requests, redirects to GitHub/Google, then forwards with headers.
+Your proxy handles OAuth redirects. Circuit validates the forwarded headers.
 
 ## Install
 
@@ -128,16 +99,67 @@ go get github.com/moq77111113/circuit
 
 ## Options
 
-See [godoc](https://pkg.go.dev/github.com/moq77111113/circuit) for full API.
+Configure behavior via `From(cfg, options...)`:
 
-**Control:**
-- `WithAutoApply(false)` - Preview mode: require confirmation before applying changes
-- `WithAutoSave(false)` - Manual save: call `ui.Save()` to persist
-- `WithAutoWatch(false)` - Disable file watching
+**Essential:**
+- `WithPath(path)` - **Required.** Sets YAML file path to load and watch
+- `WithAuth(auth)` - Add authentication (Basic or Forward Auth)
 
-**Customization:**
-- `WithSaveFunc(fn)` - Custom persistence (database, S3, API, etc.)
-- `WithOnError(fn)` - Error callback for auto-reload/watch failures
+**UI Customization:**
+- `WithTitle(title)` - Customize page title (default: "Circuit")
+- `WithBrand(false)` - Hide Circuit footer branding
+- `WithReadOnly(true)` - View-only mode: disable all edits
+
+**Behavior:**
+- `WithAutoWatch(false)` - Disable file watching (changes won't auto-reload)
+- `WithAutoApply(false)` - **Preview mode:** form submits show preview, call `handler.Apply()` to confirm
+- `WithAutoSave(false)` - **Manual save:** changes stay in memory, call `handler.Save()` to persist
+
+**Callbacks:**
+- `WithOnChange(fn)` - Called after config changes (form submit, file change, or manual apply)
+- `WithOnError(fn)` - Called when file watch or reload fails
+
+**Advanced:**
+- `WithSaveFunc(fn)` - Custom persistence (database, S3, etc.) instead of flat files
+- `WithActions(actions...)` - Register executable action buttons (restarts, cache flushes, etc.)
+
+**Manual Control (when AutoApply/AutoSave disabled):**
+```go
+handler, _ := circuit.From(&cfg, circuit.WithAutoApply(false))
+
+// In your HTTP handler:
+if err := handler.Apply(r.Form); err != nil {
+    // preview approved, changes applied to memory
+}
+if err := handler.Save(); err != nil {
+    // changes persisted to disk
+}
+```
+
+## Actions
+
+Add executable action buttons to trigger operations from the UI:
+
+```go
+restart := circuit.NewAction("restart", "Restart Worker", func(ctx context.Context) error {
+    return worker.Restart(ctx)
+}).Describe("Safely restarts the background worker").Confirm().WithTimeout(10 * time.Second)
+
+flush := circuit.NewAction("flush", "Flush Cache", func(ctx context.Context) error {
+    cache.Clear()
+    return nil
+}).Describe("Clears all cached data")
+
+h, _ := circuit.From(&cfg,
+    circuit.WithPath("config.yaml"),
+    circuit.WithActions(restart, flush),
+)
+```
+
+**Builder methods:**
+- `Describe(text)` - Add description shown in UI
+- `Confirm()` - Require confirmation dialog before execution
+- `WithTimeout(duration)` - Set execution timeout (default: 30s)
 
 ## Features
 
@@ -163,9 +185,9 @@ Circuit is strictly a single-process control surface. It explicitly avoids:
 ## Roadmap
 
 - ✅ Auth support (Basic, Forward)
+- ✅ Action buttons
 - ⏳ Validation + read-only fields
 - ⏳ Apply hooks with rollback
-- ⏳ Action buttons
 
 ## Contributing
 

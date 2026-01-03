@@ -1,19 +1,14 @@
 package sync
 
-// Source represents the origin of a config change.
-type Source uint8
+import "github.com/moq77111113/circuit/internal/events"
+
+// Type aliases for internal convenience.
+type Source = events.Source
+type ChangeEvent = events.ChangeEvent
+type OnChange = events.OnChange
 
 const (
-	SourceFormSubmit Source = iota
-	SourceFileChange
-	SourceManual
+	SourceFormSubmit = events.SourceFormSubmit
+	SourceFileChange = events.SourceFileChange
+	SourceManual     = events.SourceManual
 )
-
-// ChangeEvent describes a config change that occurred.
-type ChangeEvent struct {
-	Source Source
-	Path   string
-}
-
-// OnChange is called when the config changes.
-type OnChange func(ChangeEvent)

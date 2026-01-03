@@ -5,9 +5,10 @@ import (
 	"time"
 )
 
-// SaveFunc is called to persist config changes.
-// When not provided, the default YAML file write is used.
+// SaveFunc is called to persist configuration changes.
+// Matches circuit.SaveFunc via structural typing.
 type SaveFunc func(cfg any, path string) error
+
 type Store struct {
 	path     string
 	cfg      any

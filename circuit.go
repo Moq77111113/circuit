@@ -51,17 +51,21 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 		return nil, fmt.Errorf("extract schema: %w", err)
 	}
 
+	syncOpts := []sync.Option{
+		sync.WithOnChange(conf.onChange),
+		sync.WithOnError(conf.onError),
+		sync.WithAutoApply(conf.autoApply),
+		sync.WithAutoSave(conf.autoSave),
+	}
+	if conf.saveFunc != nil {
+		syncOpts = append(syncOpts, sync.WithSaveFunc(sync.SaveFunc(conf.saveFunc)))
+	}
+
 	store, err := sync.Load(sync.Config{
 		Path:       conf.path,
 		Cfg:        cfg,
 		AutoReload: conf.autoReload,
-		Options: []sync.Option{
-			sync.WithOnChange(conf.onChange),
-			sync.WithOnError(conf.onError),
-			sync.WithAutoApply(conf.autoApply),
-			sync.WithAutoSave(conf.autoSave),
-			sync.WithSaveFunc(conf.saveFunc),
-		},
+		Options:    syncOpts,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
@@ -74,8 +78,8 @@ func From(cfg any, opts ...Option) (*Handler, error) {
 			Label:               a.Label,
 			Description:         a.Description,
 			Run:                 a.Run,
-			Timeout:             a.timeout,
-			RequireConfirmation: a.requireConfirmation,
+			Timeout:             a.Timeout,
+			RequireConfirmation: a.RequireConfirmation,
 		}
 	}
 

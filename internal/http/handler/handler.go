@@ -9,6 +9,19 @@ import (
 	"github.com/moq77111113/circuit/internal/sync"
 )
 
+// Authenticator is the interface required by the handler.
+// Matches circuit.Authenticator via structural typing.
+type Authenticator interface {
+	Authenticate(r *http.Request) (*auth.Identity, error)
+}
+
+// noneAuth is a no-op authenticator that always succeeds.
+type noneAuth struct{}
+
+func (noneAuth) Authenticate(r *http.Request) (*auth.Identity, error) {
+	return &auth.Identity{Subject: "anonymous"}, nil
+}
+
 // Handler serves the config UI over HTTP.
 type Handler struct {
 	schema        ast.Schema
@@ -18,7 +31,7 @@ type Handler struct {
 	brand         bool
 	readOnly      bool
 	store         *sync.Store
-	authenticator auth.Authenticator
+	authenticator Authenticator
 	actions       []actions.Def
 }
 
@@ -31,14 +44,14 @@ type Config struct {
 	Brand         bool
 	ReadOnly      bool
 	Store         *sync.Store
-	Authenticator auth.Authenticator
+	Authenticator Authenticator
 	Actions       []actions.Def
 }
 
 // New creates a new HTTP handler for the config UI.
 func New(c Config) *Handler {
 	if c.Authenticator == nil {
-		c.Authenticator = auth.None{}
+		c.Authenticator = noneAuth{}
 	}
 	return &Handler{
 		schema:        c.Schema,

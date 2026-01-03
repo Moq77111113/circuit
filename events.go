@@ -1,15 +1,18 @@
 package circuit
 
-import "github.com/moq77111113/circuit/internal/sync"
+import "github.com/moq77111113/circuit/internal/events"
 
-type Source = sync.Source
+// Source indicates where a configuration change originated.
+type Source = events.Source
 
 const (
-	SourceFormSubmit = sync.SourceFormSubmit
-	SourceFileChange = sync.SourceFileChange
-	SourceManual     = sync.SourceManual
+	SourceFormSubmit = events.SourceFormSubmit
+	SourceFileChange = events.SourceFileChange
+	SourceManual     = events.SourceManual
 )
 
-type ChangeEvent = sync.ChangeEvent
+// ChangeEvent describes a configuration change.
+type ChangeEvent = events.ChangeEvent
 
-type OnChange = sync.OnChange
+// OnChange is called when configuration changes.
+type OnChange = events.OnChange
