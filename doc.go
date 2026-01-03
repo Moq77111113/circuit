@@ -19,17 +19,31 @@
 //	    circuit.WithPath("/etc/myapp/config.yaml"),
 //	    circuit.WithTitle("My App Config"),
 //	    circuit.WithAuth(circuit.NewBasicAuth("admin", "password")),
-//	    circuit.OnApply(func(){ log.Println("config reloaded") }),
+//	    circuit.WithOnChange(func(e circuit.ChangeEvent) {
+//	        log.Println("config reloaded from", e.Source)
+//	    }),
 //	)
 //	if err != nil {
 //	    // handle error
 //	}
 //	http.Handle("/config", h)
 //
+// Example (with actions):
+//
+//	restart := circuit.NewAction("restart", "Restart Service", func(ctx context.Context) error {
+//	    return service.Restart(ctx)
+//	}).Describe("Restart the application service").Confirm().WithTimeout(30 * time.Second)
+//
+//	h, err := circuit.From(cfg,
+//	    circuit.WithPath("config.yaml"),
+//	    circuit.WithActions(restart),
+//	)
+//
 // Notes:
 //   - `cfg` must be a pointer to a struct; the package uses reflection to
 //     extract schema metadata from struct tags.
 //   - `WithPath` is required so the loader can read the initial YAML file.
 //   - The returned handler delegates to an internal loader which watches the
-//     file for changes; provide `OnApply` to be notified after successful reloads.
+//     file for changes; provide `WithOnChange` to be notified after successful reloads.
+//   - Actions are created with NewAction(name, label, run) and configured via fluent methods.
 package circuit

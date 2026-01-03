@@ -1,12 +1,8 @@
 package circuit
 
-import (
-	"github.com/moq77111113/circuit/internal/auth"
-	"github.com/moq77111113/circuit/internal/sync"
-)
-
-// SaveFunc is called to persist config changes.s
-type SaveFunc = sync.SaveFunc
+// SaveFunc is called to persist configuration changes.
+// Receives the current config value and path, returns error if persistence fails.
+type SaveFunc func(cfg any, path string) error
 
 // Option configures behavior passed to `From`.
 type Option func(*config)
@@ -22,7 +18,7 @@ type config struct {
 	autoApply     bool
 	autoSave      bool
 	saveFunc      SaveFunc
-	authenticator auth.Authenticator
+	authenticator Authenticator
 	actions       []Action
 }
 
@@ -57,6 +53,8 @@ func WithOnChange(fn OnChange) Option {
 	}
 }
 
+// WithOnError registers a callback for errors during file watch or auto-reload.
+// Useful for logging or alerting when config updates fail.
 func WithOnError(fn func(error)) Option {
 	return func(c *config) {
 		c.onError = fn
@@ -82,6 +80,7 @@ func WithAuth(a Authenticator) Option {
 
 // WithAutoApply controls whether POST automatically updates in-memory config.
 // If false: POST renders preview form with submitted values (doesn't modify memory).
+// Use handler.Apply(formData) to manually confirm changes after review.
 func WithAutoApply(enable bool) Option {
 	return func(c *config) {
 		c.autoApply = enable
@@ -89,7 +88,8 @@ func WithAutoApply(enable bool) Option {
 }
 
 // WithAutoSave controls whether changes trigger disk persistence.
-// If false: memory update happens, but no disk save. User must call Save() manually.
+// If false: memory update happens, but no disk save.
+// Use handler.Save() to manually persist changes when ready.
 func WithAutoSave(enable bool) Option {
 	return func(c *config) {
 		c.autoSave = enable

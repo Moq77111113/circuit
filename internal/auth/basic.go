@@ -4,6 +4,8 @@ import (
 	"crypto/subtle"
 	"fmt"
 	"net/http"
+
+	"github.com/moq77111113/circuit/internal/crypto"
 )
 
 // Basic authenticates via HTTP Basic Auth.
@@ -23,8 +25,8 @@ func (b Basic) Authenticate(r *http.Request) (*Identity, error) {
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	if isArgon2(b.Password) {
-		if !verifyArgon2(b.Password, password) {
+	if crypto.IsArgon2(b.Password) {
+		if !crypto.VerifyArgon2(b.Password, password) {
 			return nil, fmt.Errorf("invalid credentials")
 		}
 	} else {
