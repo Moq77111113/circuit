@@ -12,6 +12,9 @@ type UIMetadata struct {
 	Min         string
 	Max         string
 	Step        string
+	Pattern     string
+	MinLen      int
+	MaxLen      int
 	Options     []tags.Option
 }
 

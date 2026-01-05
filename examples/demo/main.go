@@ -27,12 +27,12 @@ type Config struct {
 }
 
 type ServiceConfig struct {
-	Name string `yaml:"name" circuit:"type:text,help:Service name shown in responses,required"`
+	Name string `yaml:"name" circuit:"type:text,help:Service name shown in responses,required,minlen:2,maxlen:50,pattern:^[a-z][a-z0-9-]*$"`
 	Env  string `yaml:"env" circuit:"type:select,readonly,options:dev=Development;staging=Staging;prod=Production,help:Environment label"`
 }
 
 type HTTPConfig struct {
-	PublicMessage string   `yaml:"public_message" circuit:"type:text,help:Message returned by the public endpoint"`
+	PublicMessage string   `yaml:"public_message" circuit:"type:text,help:Message returned by the public endpoint,maxlen:200"`
 	AllowedCIDRs  []string `yaml:"allowed_cidrs" circuit:"type:text,help:Optional allowlist for /api (CIDR notation). Empty = allow all"`
 }
 
@@ -40,7 +40,7 @@ type OpsConfig struct {
 	LogLevel       string  `yaml:"log_level" circuit:"type:select,options:debug=Debug;info=Info;warn=Warning;error=Error,help:Controls server logging verbosity"`
 	RequestSample  float64 `yaml:"request_sample" circuit:"type:number,min:0,max:1,step:0.05,help:Percentage of requests to log (0-1)"`
 	Maintenance    bool    `yaml:"maintenance" circuit:"type:checkbox,help:If enabled, /api returns 503 but /admin remains accessible"`
-	MaintenanceMsg string  `yaml:"maintenance_message" circuit:"type:text,help:Message shown during maintenance"`
+	MaintenanceMsg string  `yaml:"maintenance_message" circuit:"type:text,help:Message shown during maintenance,maxlen:150"`
 }
 
 type LimitsConfig struct {
@@ -49,14 +49,14 @@ type LimitsConfig struct {
 }
 
 type Backend struct {
-	Name    string `yaml:"name" circuit:"type:text,required,help:Backend name"`
-	URL     string `yaml:"url" circuit:"type:text,required,help:Backend base URL"`
+	Name    string `yaml:"name" circuit:"type:text,required,help:Backend name,minlen:2,maxlen:30,pattern:^[a-z][a-z0-9-]*$"`
+	URL     string `yaml:"url" circuit:"type:url,required,help:Backend base URL,pattern:url"`
 	Weight  int    `yaml:"weight" circuit:"type:number,min:1,max:100,help:Relative weight (used by apps that do weighted routing)"`
 	Enabled bool   `yaml:"enabled" circuit:"type:checkbox,help:Enable/disable this backend"`
 }
 
 type Flag struct {
-	Key     string `yaml:"key" circuit:"type:text,required,help:Feature flag key"`
+	Key     string `yaml:"key" circuit:"type:text,required,help:Feature flag key,minlen:2,maxlen:50,pattern:^[a-z][a-z0-9_-]*$"`
 	Enabled bool   `yaml:"enabled" circuit:"type:checkbox,help:Feature flag state"`
 }
 

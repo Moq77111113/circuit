@@ -23,6 +23,9 @@ func fromField(f tags.Field) Node {
 			Min:       f.Min,
 			Max:       f.Max,
 			Step:      f.Step,
+			Pattern:   f.Pattern,
+			MinLen:    f.MinLen,
+			MaxLen:    f.MaxLen,
 			Options:   f.Options,
 		},
 	}

@@ -211,6 +211,12 @@ input[type="range"] {
   margin-top: var(--s-xs);
 }
 
+.field__error {
+  font-size: var(--fs-xs);
+  color: var(--c-danger);
+  margin-top: var(--s-xs);
+}
+
 /* Button */
 .button {
   display: inline-flex;

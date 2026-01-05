@@ -414,3 +414,60 @@ func TestExtract_ReadonlyField(t *testing.T) {
 		t.Error("expected ReadOnly to be false")
 	}
 }
+
+func TestExtract_ValidationTags(t *testing.T) {
+	type Config struct {
+		Email    string `circuit:"pattern:email,required"`
+		Username string `circuit:"minlen:3,maxlen:20,pattern:^[a-z0-9_]+$"`
+		Phone    string `circuit:"pattern:phone"`
+		Bio      string `circuit:"maxlen:500"`
+		Website  string `circuit:"pattern:url"`
+	}
+
+	cfg := Config{}
+	fields, err := Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(fields) != 5 {
+		t.Fatalf("expected 5 fields, got %d", len(fields))
+	}
+
+	email := fields[0]
+	if email.Pattern != "email" {
+		t.Errorf("expected pattern 'email', got %s", email.Pattern)
+	}
+	if !email.Required {
+		t.Error("expected required to be true")
+	}
+
+	username := fields[1]
+	if username.MinLen != 3 {
+		t.Errorf("expected minlen 3, got %d", username.MinLen)
+	}
+	if username.MaxLen != 20 {
+		t.Errorf("expected maxlen 20, got %d", username.MaxLen)
+	}
+	if username.Pattern != "^[a-z0-9_]+$" {
+		t.Errorf("expected pattern '^[a-z0-9_]+$', got %s", username.Pattern)
+	}
+
+	phone := fields[2]
+	if phone.Pattern != "phone" {
+		t.Errorf("expected pattern 'phone', got %s", phone.Pattern)
+	}
+
+	bio := fields[3]
+	if bio.MaxLen != 500 {
+		t.Errorf("expected maxlen 500, got %d", bio.MaxLen)
+	}
+	if bio.MinLen != 0 {
+		t.Errorf("expected minlen 0 (default), got %d", bio.MinLen)
+	}
+
+	website := fields[4]
+	if website.Pattern != "url" {
+		t.Errorf("expected pattern 'url', got %s", website.Pattern)
+	}
+}

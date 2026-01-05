@@ -264,3 +264,149 @@ func TestValidate_MinMaxConstraints(t *testing.T) {
 		}
 	})
 }
+
+func TestValidate_StringLengthConstraints(t *testing.T) {
+	schema := node.Schema{
+		Name: "Config",
+		Nodes: []node.Node{
+			{
+				Name:      "Username",
+				Kind:      node.KindPrimitive,
+				ValueType: node.ValueString,
+				UI: &node.UIMetadata{
+					MinLen: 3,
+					MaxLen: 20,
+				},
+			},
+		},
+	}
+
+	t.Run("value too short", func(t *testing.T) {
+		form := url.Values{}
+		form.Set("Username", "ab")
+
+		result := Validate(schema, form)
+
+		if result.Valid {
+			t.Error("expected Valid to be false")
+		}
+		if len(result.Errors) != 1 {
+			t.Fatalf("expected 1 error, got %d", len(result.Errors))
+		}
+		if result.Errors[0].Field != "Username" {
+			t.Errorf("expected error for Username, got %s", result.Errors[0].Field)
+		}
+	})
+
+	t.Run("value too long", func(t *testing.T) {
+		form := url.Values{}
+		form.Set("Username", "this_is_way_too_long_username")
+
+		result := Validate(schema, form)
+
+		if result.Valid {
+			t.Error("expected Valid to be false")
+		}
+		if len(result.Errors) != 1 {
+			t.Fatalf("expected 1 error, got %d", len(result.Errors))
+		}
+	})
+
+	t.Run("value in range", func(t *testing.T) {
+		form := url.Values{}
+		form.Set("Username", "validuser")
+
+		result := Validate(schema, form)
+
+		if !result.Valid {
+			t.Errorf("expected Valid to be true, got errors: %v", result.Errors)
+		}
+		if len(result.Errors) != 0 {
+			t.Errorf("expected 0 errors, got %d", len(result.Errors))
+		}
+	})
+}
+
+func TestValidate_PatternConstraints(t *testing.T) {
+	t.Run("email preset", func(t *testing.T) {
+		schema := node.Schema{
+			Name: "Config",
+			Nodes: []node.Node{
+				{
+					Name:      "Email",
+					Kind:      node.KindPrimitive,
+					ValueType: node.ValueString,
+					UI: &node.UIMetadata{
+						Pattern: "email",
+					},
+				},
+			},
+		}
+
+		t.Run("valid email", func(t *testing.T) {
+			form := url.Values{}
+			form.Set("Email", "user@example.com")
+
+			result := Validate(schema, form)
+
+			if !result.Valid {
+				t.Errorf("expected Valid to be true, got errors: %v", result.Errors)
+			}
+		})
+
+		t.Run("invalid email", func(t *testing.T) {
+			form := url.Values{}
+			form.Set("Email", "not-an-email")
+
+			result := Validate(schema, form)
+
+			if result.Valid {
+				t.Error("expected Valid to be false")
+			}
+			if len(result.Errors) != 1 {
+				t.Fatalf("expected 1 error, got %d", len(result.Errors))
+			}
+		})
+	})
+
+	t.Run("custom regex", func(t *testing.T) {
+		schema := node.Schema{
+			Name: "Config",
+			Nodes: []node.Node{
+				{
+					Name:      "Code",
+					Kind:      node.KindPrimitive,
+					ValueType: node.ValueString,
+					UI: &node.UIMetadata{
+						Pattern: "^[A-Z]{2}[0-9]{4}$",
+					},
+				},
+			},
+		}
+
+		t.Run("valid code", func(t *testing.T) {
+			form := url.Values{}
+			form.Set("Code", "AB1234")
+
+			result := Validate(schema, form)
+
+			if !result.Valid {
+				t.Errorf("expected Valid to be true, got errors: %v", result.Errors)
+			}
+		})
+
+		t.Run("invalid code", func(t *testing.T) {
+			form := url.Values{}
+			form.Set("Code", "invalid")
+
+			result := Validate(schema, form)
+
+			if result.Valid {
+				t.Error("expected Valid to be false")
+			}
+			if len(result.Errors) != 1 {
+				t.Fatalf("expected 1 error, got %d", len(result.Errors))
+			}
+		})
+	})
+}

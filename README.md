@@ -9,6 +9,10 @@ Stop SSH’ing into servers. Change config and trigger actions safely, in-proces
 
 Circuit does not manage users, orchestrate multiple services, or act as a distributed system.
 
+## Demo 
+
+A demo is available at [https://circuit.up.railway.app/](https://circuit.up.railway.app/), use credentials: admin / admin.
+
 ## The Pitch
 
 You have a Go service running somewhere. You want to tweak a log level, flip a feature flag, or update a rate limit.

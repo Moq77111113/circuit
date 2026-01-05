@@ -2,9 +2,11 @@ package inputs
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/moq77111113/circuit/internal/tags"
 	"github.com/moq77111113/circuit/internal/ui/styles"
+	"github.com/moq77111113/circuit/internal/validation"
 	g "maragu.dev/gomponents"
 	h "maragu.dev/gomponents/html"
 )
@@ -30,6 +32,22 @@ func simpleInput(field tags.Field, value any, inputType string) g.Node {
 	if value != nil {
 		attrs = append(attrs, h.Value(fmt.Sprintf("%v", value)))
 	}
+
+	// HTML5 validation attributes
+	if field.Pattern != "" {
+		pattern := field.Pattern
+		if preset, ok := validation.GetPreset(field.Pattern); ok {
+			pattern = preset
+		}
+		attrs = append(attrs, g.Attr("pattern", pattern))
+	}
+	if field.MinLen > 0 {
+		attrs = append(attrs, g.Attr("minlength", strconv.Itoa(field.MinLen)))
+	}
+	if field.MaxLen > 0 {
+		attrs = append(attrs, g.Attr("maxlength", strconv.Itoa(field.MaxLen)))
+	}
+
 	return h.Input(append(attrs, h.Type(inputType))...)
 }
 
