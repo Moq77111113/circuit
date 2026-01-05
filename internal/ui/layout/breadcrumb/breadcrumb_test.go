@@ -15,7 +15,7 @@ func TestRenderBreadcrumb_Root(t *testing.T) {
 		{Name: "AppName", Kind: ast.KindPrimitive},
 	}
 
-	html := RenderBreadcrumb(path.Root(), nodes)
+	html := RenderBreadcrumb(path.Root(), nodes, "/")
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Config") {
@@ -33,7 +33,7 @@ func TestRenderBreadcrumb_OneLevelDeep(t *testing.T) {
 	}
 
 	currentPath := path.Root().Child("Database")
-	html := RenderBreadcrumb(currentPath, nodes)
+	html := RenderBreadcrumb(currentPath, nodes, "/")
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Config") {
@@ -61,7 +61,7 @@ func TestRenderBreadcrumb_DeepNesting(t *testing.T) {
 	}
 
 	currentPath := path.Root().Child("Server").Child("RateLimit")
-	html := RenderBreadcrumb(currentPath, nodes)
+	html := RenderBreadcrumb(currentPath, nodes, "/")
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Config") {
@@ -87,7 +87,7 @@ func TestRenderBreadcrumb_SliceItem(t *testing.T) {
 	}
 
 	currentPath := path.Root().Child("Services").Index(0)
-	html := RenderBreadcrumb(currentPath, nodes)
+	html := RenderBreadcrumb(currentPath, nodes, "/")
 	result := renderToString(html)
 
 	if !strings.Contains(result, "Services") {

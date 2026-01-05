@@ -31,11 +31,16 @@ func RenderTree(rc *render.RenderContext) g.Node {
 	walker := walk.NewWalker(visitor)
 	_ = walker.WalkWithContext(tree, state, rc)
 
+	basePath := rc.HTTPBasePath
+	if basePath == "" {
+		basePath = "/"
+	}
+
 	return h.Div(
 		h.Class("sidebar-tree"),
 		h.Div(
 			h.Class("tree-root"),
-			h.A(h.Class("nav__link"), h.Href("/"),
+			h.A(h.Class("nav__link"), h.Href(basePath),
 				g.Text("Config"),
 			),
 		),

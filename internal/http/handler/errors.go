@@ -15,9 +15,11 @@ func (h *Handler) renderWithErrors(w http.ResponseWriter, r *http.Request, resul
 	mergedValues := validation.MergeFormValues(h.schema.Nodes, configValues, r.Form)
 
 	focusPath := extractFocusPath(r)
+	httpBasePath := extractHTTPBasePath(r)
 
 	rc := render.NewRenderContext(&h.schema, mergedValues)
 	rc.Focus = focusPath
+	rc.HTTPBasePath = httpBasePath
 	rc.ReadOnly = h.readOnly
 	rc.Errors = result
 

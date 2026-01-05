@@ -26,11 +26,13 @@ func (h *Handler) executeAction(w http.ResponseWriter, r *http.Request, actionNa
 		return
 	}
 
+	basePath := extractHTTPBasePath(r)
+
 	if err := actions.Execute(r.Context(), *found); err != nil {
 		errMsg := url.QueryEscape(err.Error())
-		http.Redirect(w, r, "/?error="+errMsg, http.StatusSeeOther)
+		http.Redirect(w, r, basePath+"?error="+errMsg, http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, basePath, http.StatusSeeOther)
 }

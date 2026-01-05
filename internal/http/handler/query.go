@@ -13,3 +13,9 @@ func extractFocusPath(r *http.Request) path.Path {
 	}
 	return path.ParsePath(focusParam)
 }
+
+// extractHTTPBasePath returns the base path where the handler is mounted.
+// For example, if the handler is at /config, this returns "/config".
+func extractHTTPBasePath(r *http.Request) string {
+	return r.URL.Path
+}

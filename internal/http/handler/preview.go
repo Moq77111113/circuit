@@ -21,10 +21,12 @@ func (h *Handler) renderPreview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	focusPath := extractFocusPath(r)
+	httpBasePath := extractHTTPBasePath(r)
 
 	// Create RenderContext
 	rc := render.NewRenderContext(&h.schema, values)
 	rc.Focus = focusPath
+	rc.HTTPBasePath = httpBasePath
 	rc.ReadOnly = h.readOnly
 
 	// Create PageContext with preview banner
@@ -70,12 +72,12 @@ func previewBanner(formData map[string][]string) g.Node {
 					h.Type("submit"),
 					h.Name("action"),
 					h.Value("confirm"),
-					h.Class("btn btn-primary"),
+					h.Class("button button--primary"),
 					g.Text("Confirm Changes"),
 				),
 				h.A(
 					h.Href("?"),
-					h.Class("btn btn-secondary"),
+					h.Class("button button--secondary"),
 					g.Text("Cancel"),
 				),
 			),

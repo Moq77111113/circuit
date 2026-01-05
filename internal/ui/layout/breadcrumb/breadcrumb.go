@@ -10,11 +10,15 @@ import (
 	"github.com/moq77111113/circuit/internal/ast/path"
 )
 
-func RenderBreadcrumb(currentPath path.Path, nodes []ast.Node) g.Node {
+func RenderBreadcrumb(currentPath path.Path, nodes []ast.Node, httpBasePath string) g.Node {
+	if httpBasePath == "" {
+		httpBasePath = "/"
+	}
+
 	segments := currentPath.Segments()
 
 	var items []g.Node
-	items = append(items, renderRootLink())
+	items = append(items, renderRootLink(httpBasePath))
 
 	if len(segments) == 0 {
 		return h.Nav(h.Class("breadcrumb"), g.Group(items))
@@ -37,9 +41,9 @@ func RenderBreadcrumb(currentPath path.Path, nodes []ast.Node) g.Node {
 	return h.Nav(h.Class("breadcrumb"), g.Group(items))
 }
 
-func renderRootLink() g.Node {
+func renderRootLink(httpBasePath string) g.Node {
 	return h.A(
-		h.Href("/"),
+		h.Href(httpBasePath),
 		h.Class("breadcrumb__link breadcrumb__link--root"),
 		g.Text("Config"),
 	)

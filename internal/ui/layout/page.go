@@ -24,7 +24,7 @@ func Page(pc *PageContext) g.Node {
 	bodyContent = append(bodyContent, pc.TopContent...)
 
 	mainContent := []g.Node{
-		breadcrumb.RenderBreadcrumb(pc.Focus, pc.Schema.Nodes),
+		breadcrumb.RenderBreadcrumb(pc.Focus, pc.Schema.Nodes, pc.HTTPBasePath),
 		renderHeader(title, pc.Actions, pc.ReadOnly),
 	}
 
