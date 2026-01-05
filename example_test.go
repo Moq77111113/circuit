@@ -27,7 +27,11 @@ func ExampleFrom_minimal() {
 	tmpDir := os.TempDir()
 	configPath := filepath.Join(tmpDir, "example_minimal.yaml")
 	_ = os.WriteFile(configPath, []byte("host: localhost\nport: 8080\ntls: false\n"), 0644)
-	defer os.Remove(configPath)
+	defer func() {
+		if err := os.Remove(configPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("failed to remove %s: %v", configPath, err)
+		}
+	}()
 
 	var cfg Config
 
@@ -67,7 +71,11 @@ func ExampleFrom_auth() {
 	tmpDir := os.TempDir()
 	configPath := filepath.Join(tmpDir, "example_auth.yaml")
 	_ = os.WriteFile(configPath, []byte("host: localhost\nport: 8080\n"), 0644)
-	defer os.Remove(configPath)
+	defer func() {
+		if err := os.Remove(configPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("failed to remove %s: %v", configPath, err)
+		}
+	}()
 
 	var cfg Config
 
@@ -116,7 +124,11 @@ func ExampleFrom_actions() {
 	tmpDir := os.TempDir()
 	configPath := filepath.Join(tmpDir, "example_actions.yaml")
 	_ = os.WriteFile(configPath, []byte("cache_size: 100\n"), 0644)
-	defer os.Remove(configPath)
+	defer func() {
+		if err := os.Remove(configPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("failed to remove %s: %v", configPath, err)
+		}
+	}()
 
 	var cfg Config
 
@@ -163,7 +175,11 @@ func ExampleFrom_onChange() {
 	tmpDir := os.TempDir()
 	configPath := filepath.Join(tmpDir, "example_onchange.yaml")
 	_ = os.WriteFile(configPath, []byte("workers: 4\n"), 0644)
-	defer os.Remove(configPath)
+	defer func() {
+		if err := os.Remove(configPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("failed to remove %s: %v", configPath, err)
+		}
+	}()
 
 	var cfg Config
 
@@ -198,7 +214,11 @@ func ExampleNewForwardAuth() {
 	tmpDir := os.TempDir()
 	configPath := filepath.Join(tmpDir, "example_forward.yaml")
 	_ = os.WriteFile(configPath, []byte("setting: value\n"), 0644)
-	defer os.Remove(configPath)
+	defer func() {
+		if err := os.Remove(configPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("failed to remove %s: %v", configPath, err)
+		}
+	}()
 
 	var cfg Config
 
