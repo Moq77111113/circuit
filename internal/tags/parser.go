@@ -1,15 +1,29 @@
 package tags
 
 import (
+	"strconv"
 	"strings"
 )
 
 var tagHandlers = map[string]func(*Field, string){
-	"type": func(f *Field, v string) { f.InputType = InputType(v) },
-	"help": func(f *Field, v string) { f.Help = v },
-	"min":  func(f *Field, v string) { f.Min = v },
-	"max":  func(f *Field, v string) { f.Max = v },
-	"step": func(f *Field, v string) { f.Step = v },
+	"type":    func(f *Field, v string) { f.InputType = InputType(v) },
+	"help":    func(f *Field, v string) { f.Help = v },
+	"min":     func(f *Field, v string) { f.Min = v },
+	"max":     func(f *Field, v string) { f.Max = v },
+	"step":    func(f *Field, v string) { f.Step = v },
+	"pattern": func(f *Field, v string) { f.Pattern = v },
+	"minlen": func(f *Field, v string) {
+		n, err := strconv.Atoi(v)
+		if err == nil && n >= 0 {
+			f.MinLen = n
+		}
+	},
+	"maxlen": func(f *Field, v string) {
+		n, err := strconv.Atoi(v)
+		if err == nil && n >= 0 {
+			f.MaxLen = n
+		}
+	},
 	"options": func(f *Field, v string) {
 		opts := strings.SplitSeq(v, ";")
 		for opt := range opts {
