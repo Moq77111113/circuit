@@ -31,6 +31,9 @@ func renderInput(node *ast.Node, fieldName string, value any, rc *RenderContext)
 		Min:       node.UI.Min,
 		Max:       node.UI.Max,
 		Step:      node.UI.Step,
+		Pattern:   node.UI.Pattern,
+		MinLen:    node.UI.MinLen,
+		MaxLen:    node.UI.MaxLen,
 		Options:   node.UI.Options,
 	}
 
