@@ -24,6 +24,21 @@ func (v *ValidationVisitor) VisitPrimitive(ctx *walk.VisitContext, n *node.Node)
 		result.Valid = false
 	}
 
+	if err := validateMinLen(n, value, ctx.Path); err != nil {
+		result.Errors = append(result.Errors, *err)
+		result.Valid = false
+	}
+
+	if err := validateMaxLen(n, value, ctx.Path); err != nil {
+		result.Errors = append(result.Errors, *err)
+		result.Valid = false
+	}
+
+	if err := validatePattern(n, value, ctx.Path); err != nil {
+		result.Errors = append(result.Errors, *err)
+		result.Valid = false
+	}
+
 	if err := validateMinMax(n, value, ctx.Path); err != nil {
 		result.Errors = append(result.Errors, *err)
 		result.Valid = false
