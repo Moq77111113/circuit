@@ -10,7 +10,15 @@ import (
 )
 
 // Authenticator validates HTTP requests and returns identity information.
+//
 // Implementations must be safe for concurrent use.
+//
+// The Authenticate method is called on EVERY request to the Circuit handler.
+// Return an error to reject the request with 401 Unauthorized.
+//
+// Built-in implementations:
+//   - BasicAuth - HTTP Basic Authentication
+//   - ForwardAuth - Reverse proxy header authentication
 type Authenticator interface {
 	Authenticate(r *http.Request) (*auth.Identity, error)
 }
@@ -18,10 +26,23 @@ type Authenticator interface {
 // Identity represents an authenticated user.
 type Identity = auth.Identity
 
-// BasicAuth implements HTTP Basic Authentication.
+// BasicAuth implements HTTP Basic Authentication with support for plaintext
+// and argon2id hashed passwords.
+//
+// IMPORTANT: For production use, always use argon2id password hashes, not plaintext.
+// Plaintext passwords should ONLY be used in development/testing environments.
+//
+// Argon2id hashes are automatically detected by the "$argon2id$v=19$" prefix.
+// Circuit supports the PHC string format output by golang.org/x/crypto/argon2.
+//
+// Operational security recommendations:
+//   - Store credentials in a separate file (e.g., /etc/myapp/auth.conf)
+//   - Set file permissions to 0640 or stricter (readable only by app user)
+//   - Never store credentials in your config struct (they would be editable via Circuit UI)
+//   - Use environment variables or secret management systems in production
 type BasicAuth struct {
 	Username string
-	Password string // plaintext or argon2id hash
+	Password string // plaintext or argon2id PHC hash
 }
 
 // Authenticate validates Basic Auth credentials.
@@ -98,19 +119,33 @@ func NewForwardAuth(subjectHeader string, claimHeaders map[string]string) *Forwa
 
 // NewBasicAuth creates an authenticator that validates via HTTP Basic Auth.
 //
-// The password can be plaintext (for dev/testing) or argon2id PHC format (for production).
-// Argon2id hashes are auto-detected by the "$argon2id$" prefix.
+// The password can be:
+//   - Plaintext (for dev/testing ONLY) - never use in production
+//   - Argon2id PHC hash (for production) - auto-detected by "$argon2id$v=19$" prefix
 //
-// Example with plaintext (dev only):
+// Circuit supports argon2id hashes in PHC string format as output by the
+// golang.org/x/crypto/argon2 package. The hash format is:
 //
-//	auth := circuit.NewBasicAuth("admin", "password123")
-//	ui, _ := circuit.From(&cfg, WithAuth(auth))
+//	$argon2id$v=19$m=MEMORY,t=TIME,p=PARALLELISM$SALT$HASH
 //
-// Example with argon2id hash (production):
+// Example with plaintext (DEVELOPMENT ONLY):
 //
-//	// Generate hash: see plan for hash generation example
-//	auth := circuit.NewBasicAuth("admin", "$argon2id$v=19$m=65536,t=3,p=4$...")
-//	ui, _ := circuit.From(&cfg, WithAuth(auth))
+//	auth := circuit.NewBasicAuth("admin", "dev-password")
+//	ui, _ := circuit.From(&cfg, circuit.WithAuth(auth))
+//
+// Example with argon2id hash (PRODUCTION):
+//
+//	// Generate hash with: golang.org/x/crypto/argon2
+//	// Example hash:
+//	hash := "$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHQ$..."
+//	auth := circuit.NewBasicAuth("admin", hash)
+//	ui, _ := circuit.From(&cfg, circuit.WithAuth(auth))
+//
+// Operational security:
+//   - Never store credentials in your app's config struct
+//   - Store credentials in /etc/myapp/auth.conf with 0640 permissions
+//   - Use a secret management system (Vault, AWS Secrets Manager, etc.)
+//   - Rotate passwords regularly
 func NewBasicAuth(username, password string) *BasicAuth {
 	return &BasicAuth{
 		Username: username,
