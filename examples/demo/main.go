@@ -27,7 +27,7 @@ type Config struct {
 }
 
 type ServiceConfig struct {
-	Name string `yaml:"name" circuit:"type:text,help:Service name shown in responses,required,minlen:2,maxlen:50,pattern:^[a-z][a-z0-9\-]*$"`
+	Name string `yaml:"name" circuit:"type:text,help:Service name shown in responses,required,minlen:2,maxlen:50,pattern:^[a-z][a-z0-9-]*$"`
 	Env  string `yaml:"env" circuit:"type:select,readonly,options:dev=Development;staging=Staging;prod=Production,help:Environment label"`
 }
 
@@ -49,14 +49,14 @@ type LimitsConfig struct {
 }
 
 type Backend struct {
-	Name    string `yaml:"name" circuit:"type:text,required,help:Backend name,minlen:2,maxlen:30,pattern:^[a-z][a-z0-9\-]*$"`
+	Name    string `yaml:"name" circuit:"type:text,required,help:Backend name,minlen:2,maxlen:30,pattern:^[a-z][a-z0-9-]*$"`
 	URL     string `yaml:"url" circuit:"type:url,required,help:Backend base URL,pattern:url"`
 	Weight  int    `yaml:"weight" circuit:"type:number,min:1,max:100,help:Relative weight (used by apps that do weighted routing)"`
 	Enabled bool   `yaml:"enabled" circuit:"type:checkbox,help:Enable/disable this backend"`
 }
 
 type Flag struct {
-	Key     string `yaml:"key" circuit:"type:text,required,help:Feature flag key,minlen:2,maxlen:50,pattern:^[a-z][a-z0-9_\-]*$"`
+	Key     string `yaml:"key" circuit:"type:text,required,help:Feature flag key,minlen:2,maxlen:50,pattern:^[a-z][a-z0-9_-]*$"`
 	Enabled bool   `yaml:"enabled" circuit:"type:checkbox,help:Feature flag state"`
 }
 
