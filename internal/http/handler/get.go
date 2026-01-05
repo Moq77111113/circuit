@@ -17,10 +17,12 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	})
 
 	focusPath := extractFocusPath(r)
+	httpBasePath := extractHTTPBasePath(r)
 
 	// Create RenderContext
 	rc := render.NewRenderContext(&h.schema, values)
 	rc.Focus = focusPath
+	rc.HTTPBasePath = httpBasePath
 	rc.ReadOnly = h.readOnly
 
 	// Create PageContext

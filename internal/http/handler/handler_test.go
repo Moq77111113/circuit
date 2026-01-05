@@ -596,6 +596,176 @@ func TestHandler_ExecuteAction_ErrorDisplay(t *testing.T) {
 	}
 }
 
+func TestHandler_HTTPBasePath(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{Host: "localhost", Port: 8080}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := sync.Load(sync.Config{Path: path, Cfg: &cfg, AutoReload: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Stop()
+
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Store:  store,
+	})
+
+	// Test that GET request renders correct base path in breadcrumb and sidebar
+	req := httptest.NewRequest("GET", "/admin/config", nil)
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+
+	body := rec.Body.String()
+
+	// Check that breadcrumb root link uses the correct base path
+	if !strings.Contains(body, `href="/admin/config"`) {
+		t.Error("expected breadcrumb root link to use /admin/config base path")
+	}
+
+	// Check that sidebar Config link uses the correct base path
+	if !strings.Contains(body, `<a class="nav__link" href="/admin/config">`) {
+		t.Error("expected sidebar Config link to use /admin/config base path")
+	}
+}
+
+func TestHandler_HTTPBasePath_ActionRedirect(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := sync.Load(sync.Config{Path: path, Cfg: &cfg, AutoReload: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Stop()
+
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Store:  store,
+		Actions: []actions.Def{
+			{
+				Name:  "test-action",
+				Label: "Test Action",
+				Run: func(ctx context.Context) error {
+					return nil
+				},
+			},
+		},
+	})
+
+	// Test that action execution redirects to correct base path
+	form := url.Values{}
+	form.Set("action", "execute:test-action")
+	req := httptest.NewRequest("POST", "/admin/config", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect status %d, got %d", http.StatusSeeOther, rec.Code)
+	}
+
+	location := rec.Header().Get("Location")
+	if location != "/admin/config" {
+		t.Errorf("expected redirect to /admin/config, got %s", location)
+	}
+}
+
+func TestHandler_HTTPBasePath_ActionError(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.yaml")
+
+	cfg := TestConfig{}
+	err := os.WriteFile(path, []byte("host: localhost\nport: 8080"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	s, err := ast.Extract(&cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := sync.Load(sync.Config{Path: path, Cfg: &cfg, AutoReload: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Stop()
+
+	expectedErr := errors.New("something went wrong")
+	h := New(Config{
+		Schema: s,
+		Cfg:    &cfg,
+		Path:   path,
+		Title:  "Test",
+		Brand:  true,
+		Store:  store,
+		Actions: []actions.Def{
+			{
+				Name:  "failing-action",
+				Label: "Failing Action",
+				Run: func(ctx context.Context) error {
+					return expectedErr
+				},
+			},
+		},
+	})
+
+	// Test that action error redirects to correct base path with error param
+	form := url.Values{}
+	form.Set("action", "execute:failing-action")
+	req := httptest.NewRequest("POST", "/admin/config", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected redirect status %d, got %d", http.StatusSeeOther, rec.Code)
+	}
+
+	location := rec.Header().Get("Location")
+	if !strings.HasPrefix(location, "/admin/config?error=") {
+		t.Errorf("expected redirect to /admin/config?error=..., got %s", location)
+	}
+}
+
 func TestHandler_ActionsNotShownInReadOnly(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.yaml")

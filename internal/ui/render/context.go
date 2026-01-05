@@ -14,6 +14,9 @@ type RenderContext struct {
 	Values ast.ValuesByPath
 	Focus  path.Path
 
+	// HTTP context
+	HTTPBasePath string
+
 	// Render behavior
 	CollapseDepthThreshold int
 	ShowCardsAtDepth0      bool
