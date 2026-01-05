@@ -273,3 +273,45 @@ func TestFromTags_PreservesMetadata(t *testing.T) {
 		t.Error("version.UI.ReadOnly should be true")
 	}
 }
+
+func TestFromTags_ValidationMetadata(t *testing.T) {
+	fields := []tags.Field{
+		{
+			Name:      "Email",
+			Type:      "string",
+			InputType: tags.TypeEmail,
+			Pattern:   "email",
+			Required:  true,
+		},
+		{
+			Name:      "Username",
+			Type:      "string",
+			InputType: tags.TypeText,
+			MinLen:    3,
+			MaxLen:    20,
+			Pattern:   "^[a-z0-9_]+$",
+		},
+	}
+
+	nodes := FromTags(fields)
+
+	if len(nodes) != 2 {
+		t.Fatalf("len(nodes) = %d, want 2", len(nodes))
+	}
+
+	email := nodes[0]
+	if email.UI.Pattern != "email" {
+		t.Errorf("email.UI.Pattern = %s, want 'email'", email.UI.Pattern)
+	}
+
+	username := nodes[1]
+	if username.UI.MinLen != 3 {
+		t.Errorf("username.UI.MinLen = %d, want 3", username.UI.MinLen)
+	}
+	if username.UI.MaxLen != 20 {
+		t.Errorf("username.UI.MaxLen = %d, want 20", username.UI.MaxLen)
+	}
+	if username.UI.Pattern != "^[a-z0-9_]+$" {
+		t.Errorf("username.UI.Pattern = %s, want '^[a-z0-9_]+$'", username.UI.Pattern)
+	}
+}
