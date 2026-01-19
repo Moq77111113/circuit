@@ -27,6 +27,10 @@ func (h *Handler) renderWithErrors(w http.ResponseWriter, r *http.Request, resul
 	pc.Title = h.title
 	pc.Brand = h.brand
 
+	if first := result.FirstError(); first != nil {
+		pc.ErrorMessage = first.Message
+	}
+
 	page := layout.Page(pc)
 
 	w.WriteHeader(http.StatusUnprocessableEntity)
