@@ -327,6 +327,98 @@ func TestValidate_StringLengthConstraints(t *testing.T) {
 	})
 }
 
+func TestValidate_PartialFormSubmission(t *testing.T) {
+	// Schema has two fields: one at root level, one in nested struct
+	// Simulates partial form submission when focused on a specific section
+	schema := node.Schema{
+		Name: "Config",
+		Nodes: []node.Node{
+			{
+				Name:      "IntervalMS",
+				Kind:      node.KindPrimitive,
+				ValueType: node.ValueInt,
+				UI: &node.UIMetadata{
+					Min: "100",
+					Max: "60000",
+				},
+			},
+			{
+				Name: "UDP",
+				Kind: node.KindStruct,
+				Children: []node.Node{
+					{
+						Name:      "Host",
+						Kind:      node.KindPrimitive,
+						ValueType: node.ValueString,
+						UI: &node.UIMetadata{
+							Required: true,
+						},
+					},
+					{
+						Name:      "Port",
+						Kind:      node.KindPrimitive,
+						ValueType: node.ValueInt,
+						UI: &node.UIMetadata{
+							Min: "1",
+							Max: "65535",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	t.Run("only root fields submitted", func(t *testing.T) {
+		// User is on main page with cards, only submits root-level fields
+		form := url.Values{}
+		form.Set("IntervalMS", "1000")
+		// Note: UDP.Host is NOT in form (it's in a collapsed card)
+
+		result := Validate(schema, form)
+
+		if !result.Valid {
+			t.Errorf("expected Valid to be true, got errors: %v", result.Errors)
+		}
+		if len(result.Errors) != 0 {
+			t.Errorf("expected 0 errors (UDP.Host not in form), got %d", len(result.Errors))
+		}
+	})
+
+	t.Run("nested fields submitted", func(t *testing.T) {
+		// User is focused on UDP section, submits those fields
+		form := url.Values{}
+		form.Set("UDP.Host", "")
+		form.Set("UDP.Port", "8080")
+		// Note: IntervalMS is NOT in form
+
+		result := Validate(schema, form)
+
+		if result.Valid {
+			t.Error("expected Valid to be false (UDP.Host is required and empty)")
+		}
+		if len(result.Errors) != 1 {
+			t.Fatalf("expected 1 error (UDP.Host required), got %d", len(result.Errors))
+		}
+		if result.Errors[0].Path.String() != "UDP.Host" {
+			t.Errorf("expected error path 'UDP.Host', got '%s'", result.Errors[0].Path.String())
+		}
+	})
+
+	t.Run("full form submitted", func(t *testing.T) {
+		// All fields present and valid
+		form := url.Values{}
+		form.Set("IntervalMS", "1000")
+		form.Set("UDP.Host", "127.0.0.1")
+		form.Set("UDP.Port", "8080")
+
+		result := Validate(schema, form)
+
+		if !result.Valid {
+			t.Errorf("expected Valid to be true, got errors: %v", result.Errors)
+		}
+	})
+}
+
 func TestValidate_PatternConstraints(t *testing.T) {
 	t.Run("email preset", func(t *testing.T) {
 		schema := node.Schema{
