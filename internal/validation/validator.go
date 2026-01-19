@@ -17,6 +17,11 @@ func (v *ValidationVisitor) VisitPrimitive(ctx *walk.VisitContext, n *node.Node)
 	result := ctx.State.(*ValidationResult)
 
 	fieldPath := ctx.Path.String()
+
+	if !v.form.Has(fieldPath) {
+		return nil
+	}
+
 	value := v.form.Get(fieldPath)
 
 	if err := validateRequired(n, value, ctx.Path); err != nil {
