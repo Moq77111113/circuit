@@ -8,6 +8,19 @@ import (
 	"time"
 )
 
+// waitFor polls a condition with timeout. Returns true if condition was met.
+func waitFor(t *testing.T, timeout time.Duration, condition func() bool) bool {
+	t.Helper()
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		if condition() {
+			return true
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	return false
+}
+
 func TestLoad_InitialLoad(t *testing.T) {
 	type Cfg struct {
 		Port int `yaml:"port"`
@@ -85,14 +98,17 @@ func TestLoad_ReloadOnChange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Wait for reload
-	time.Sleep(300 * time.Millisecond)
-
-	manager.WithLock(func() {
-		port = cfg.Port
+	ok := waitFor(t, 2*time.Second, func() bool {
+		var p int
+		manager.WithLock(func() {
+			p = cfg.Port
+		})
+		return p == 9000
 	})
-
-	if port != 9000 {
+	if !ok {
+		manager.WithLock(func() {
+			port = cfg.Port
+		})
 		t.Errorf("expected port 9000 after reload, got %d", port)
 	}
 
@@ -237,32 +253,36 @@ func TestLoad_MultipleReloads(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(300 * time.Millisecond)
 
 	var host string
 	var port int
-	manager.WithLock(func() {
-		host = cfg.Host
-		port = cfg.Port
+	ok := waitFor(t, 2*time.Second, func() bool {
+		manager.WithLock(func() {
+			host = cfg.Host
+			port = cfg.Port
+		})
+		return host == "example.com" && port == 9000
 	})
-
-	if host != "example.com" || port != 9000 {
+	if !ok {
 		t.Errorf("expected example.com:9000, got %s:%d", host, port)
 	}
+
+	time.Sleep(150 * time.Millisecond)
 
 	// Second change
 	err = os.WriteFile(path, []byte("host: test.com\nport: 3000"), 0644)
 	if err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(300 * time.Millisecond)
 
-	manager.WithLock(func() {
-		host = cfg.Host
-		port = cfg.Port
+	ok = waitFor(t, 2*time.Second, func() bool {
+		manager.WithLock(func() {
+			host = cfg.Host
+			port = cfg.Port
+		})
+		return host == "test.com" && port == 3000
 	})
-
-	if host != "test.com" || port != 3000 {
+	if !ok {
 		t.Errorf("expected test.com:3000, got %s:%d", host, port)
 	}
 
